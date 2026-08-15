@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MR.RCT - EXECUTIVE VAULT v20</title>
+<title>MR.RCT - EXECUTIVE VAULT v22</title>
 
 <!-- Tailwind CSS -->
 <script src="https://cdn.tailwindcss.com"></script>
@@ -49,10 +49,15 @@ tailwind.config = {
         'gradient': 'gradient 8s ease infinite',
         'neon-pulse': 'neonPulse 2s ease-in-out infinite',
         'rotate-slow': 'rotateSlow 20s linear infinite',
-        'ping-slow': 'ping 3s cubic-bezier(0, 0, 0.2, 1) infinite',
         'bounce-subtle': 'bounceSubtle 3s ease-in-out infinite',
         'aurora': 'aurora 8s ease-in-out infinite',
-        'twinkle': 'twinkle 2s ease-in-out infinite'
+        'twinkle': 'twinkle 2s ease-in-out infinite',
+        'sonar-ping': 'sonarPing 2s ease-out infinite',
+        'scanline': 'scanline 8s linear infinite',
+        'glitch-text': 'glitchText 0.5s ease-in-out infinite',
+        'card-flip': 'cardFlip 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards',
+        'shockwave': 'shockwave 0.8s ease-out forwards',
+        'visualizer': 'visualizer 0.5s ease-in-out infinite alternate'
       },
       keyframes: {
         glowPulse: {
@@ -99,6 +104,34 @@ tailwind.config = {
         twinkle: {
           '0%, 100%': { opacity: 0.2 },
           '50%': { opacity: 0.8 }
+        },
+        sonarPing: {
+          '0%': { transform: 'scale(0.8)', opacity: '0.8' },
+          '100%': { transform: 'scale(2.5)', opacity: '0' }
+        },
+        scanline: {
+          '0%': { transform: 'translateY(-100%)' },
+          '100%': { transform: 'translateY(100vh)' }
+        },
+        glitchText: {
+          '0%': { transform: 'translate(0)' },
+          '20%': { transform: 'translate(-2px, 2px)' },
+          '40%': { transform: 'translate(2px, -2px)' },
+          '60%': { transform: 'translate(-1px, 1px)' },
+          '80%': { transform: 'translate(1px, -1px)' },
+          '100%': { transform: 'translate(0)' }
+        },
+        cardFlip: {
+          '0%': { transform: 'rotateY(0deg)' },
+          '100%': { transform: 'rotateY(180deg)' }
+        },
+        shockwave: {
+          '0%': { transform: 'scale(0.5)', opacity: '0.8' },
+          '100%': { transform: 'scale(3)', opacity: '0' }
+        },
+        visualizer: {
+          '0%': { transform: 'scaleY(0.3)' },
+          '100%': { transform: 'scaleY(1)' }
         }
       }
     }
@@ -124,6 +157,36 @@ tailwind.config = {
   transition: all 0.3s;
 }
 ::-webkit-scrollbar-thumb:hover { background: linear-gradient(180deg, #ffffff, #facc15); }
+
+/* ===== CRT SCANLINE OVERLAY ===== */
+#scanlineOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 9998;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 0, 0, 0.03) 2px,
+    rgba(0, 0, 0, 0.03) 4px
+  );
+  opacity: 0.3;
+}
+
+#scanlineOverlay::after {
+  content: '';
+  position: absolute;
+  top: -100%;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(180deg, transparent 0%, rgba(250, 204, 21, 0.01) 50%, transparent 100%);
+  animation: scanline 8s linear infinite;
+}
 
 /* ===== HD BACKGROUND LAYERS ===== */
 #bgLayer {
@@ -185,16 +248,16 @@ tailwind.config = {
   animation: aurora 8s ease-in-out infinite;
 }
 
-/* ===== HD PARTICLE CANVAS ===== */
-#particleCanvas {
+/* ===== INTERACTIVE PARTICLE MESH ===== */
+#particleMeshCanvas {
   position: fixed;
   top: 0;
   left: 0;
   width: 100vw;
   height: 100vh;
-  z-index: -3;
+  z-index: -2;
   pointer-events: none;
-  opacity: 0.9;
+  opacity: 0.7;
 }
 
 /* ===== GLOW ORBS (HD) ===== */
@@ -277,6 +340,27 @@ tailwind.config = {
   z-index: -2;
   background: white;
   animation: twinkle 2s ease-in-out infinite;
+}
+
+/* ===== CURSOR TRAIL ===== */
+.cursor-trail {
+  position: fixed;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 9999;
+  background: radial-gradient(circle, rgba(250, 204, 21, 0.3) 0%, transparent 70%);
+  transform: translate(-50%, -50%);
+  transition: width 0.1s, height 0.1s, opacity 0.5s;
+}
+
+/* ===== SHOCKWAVE EFFECT ===== */
+.shockwave-pulse {
+  position: fixed;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 9998;
+  border: 2px solid rgba(250, 204, 21, 0.6);
+  animation: shockwave 0.8s ease-out forwards;
 }
 
 /* ===== LOGIN SCREEN HD ===== */
@@ -362,7 +446,7 @@ tailwind.config = {
   animation: neonPulse 2s ease-in-out infinite;
 }
 
-/* ===== CARDS HD ===== */
+/* ===== CARDS HD WITH 3D TILT & FLIP ===== */
 .note-card {
   background: rgba(8, 12, 20, 0.85);
   backdrop-filter: blur(10px);
@@ -375,6 +459,9 @@ tailwind.config = {
   box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
   position: relative;
   overflow: hidden;
+  transform-style: preserve-3d;
+  perspective: 1000px;
+  min-height: 220px;
 }
 
 .note-card::before {
@@ -388,6 +475,21 @@ tailwind.config = {
   animation: shimmer 3s linear infinite;
 }
 
+.note-card::after {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: 24px;
+  background: linear-gradient(135deg, rgba(250,204,21,0.05), transparent, rgba(250,204,21,0.03));
+  z-index: -1;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.note-card:hover::after {
+  opacity: 1;
+}
+
 .note-card:hover {
   border-color: rgba(250, 204, 21, 0.3);
   box-shadow: 0 8px 60px rgba(250, 204, 21, 0.08), inset 0 0 30px rgba(250, 204, 21, 0.02);
@@ -399,6 +501,56 @@ tailwind.config = {
   transition: left 0.6s ease;
 }
 
+/* Card 3D Flip */
+.note-card .card-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  transform-style: preserve-3d;
+}
+
+.note-card.flipped .card-inner {
+  transform: rotateY(180deg);
+}
+
+.note-card .card-front,
+.note-card .card-back {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.note-card .card-back {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform: rotateY(180deg);
+  background: rgba(8, 12, 20, 0.95);
+  padding: 16px;
+  border-radius: 24px;
+  border: 1px solid rgba(250, 204, 21, 0.1);
+  justify-content: center;
+  align-items: center;
+}
+
+.flip-btn {
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+.flip-btn:hover {
+  transform: scale(1.2);
+  color: #facc15;
+}
+
+/* Card 3D Tilt effect */
+.note-card.tilt-effect {
+  transition: transform 0.1s ease;
+}
+
 /* ===== PASARAN ROW ===== */
 .pasaran-row {
   position: relative;
@@ -407,6 +559,17 @@ tailwind.config = {
   border-radius: 18px;
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   backdrop-filter: blur(10px);
+  overflow: hidden;
+}
+.pasaran-row::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 200%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(250, 204, 21, 0.2), transparent);
+  animation: shimmer 4s linear infinite;
 }
 .pasaran-row:hover {
   border-color: rgba(250, 204, 21, 0.25);
@@ -476,6 +639,22 @@ tailwind.config = {
   transition: all 0.3s ease;
   border-radius: 14px;
   padding: 10px 20px;
+  position: relative;
+  overflow: hidden;
+}
+.promo-tab::before {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #facc15, transparent);
+  transform: scaleX(0);
+  transition: transform 0.3s ease;
+}
+.promo-tab:hover::before {
+  transform: scaleX(1);
 }
 .promo-tab:hover {
   background: rgba(255,255,255,0.06);
@@ -487,6 +666,9 @@ tailwind.config = {
   border-color: #60a5fa;
   box-shadow: 0 4px 40px rgba(37, 99, 235, 0.2);
   animation: neonPulse 2s ease-in-out infinite;
+}
+.promo-tab.active::before {
+  transform: scaleX(1);
 }
 
 .editor-textarea {
@@ -600,30 +782,104 @@ tailwind.config = {
   background: radial-gradient(circle, rgba(250,204,21,0.1) 0%, transparent 70%);
   animation: rotateSlow 10s linear infinite;
 }
+
+/* ===== WEATHER WIDGET ===== */
+.weather-widget {
+  background: rgba(8, 12, 20, 0.8);
+  backdrop-filter: blur(15px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 18px;
+  padding: 16px 20px;
+  transition: all 0.3s ease;
+}
+.weather-widget:hover {
+  border-color: rgba(250, 204, 21, 0.2);
+  box-shadow: 0 0 30px rgba(250, 204, 21, 0.05);
+}
+
+/* ===== AUDIO VISUALIZER ===== */
+.visualizer-bar {
+  width: 4px;
+  background: linear-gradient(180deg, #facc15, #f59e0b);
+  border-radius: 2px;
+  transition: height 0.1s ease;
+}
+
+/* ===== SYSTEM METRICS HUD ===== */
+.metrics-hud {
+  background: rgba(8, 12, 20, 0.7);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  border-radius: 14px;
+  padding: 8px 16px;
+  font-size: 9px;
+  font-family: 'JetBrains Mono', monospace;
+  color: #94a3b8;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.metrics-hud .metric-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.metrics-hud .metric-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+}
+.metrics-hud .metric-dot.green { background: #22c55e; }
+.metrics-hud .metric-dot.yellow { background: #eab308; }
+.metrics-hud .metric-dot.red { background: #ef4444; }
+
+/* ===== GLITCH TEXT ===== */
+.glitch-text {
+  animation: glitchText 0.3s ease-in-out infinite;
+}
+.glitch-text:hover {
+  animation: glitchText 0.08s ease-in-out infinite;
+}
+
+/* ===== TAB TRANSITION ===== */
+.tab-transition-enter {
+  animation: slideIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+.tab-transition-exit {
+  animation: slideIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) reverse forwards;
+}
+
+/* ===== SPARKLE PARTICLES ===== */
+.sparkle-particle {
+  position: fixed;
+  pointer-events: none;
+  z-index: 9997;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(250, 204, 21, 0.8), transparent);
+  animation: sparkleFade 0.8s ease-out forwards;
+}
+@keyframes sparkleFade {
+  0% { transform: scale(1); opacity: 1; }
+  100% { transform: scale(0); opacity: 0; }
+}
 </style>
 </head>
 <body class="font-body bg-vault-bg text-slate-100 h-screen flex overflow-hidden select-none">
 
+<!-- ===== CRT SCANLINE OVERLAY ===== -->
+<div id="scanlineOverlay"></div>
+
 <!-- ===== HD BACKGROUND LAYERS ===== -->
 <div id="bgLayer">
-  <!-- Video Background -->
   <video id="bgVideo" autoplay muted loop playsinline>
     <source src="https://v1.pinimg.com/videos/iht/expMp4/52/6e/d0/526ed0d01eb8ff6377f4d9f0d1725481_720w.mp4" type="video/mp4">
   </video>
-  
-  <!-- Aurora Overlay -->
   <div id="auroraOverlay"></div>
-  
-  <!-- Neon Grid -->
   <div id="neonGrid"></div>
-  
-  <!-- Glow Orbs -->
   <div class="glow-orb glow-orb-1"></div>
   <div class="glow-orb glow-orb-2"></div>
   <div class="glow-orb glow-orb-3"></div>
   <div class="glow-orb glow-orb-4"></div>
-  
-  <!-- Floating CSS Particles -->
   <div class="floating-particle" style="width: 3px; height: 3px; top: 10%; left: 15%; animation-delay: 0s;"></div>
   <div class="floating-particle" style="width: 4px; height: 4px; top: 30%; left: 85%; animation-delay: -2s;"></div>
   <div class="floating-particle" style="width: 2px; height: 2px; top: 60%; left: 10%; animation-delay: -4s;"></div>
@@ -632,8 +888,6 @@ tailwind.config = {
   <div class="floating-particle" style="width: 4px; height: 4px; top: 15%; left: 65%; animation-delay: -5s;"></div>
   <div class="floating-particle" style="width: 2px; height: 2px; top: 70%; left: 30%; animation-delay: -6s;"></div>
   <div class="floating-particle" style="width: 3px; height: 3px; top: 90%; left: 55%; animation-delay: -2.5s;"></div>
-  
-  <!-- Stars -->
   <div class="star" style="width: 2px; height: 2px; top: 5%; left: 10%; animation-delay: 0s;"></div>
   <div class="star" style="width: 1px; height: 1px; top: 15%; left: 25%; animation-delay: -0.5s;"></div>
   <div class="star" style="width: 2px; height: 2px; top: 8%; left: 45%; animation-delay: -1s;"></div>
@@ -643,7 +897,7 @@ tailwind.config = {
   <div class="star" style="width: 1.5px; height: 1.5px; top: 25%; left: 5%; animation-delay: -1.2s;"></div>
   <div class="star" style="width: 2px; height: 2px; top: 18%; left: 55%; animation-delay: -0.6s;"></div>
 </div>
-<canvas id="particleCanvas"></canvas>
+<canvas id="particleMeshCanvas"></canvas>
 
 <!-- Hidden File Inputs -->
 <input type="file" id="directFileInput" accept="image/*" style="display: none;" onchange="handleDirectFileUpload(event)">
@@ -662,7 +916,7 @@ tailwind.config = {
   <header class="w-full flex justify-between items-center px-8 md:px-16 py-6 text-white relative z-10">
     <div class="text-3xl md:text-4xl font-black tracking-tighter flex items-center gap-3">
       <span class="text-yellow-400 text-4xl animate-pulse-slow">✦</span>
-      <span class="shimmer-text font-display text-4xl md:text-5xl">MR.RCT</span>
+      <span class="shimmer-text font-display text-4xl md:text-5xl glitch-text">MR.RCT</span>
     </div>
     <nav class="hidden md:flex gap-8 font-medium text-sm">
       <a href="#" class="hover:text-yellow-400 transition duration-300 relative group">
@@ -752,12 +1006,12 @@ tailwind.config = {
       <div class="w-14 h-14 rounded-2xl bg-black/60 border-2 border-yellow-400/40 flex items-center justify-center mx-auto mb-2.5 text-yellow-400 text-2xl shadow-inner animate-bounce-subtle">
         <i class="fas fa-crown"></i>
       </div>
-      <h2 class="font-master font-black text-sm text-white tracking-wider uppercase neon-glow">MR.RCT</h2>
+      <h2 class="font-master font-black text-sm text-white tracking-wider uppercase neon-glow glitch-text">MR.RCT</h2>
       <div class="flex items-center justify-center gap-2 mt-1.5">
         <span id="firebaseStatusDot" class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
         <span id="firebaseStatusText" class="text-[8px] font-master font-bold text-amber-500 uppercase tracking-[2px]">CONNECTING...</span>
       </div>
-      <div class="mt-2 text-[7px] font-master text-gray-500 tracking-[2px] uppercase animate-pulse">Executive Vault v20</div>
+      <div class="mt-2 text-[7px] font-master text-gray-500 tracking-[2px] uppercase animate-pulse">Executive Vault v22</div>
     </div>
   </div>
 
@@ -791,14 +1045,48 @@ tailwind.config = {
         </button>
         <div>
           <div class="flex items-center gap-3">
-            <h1 id="currentMenuTitle" class="font-master text-2xl md:text-3xl font-black text-yellow-400 tracking-wider uppercase italic shimmer-text">ALARM CENTER</h1>
+            <h1 id="currentMenuTitle" class="font-master text-2xl md:text-3xl font-black text-yellow-400 tracking-wider uppercase italic shimmer-text glitch-text">ALARM CENTER</h1>
             <span id="secureBadge" class="px-3 py-0.5 rounded-full border border-yellow-400/40 bg-yellow-400/10 text-yellow-400 text-[8px] font-master font-bold tracking-[2px] uppercase animate-pulse">● LIVE</span>
           </div>
           <p id="folderSubtitle" class="text-[9px] text-gray-400 font-bold uppercase tracking-widest mt-0.5">MR.RCT Executive Command Center</p>
         </div>
       </div>
 
-      <div class="flex items-center gap-3 w-full lg:w-auto justify-between lg:justify-end">
+      <div class="flex items-center gap-3 w-full lg:w-auto justify-between lg:justify-end flex-wrap">
+        <!-- Audio Visualizer -->
+        <div class="flex items-center gap-2 bg-[#090d16] border border-white/5 px-3 py-1.5 rounded-xl">
+          <div id="visualizerContainer" class="flex items-center gap-[2px] h-6">
+            <span class="visualizer-bar" style="height:8px;"></span>
+            <span class="visualizer-bar" style="height:14px;"></span>
+            <span class="visualizer-bar" style="height:20px;"></span>
+            <span class="visualizer-bar" style="height:16px;"></span>
+            <span class="visualizer-bar" style="height:10px;"></span>
+            <span class="visualizer-bar" style="height:22px;"></span>
+            <span class="visualizer-bar" style="height:12px;"></span>
+            <span class="visualizer-bar" style="height:18px;"></span>
+            <span class="visualizer-bar" style="height:6px;"></span>
+          </div>
+          <button id="muteToggle" onclick="toggleMute()" class="text-gray-400 hover:text-yellow-400 transition text-xs p-1">
+            <i id="muteIcon" class="fas fa-volume-high"></i>
+          </button>
+        </div>
+
+        <!-- System Metrics HUD -->
+        <div class="metrics-hud hidden lg:flex">
+          <div class="metric-item">
+            <span class="metric-dot green"></span>
+            <span id="pingLatency">23ms</span>
+          </div>
+          <div class="metric-item">
+            <span class="metric-dot yellow"></span>
+            <span id="uptimeCounter">00:00:00</span>
+          </div>
+          <div class="metric-item">
+            <span class="metric-dot green"></span>
+            <span id="memoryUsage">42%</span>
+          </div>
+        </div>
+
         <button onclick="openSettingsModal()" class="px-4 py-2.5 bg-[#090d16] border border-yellow-400/30 hover:bg-yellow-400 hover:text-black rounded-xl text-[10px] font-bold font-master text-yellow-400 transition flex items-center gap-2 shadow-lg cursor-pointer group btn-glow">
           <i class="fas fa-gear text-sm group-hover:rotate-90 transition duration-500"></i>
           <span class="hidden sm:inline">SETTINGS</span>
@@ -822,6 +1110,25 @@ tailwind.config = {
             <div id="clockDate" class="text-[7px] text-gray-500 font-master font-bold uppercase tracking-[2px]">---</div>
           </div>
         </div>
+      </div>
+    </div>
+
+    <!-- ===== WEATHER WIDGET ===== -->
+    <div class="weather-widget mb-4 flex items-center justify-between">
+      <div class="flex items-center gap-4">
+        <div class="text-4xl animate-pulse-slow">🌤️</div>
+        <div>
+          <div class="text-xl font-bold text-white">29°C</div>
+          <div class="text-[9px] font-master text-gray-400 uppercase tracking-wider">Mostly Cloudy</div>
+        </div>
+      </div>
+      <div class="flex items-center gap-6 text-xs font-code text-gray-400">
+        <span><i class="fas fa-wind mr-1"></i> 12 km/h</span>
+        <span><i class="fas fa-tint mr-1"></i> 65%</span>
+        <span class="text-yellow-400"><i class="fas fa-sun mr-1"></i> UV 3</span>
+      </div>
+      <div class="text-[8px] font-master text-gray-500 uppercase tracking-wider hidden sm:block">
+        Last updated: <span id="weatherTime">Just now</span>
       </div>
     </div>
 
@@ -856,8 +1163,8 @@ tailwind.config = {
     </div>
   </div>
 
-  <!-- SCRIPT NEW EDITOR -->
-  <div id="scriptNewEditor" style="display: none;" class="flex flex-col gap-6">
+  <!-- ===== SCRIPT NEW EDITOR ===== -->
+  <div id="scriptNewEditor" style="display: none;" class="flex flex-col gap-6 tab-transition-enter">
     <div id="slotTabs" class="flex flex-wrap gap-2 overflow-x-auto pb-2"></div>
     <div class="grid grid-cols-1 xl:grid-cols-2 gap-6 items-start h-[calc(100vh-320px)]">
       <div class="bg-[#080c14]/80 backdrop-blur-sm border border-white/10 rounded-2xl p-6 flex flex-col h-full overflow-hidden shadow-2xl">
@@ -928,7 +1235,7 @@ tailwind.config = {
     </div>
   </div>
 
-  <!-- PASARAN SUMMARY -->
+  <!-- ===== PASARAN SUMMARY ===== -->
   <div id="pasaranSummaryBar" style="display: none;" class="mb-5 p-4 rounded-2xl bg-[#080c14]/80 backdrop-blur-sm border border-white/10 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-3 shadow-lg">
     <div>
       <p class="text-[8px] font-master font-bold text-gray-500 uppercase tracking-[2px] mb-0.5">SUMMARY PROGRESS</p>
@@ -940,7 +1247,7 @@ tailwind.config = {
     </div>
   </div>
 
-  <!-- CARDS GRID -->
+  <!-- ===== CARDS GRID ===== -->
   <div id="cardGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5"></div>
 
   <!-- Empty State -->
@@ -958,7 +1265,6 @@ tailwind.config = {
 </main>
 
 <!-- ==================== MODALS ==================== -->
-<!-- (Semua modal sama seperti sebelumnya, dengan tambahan efek visual btn-glow dan neon-glow) -->
 
 <!-- SETTINGS MODAL -->
 <div id="settingsModal" style="display: none;" class="fixed inset-0 bg-black/90 z-[10005] flex items-center justify-center p-4 backdrop-blur-xl" onclick="if(event.target === this) closeSettingsModal()">
@@ -1297,6 +1603,9 @@ let triggeredAlarmsMap = {};
 let isFirebaseConnected = false;
 let isSyncing = false;
 let dbRef = db.ref('vault_data');
+let isMuted = false;
+let audioCtx = null;
+let sessionStartTime = Date.now();
 
 // ==========================================
 // DOM REFS
@@ -1328,6 +1637,52 @@ const firebaseStatusDot = document.getElementById('firebaseStatusDot');
 const firebaseStatusText = document.getElementById('firebaseStatusText');
 
 // ==========================================
+// AUDIO FX
+// ==========================================
+function playBeep(freq = 600, duration = 60, type = 'sine') {
+  if (isMuted || !audioCtx) return;
+  try {
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = type;
+    osc.frequency.value = freq;
+    gain.gain.value = 0.08;
+    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration / 1000);
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    osc.start();
+    osc.stop(audioCtx.currentTime + duration / 1000);
+  } catch(e) {}
+}
+
+function playHum() {
+  if (isMuted || !audioCtx) return;
+  try {
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = 'sawtooth';
+    osc.frequency.value = 120;
+    gain.gain.value = 0.02;
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    osc.start();
+    osc.stop(audioCtx.currentTime + 0.4);
+  } catch(e) {}
+}
+
+function toggleMute() {
+  isMuted = !isMuted;
+  const icon = document.getElementById('muteIcon');
+  if (icon) {
+    icon.className = isMuted ? 'fas fa-volume-xmark' : 'fas fa-volume-high';
+  }
+  if (!isMuted && !audioCtx) {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  }
+  showToast(isMuted ? '🔇 Audio Muted' : '🔊 Audio Unmuted', 'info');
+}
+
+// ==========================================
 // AUTH STATE
 // ==========================================
 auth.onAuthStateChanged((user) => {
@@ -1339,6 +1694,7 @@ auth.onAuthStateChanged((user) => {
     console.log('✅ Firebase Auth: User signed in:', user.email);
     loginScreen.style.display = 'none';
     loadFromFirebase();
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
   } else {
     isFirebaseConnected = false;
     firebaseStatusDot.className = "w-2 h-2 rounded-full bg-amber-500 animate-pulse";
@@ -1378,6 +1734,8 @@ window.handleLogin = function() {
     }
   }
 
+  playBeep(880, 80);
+  
   auth.signInWithEmailAndPassword(email, password)
     .then((userCredential) => {
       const user = userCredential.user;
@@ -1385,6 +1743,8 @@ window.handleLogin = function() {
       sessionStorage.setItem('v19_session_active', 'true');
       loginScreen.style.display = 'none';
       showToast('Selamat datang, MR.RCT!', 'success');
+      playBeep(1200, 100);
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     })
     .catch((error) => {
       console.error('❌ Login error:', error);
@@ -1394,12 +1754,15 @@ window.handleLogin = function() {
             sessionStorage.setItem('v19_session_active', 'true');
             loginScreen.style.display = 'none';
             showToast('Selamat datang, MR.RCT!', 'success');
+            playBeep(1200, 100);
           })
           .catch(() => {
             showToast('Login gagal: ' + error.message, 'error');
+            playBeep(300, 150, 'sawtooth');
           });
       } else {
         showToast('Login gagal: ' + error.message, 'error');
+        playBeep(300, 150, 'sawtooth');
       }
     });
 };
@@ -1408,6 +1771,7 @@ window.handleLogin = function() {
 // LOGOUT
 // ==========================================
 window.logoutVault = function() {
+  playBeep(400, 100, 'sawtooth');
   auth.signOut().then(() => {
     sessionStorage.removeItem('v19_session_active');
     closeSettingsModal();
@@ -1661,6 +2025,7 @@ window.showToast = function(msg, type = 'success') {
   toast.innerHTML = `<i class="fas fa-circle-check text-sm"></i> <span>${window.escapeHtml(msg)}</span>`;
   toastContainer.appendChild(toast);
   setTimeout(() => { if (toast.parentNode) toast.remove(); }, 3000);
+  if (!isMuted && audioCtx) playBeep(500, 40);
 };
 
 window.escapeHtml = function(str) {
@@ -1777,6 +2142,7 @@ window.getPasaranTimerInfo = function(resultTimeStr, isDone, isHidden) {
 window.openModal = function(id) {
   const el = document.getElementById(id);
   if (el) el.style.display = 'flex';
+  if (!isMuted && audioCtx) playHum();
 };
 
 window.closeModal = function(id) {
@@ -1818,8 +2184,18 @@ window.switchMenu = function(name) {
   if (folderSubtitle) folderSubtitle.innerText = mInfo.subtitle || "MR.RCT Executive Command Center";
 
   activeSlotIndex = 0;
+  
+  // Tab transition animation
+  const grid = document.getElementById('cardGrid');
+  if (grid) {
+    grid.classList.remove('tab-transition-enter');
+    void grid.offsetWidth;
+    grid.classList.add('tab-transition-enter');
+  }
+  
   renderCards();
   renderSidebar();
+  if (!isMuted && audioCtx) playBeep(700, 50);
 };
 
 window.toggleMobileSidebar = function(open) {
@@ -1832,7 +2208,7 @@ window.toggleMobileSidebar = function(open) {
 };
 
 // ==========================================
-// RENDER CARDS
+// RENDER CARDS WITH 3D TILT & FLIP
 // ==========================================
 window.renderCards = function() {
   if (!cardGrid) return;
@@ -1907,32 +2283,48 @@ window.renderCards = function() {
       const rIndex = masterData.indexOf(item);
       const card = document.createElement('div');
       const isAlarmActive = item.alarmOn !== false;
-      card.className = `note-card p-6 border ${isAlarmActive ? 'border-yellow-400/40 shadow-[0_0_30px_rgba(250,204,21,0.05)]' : 'border-white/10 opacity-60'} rounded-2xl transition flex flex-col justify-between h-full min-h-[190px]`;
+      card.className = `note-card p-6 border ${isAlarmActive ? 'border-yellow-400/40 shadow-[0_0_30px_rgba(250,204,21,0.05)]' : 'border-white/10 opacity-60'} rounded-2xl transition flex flex-col justify-between h-full min-h-[190px] tilt-effect`;
+      card.dataset.index = rIndex;
       card.innerHTML = `
-        <div>
-          <div class="flex justify-between items-start gap-2 mb-3">
-            <div class="min-w-0">
-              <p class="text-[8px] font-master font-black text-yellow-400 tracking-[2px] uppercase truncate mb-0.5">${window.escapeHtml(item.alarmDays || 'DAILY')}</p>
-              <h3 class="font-master text-white font-black text-xs uppercase tracking-wider italic truncate">${window.escapeHtml(item.title)}</h3>
+        <div class="card-inner">
+          <div class="card-front">
+            <div>
+              <div class="flex justify-between items-start gap-2 mb-3">
+                <div class="min-w-0">
+                  <p class="text-[8px] font-master font-black text-yellow-400 tracking-[2px] uppercase truncate mb-0.5">${window.escapeHtml(item.alarmDays || 'DAILY')}</p>
+                  <h3 class="font-master text-white font-black text-xs uppercase tracking-wider italic truncate">${window.escapeHtml(item.title)}</h3>
+                </div>
+                <div class="flex items-center gap-1.5 shrink-0">
+                  <button onclick="toggleFavorite(${rIndex})" class="text-xs ${item.favorite ? 'text-yellow-400' : 'text-gray-600 hover:text-yellow-400'} cursor-pointer p-0.5 transition"><i class="fas fa-star"></i></button>
+                  <button onclick="editItem(${rIndex})" title="Edit Alarm" class="text-gray-500 hover:text-cyan-400 text-xs p-0.5 cursor-pointer transition"><i class="fas fa-pen"></i></button>
+                  <button onclick="deleteItem(${rIndex})" title="Hapus Alarm" class="text-gray-500 hover:text-red-400 text-xs p-0.5 cursor-pointer transition"><i class="fas fa-trash"></i></button>
+                  <button onclick="flipCard(${rIndex})" title="Flip Card" class="flip-btn text-gray-500 hover:text-yellow-400 text-xs p-0.5 cursor-pointer transition"><i class="fas fa-rotate"></i></button>
+                </div>
+              </div>
+              <div class="my-3">
+                <h2 class="font-master font-black text-4xl md:text-5xl text-white tracking-widest">${window.escapeHtml(item.alarmTime || '00:00')}</h2>
+              </div>
             </div>
-            <div class="flex items-center gap-1.5 shrink-0">
-              <button onclick="toggleFavorite(${rIndex})" class="text-xs ${item.favorite ? 'text-yellow-400' : 'text-gray-600 hover:text-yellow-400'} cursor-pointer p-0.5 transition"><i class="fas fa-star"></i></button>
-              <button onclick="editItem(${rIndex})" title="Edit Alarm" class="text-gray-500 hover:text-cyan-400 text-xs p-0.5 cursor-pointer transition"><i class="fas fa-pen"></i></button>
-              <button onclick="deleteItem(${rIndex})" title="Hapus Alarm" class="text-gray-500 hover:text-red-400 text-xs p-0.5 cursor-pointer transition"><i class="fas fa-trash"></i></button>
+            <div class="flex justify-end items-center mt-3">
+              <button onclick="toggleAlarmStatus(${rIndex})" class="px-4 py-1.5 rounded-lg ${isAlarmActive ? 'bg-yellow-400 text-black' : 'bg-white/10 text-gray-400'} font-master font-black text-[9px] uppercase tracking-wider transition flex items-center gap-2 cursor-pointer shadow-md hover:scale-[1.02]">
+                <i class="fas ${isAlarmActive ? 'fa-square-check' : 'fa-square'} text-sm"></i>
+                <span>${isAlarmActive ? 'ON' : 'OFF'}</span>
+              </button>
             </div>
           </div>
-          <div class="my-3">
-            <h2 class="font-master font-black text-4xl md:text-5xl text-white tracking-widest">${window.escapeHtml(item.alarmTime || '00:00')}</h2>
+          <div class="card-back">
+            <div class="text-center">
+              <i class="fas fa-info-circle text-yellow-400 text-2xl mb-2"></i>
+              <p class="text-[10px] font-code text-gray-300">${window.escapeHtml(item.title)}</p>
+              <p class="text-[8px] font-master text-gray-500 mt-1">${window.escapeHtml(item.alarmDays || 'DAILY')}</p>
+              <p class="text-[8px] font-master text-gray-500">${item.alarmOn ? '● Active' : '○ Inactive'}</p>
+              <button onclick="flipCard(${rIndex})" class="mt-3 px-3 py-1 bg-yellow-400/10 border border-yellow-400/30 text-yellow-400 text-[8px] font-master font-bold rounded-lg hover:bg-yellow-400 hover:text-black transition">Back</button>
+            </div>
           </div>
-        </div>
-        <div class="flex justify-end items-center mt-3">
-          <button onclick="toggleAlarmStatus(${rIndex})" class="px-4 py-1.5 rounded-lg ${isAlarmActive ? 'bg-yellow-400 text-black' : 'bg-white/10 text-gray-400'} font-master font-black text-[9px] uppercase tracking-wider transition flex items-center gap-2 cursor-pointer shadow-md hover:scale-[1.02]">
-            <i class="fas ${isAlarmActive ? 'fa-square-check' : 'fa-square'} text-sm"></i>
-            <span>${isAlarmActive ? 'ON' : 'OFF'}</span>
-          </button>
         </div>
       `;
       cardGrid.appendChild(card);
+      setupCardTilt(card);
     });
   }
   // ===== PASARAN CARDS =====
@@ -1972,6 +2364,7 @@ window.renderCards = function() {
             <button onclick="editItem(${rIndex})" class="text-gray-500 hover:text-cyan-400 p-1 cursor-pointer transition"><i class="fas fa-pen text-xs"></i></button>
             <button onclick="deleteItem(${rIndex})" class="text-gray-500 hover:text-red-400 p-1 cursor-pointer transition"><i class="fas fa-trash text-xs"></i></button>
             <button onclick="togglePasaranDone(${rIndex})" title="Tandai Selesai" class="w-6 h-6 rounded border ${item.pasaranDone ? 'bg-yellow-400 border-yellow-400 text-black' : 'border-white/20 bg-black/40'} flex items-center justify-center cursor-pointer transition hover:scale-110">${item.pasaranDone ? '<i class="fas fa-check text-xs font-black"></i>' : ''}</button>
+            <button onclick="flipCard(${rIndex})" title="Flip" class="flip-btn text-gray-500 hover:text-yellow-400 text-xs p-1 cursor-pointer transition"><i class="fas fa-rotate"></i></button>
           </div>
         </div>
       `;
@@ -1985,37 +2378,52 @@ window.renderCards = function() {
       const rIndex = masterData.indexOf(item);
       const card = document.createElement('div');
       const imgUrl = item.imageUrl || createSampleSvg(item.title || "POTO KENDALA", "#050b14", "#091122", "NO IMAGE", "Klik Upload Foto");
-      card.className = "note-card p-5 border border-white/10 rounded-2xl hover:border-yellow-400/40 transition flex flex-col justify-between h-full group";
+      card.className = "note-card p-5 border border-white/10 rounded-2xl hover:border-yellow-400/40 transition flex flex-col justify-between h-full group tilt-effect";
+      card.dataset.index = rIndex;
       card.innerHTML = `
-        <div>
-          <div class="flex justify-between items-center gap-2 mb-3">
-            <div class="flex items-center gap-2 min-w-0">
-              <button onclick="toggleFavorite(${rIndex})" class="text-xs ${item.favorite ? 'text-yellow-400' : 'text-gray-600 hover:text-yellow-400'} cursor-pointer transition"><i class="fas fa-star"></i></button>
-              <h3 class="font-master text-white font-black text-xs uppercase tracking-wider italic truncate">${window.escapeHtml(item.title)}</h3>
+        <div class="card-inner">
+          <div class="card-front">
+            <div>
+              <div class="flex justify-between items-center gap-2 mb-3">
+                <div class="flex items-center gap-2 min-w-0">
+                  <button onclick="toggleFavorite(${rIndex})" class="text-xs ${item.favorite ? 'text-yellow-400' : 'text-gray-600 hover:text-yellow-400'} cursor-pointer transition"><i class="fas fa-star"></i></button>
+                  <h3 class="font-master text-white font-black text-xs uppercase tracking-wider italic truncate">${window.escapeHtml(item.title)}</h3>
+                </div>
+                <div class="flex items-center gap-1.5 shrink-0">
+                  <button onclick="triggerCardPhotoUpload(${rIndex})" title="Ganti Foto" class="text-emerald-400 hover:text-emerald-300 text-xs p-1 cursor-pointer transition"><i class="fas fa-camera"></i></button>
+                  <button onclick="editItem(${rIndex})" title="Edit" class="text-gray-500 hover:text-cyan-400 text-xs p-1 cursor-pointer transition"><i class="fas fa-pen"></i></button>
+                  <button onclick="deleteItem(${rIndex})" title="Hapus" class="text-gray-500 hover:text-red-400 text-xs p-1 cursor-pointer transition"><i class="fas fa-trash"></i></button>
+                  <button onclick="flipCard(${rIndex})" title="Flip Card" class="flip-btn text-gray-500 hover:text-yellow-400 text-xs p-1 cursor-pointer transition"><i class="fas fa-rotate"></i></button>
+                </div>
+              </div>
+              <div onclick="openImageLightbox('${window.safeAttr(imgUrl)}', '${window.safeAttr(item.title)}')" class="relative bg-black/60 border border-white/10 rounded-xl overflow-hidden cursor-pointer group-hover:border-yellow-400/40 transition h-52 flex items-center justify-center p-1.5 mb-3">
+                <img src="${window.escapeHtml(imgUrl)}" alt="${window.escapeHtml(item.title)}" class="w-full h-full object-cover rounded-lg group-hover:scale-105 transition duration-300">
+                <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition flex items-center justify-center gap-2 text-white font-master text-xs font-bold uppercase tracking-wider">
+                  <i class="fas fa-expand text-yellow-400 text-sm"></i> KLIK PRATINJAU
+                </div>
+              </div>
             </div>
-            <div class="flex items-center gap-1.5 shrink-0">
-              <button onclick="triggerCardPhotoUpload(${rIndex})" title="Ganti Foto" class="text-emerald-400 hover:text-emerald-300 text-xs p-1 cursor-pointer transition"><i class="fas fa-camera"></i></button>
-              <button onclick="editItem(${rIndex})" title="Edit" class="text-gray-500 hover:text-cyan-400 text-xs p-1 cursor-pointer transition"><i class="fas fa-pen"></i></button>
-              <button onclick="deleteItem(${rIndex})" title="Hapus" class="text-gray-500 hover:text-red-400 text-xs p-1 cursor-pointer transition"><i class="fas fa-trash"></i></button>
+            <div class="grid grid-cols-2 gap-2 mt-1">
+              <button onclick="triggerCardPhotoUpload(${rIndex})" class="py-2.5 bg-emerald-500/20 hover:bg-emerald-500 border border-emerald-500/40 text-emerald-300 hover:text-black font-master font-bold text-[8px] uppercase tracking-wider rounded-xl transition flex items-center justify-center gap-1 cursor-pointer">
+                <i class="fas fa-cloud-arrow-up text-xs"></i> UPLOAD
+              </button>
+              <button onclick="copyImageFromCard('${window.safeAttr(imgUrl)}')" class="py-2.5 bg-black/80 border border-white/20 hover:border-yellow-400 hover:bg-yellow-400 hover:text-black text-gray-200 font-master font-bold text-[8px] uppercase tracking-wider rounded-xl transition flex items-center justify-center gap-1 cursor-pointer shadow-md">
+                <i class="far fa-copy text-xs"></i> SALIN
+              </button>
             </div>
           </div>
-          <div onclick="openImageLightbox('${window.safeAttr(imgUrl)}', '${window.safeAttr(item.title)}')" class="relative bg-black/60 border border-white/10 rounded-xl overflow-hidden cursor-pointer group-hover:border-yellow-400/40 transition h-52 flex items-center justify-center p-1.5 mb-3">
-            <img src="${window.escapeHtml(imgUrl)}" alt="${window.escapeHtml(item.title)}" class="w-full h-full object-cover rounded-lg group-hover:scale-105 transition duration-300">
-            <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition flex items-center justify-center gap-2 text-white font-master text-xs font-bold uppercase tracking-wider">
-              <i class="fas fa-expand text-yellow-400 text-sm"></i> KLIK PRATINJAU
+          <div class="card-back">
+            <div class="text-center">
+              <i class="fas fa-image text-yellow-400 text-2xl mb-2"></i>
+              <p class="text-[10px] font-code text-gray-300">${window.escapeHtml(item.title)}</p>
+              <p class="text-[8px] font-master text-gray-500 mt-1">${item.favorite ? '⭐ Favorite' : '☆ Not favorite'}</p>
+              <button onclick="flipCard(${rIndex})" class="mt-3 px-3 py-1 bg-yellow-400/10 border border-yellow-400/30 text-yellow-400 text-[8px] font-master font-bold rounded-lg hover:bg-yellow-400 hover:text-black transition">Back</button>
             </div>
           </div>
-        </div>
-        <div class="grid grid-cols-2 gap-2 mt-1">
-          <button onclick="triggerCardPhotoUpload(${rIndex})" class="py-2.5 bg-emerald-500/20 hover:bg-emerald-500 border border-emerald-500/40 text-emerald-300 hover:text-black font-master font-bold text-[8px] uppercase tracking-wider rounded-xl transition flex items-center justify-center gap-1 cursor-pointer">
-            <i class="fas fa-cloud-arrow-up text-xs"></i> UPLOAD
-          </button>
-          <button onclick="copyImageFromCard('${window.safeAttr(imgUrl)}')" class="py-2.5 bg-black/80 border border-white/20 hover:border-yellow-400 hover:bg-yellow-400 hover:text-black text-gray-200 font-master font-bold text-[8px] uppercase tracking-wider rounded-xl transition flex items-center justify-center gap-1 cursor-pointer shadow-md">
-            <i class="far fa-copy text-xs"></i> SALIN
-          </button>
         </div>
       `;
       cardGrid.appendChild(card);
+      setupCardTilt(card);
     });
   }
   // ===== ACCOUNT CARDS =====
@@ -2028,49 +2436,63 @@ window.renderCards = function() {
       const rawPass = item.pass || '';
       const displayedPass = isPassVisible ? rawPass : '••••••••';
       const loginUrl = item.loginUrl || item.url || '';
-
-      card.className = `note-card p-5 border ${loginUrl ? 'border-yellow-400/40 shadow-[0_0_30px_rgba(250,204,21,0.04)]' : 'border-white/10'} rounded-2xl transition flex flex-col justify-between h-full`;
+      card.className = `note-card p-5 border ${loginUrl ? 'border-yellow-400/40 shadow-[0_0_30px_rgba(250,204,21,0.04)]' : 'border-white/10'} rounded-2xl transition flex flex-col justify-between h-full tilt-effect`;
+      card.dataset.index = rIndex;
       card.innerHTML = `
-        <div>
-          <div class="flex justify-between items-center gap-2 mb-4">
-            <div class="flex items-center gap-2 min-w-0">
-              <button onclick="toggleFavorite(${rIndex})" class="text-xs ${item.favorite ? 'text-yellow-400' : 'text-gray-600 hover:text-yellow-400'} cursor-pointer transition"><i class="fas fa-star"></i></button>
-              <h3 class="font-master text-white font-black text-xs uppercase tracking-wider italic truncate">${window.escapeHtml(item.title)}</h3>
-            </div>
-            <div class="flex items-center gap-1.5 shrink-0">
-              <button onclick="editItem(${rIndex})" class="text-gray-500 hover:text-cyan-400 text-xs p-1 cursor-pointer transition"><i class="fas fa-pen"></i></button>
-              <button onclick="deleteItem(${rIndex})" class="text-gray-500 hover:text-red-400 text-xs p-1 cursor-pointer transition"><i class="fas fa-trash"></i></button>
-            </div>
-          </div>
-          <div class="space-y-2.5 mb-4">
-            <div class="bg-black/70 border border-white/10 rounded-xl px-3.5 py-2.5 flex justify-between items-center font-code text-xs">
-              <span class="text-gray-300 font-medium truncate mr-2">${window.escapeHtml(item.user || 'No Username')}</span>
-              <button onclick="copyToClipboard('${window.safeAttr(item.user)}', 'Username Disalin!')" class="text-gray-400 hover:text-yellow-400 transition cursor-pointer p-1 shrink-0"><i class="far fa-copy text-xs"></i></button>
-            </div>
-            <div class="bg-black/70 border border-white/10 rounded-xl px-3.5 py-2.5 flex justify-between items-center font-code text-xs">
-              <span class="text-gray-300 font-medium tracking-wider truncate mr-2">${displayedPass}</span>
-              <div class="flex items-center gap-2 shrink-0">
-                <button onclick="toggleCardPassVisibility(${rIndex})" class="text-gray-400 hover:text-white transition cursor-pointer p-0.5"><i class="fas ${isPassVisible ? 'fa-eye-slash text-yellow-400' : 'fa-eye'} text-xs"></i></button>
-                <button onclick="copyToClipboard('${window.safeAttr(rawPass)}', 'Password Disalin!')" class="text-gray-400 hover:text-yellow-400 transition cursor-pointer p-0.5"><i class="far fa-copy text-xs"></i></button>
+        <div class="card-inner">
+          <div class="card-front">
+            <div>
+              <div class="flex justify-between items-center gap-2 mb-4">
+                <div class="flex items-center gap-2 min-w-0">
+                  <button onclick="toggleFavorite(${rIndex})" class="text-xs ${item.favorite ? 'text-yellow-400' : 'text-gray-600 hover:text-yellow-400'} cursor-pointer transition"><i class="fas fa-star"></i></button>
+                  <h3 class="font-master text-white font-black text-xs uppercase tracking-wider italic truncate">${window.escapeHtml(item.title)}</h3>
+                </div>
+                <div class="flex items-center gap-1.5 shrink-0">
+                  <button onclick="editItem(${rIndex})" class="text-gray-500 hover:text-cyan-400 text-xs p-1 cursor-pointer transition"><i class="fas fa-pen"></i></button>
+                  <button onclick="deleteItem(${rIndex})" class="text-gray-500 hover:text-red-400 text-xs p-1 cursor-pointer transition"><i class="fas fa-trash"></i></button>
+                  <button onclick="flipCard(${rIndex})" title="Flip Card" class="flip-btn text-gray-500 hover:text-yellow-400 text-xs p-1 cursor-pointer transition"><i class="fas fa-rotate"></i></button>
+                </div>
+              </div>
+              <div class="space-y-2.5 mb-4">
+                <div class="bg-black/70 border border-white/10 rounded-xl px-3.5 py-2.5 flex justify-between items-center font-code text-xs">
+                  <span class="text-gray-300 font-medium truncate mr-2">${window.escapeHtml(item.user || 'No Username')}</span>
+                  <button onclick="copyToClipboard('${window.safeAttr(item.user)}', 'Username Disalin!')" class="text-gray-400 hover:text-yellow-400 transition cursor-pointer p-1 shrink-0"><i class="far fa-copy text-xs"></i></button>
+                </div>
+                <div class="bg-black/70 border border-white/10 rounded-xl px-3.5 py-2.5 flex justify-between items-center font-code text-xs">
+                  <span class="text-gray-300 font-medium tracking-wider truncate mr-2">${displayedPass}</span>
+                  <div class="flex items-center gap-2 shrink-0">
+                    <button onclick="toggleCardPassVisibility(${rIndex})" class="text-gray-400 hover:text-white transition cursor-pointer p-0.5"><i class="fas ${isPassVisible ? 'fa-eye-slash text-yellow-400' : 'fa-eye'} text-xs"></i></button>
+                    <button onclick="copyToClipboard('${window.safeAttr(rawPass)}', 'Password Disalin!')" class="text-gray-400 hover:text-yellow-400 transition cursor-pointer p-0.5"><i class="far fa-copy text-xs"></i></button>
+                  </div>
+                </div>
+                <div class="bg-black/70 border ${loginUrl ? 'border-yellow-400/40' : 'border-white/10'} rounded-xl px-3.5 py-2.5 flex justify-between items-center font-code text-xs">
+                  ${loginUrl ? `
+                    <span class="text-yellow-400 italic truncate mr-2 text-[10px]">${window.escapeHtml(loginUrl)}</span>
+                    <button onclick="copyToClipboard('${window.safeAttr(loginUrl)}', 'Link Disalin!')" class="text-gray-400 hover:text-yellow-400 transition cursor-pointer p-1 shrink-0"><i class="far fa-copy text-xs"></i></button>
+                  ` : `<span class="text-yellow-500/60 italic font-medium">No Link</span>`}
+                </div>
               </div>
             </div>
-            <div class="bg-black/70 border ${loginUrl ? 'border-yellow-400/40' : 'border-white/10'} rounded-xl px-3.5 py-2.5 flex justify-between items-center font-code text-xs">
-              ${loginUrl ? `
-                <span class="text-yellow-400 italic truncate mr-2 text-[10px]">${window.escapeHtml(loginUrl)}</span>
-                <button onclick="copyToClipboard('${window.safeAttr(loginUrl)}', 'Link Disalin!')" class="text-gray-400 hover:text-yellow-400 transition cursor-pointer p-1 shrink-0"><i class="far fa-copy text-xs"></i></button>
-              ` : `<span class="text-yellow-500/60 italic font-medium">No Link</span><button onclick="copyToClipboard('', 'Link Kosong')" class="text-gray-600 p-1 shrink-0"><i class="far fa-copy text-xs"></i></button>`}
+            ${loginUrl ? `
+              <a href="${window.escapeHtml(loginUrl)}" target="_blank" class="w-full py-3 bg-gradient-to-r from-yellow-400 to-amber-500 hover:from-yellow-300 hover:to-amber-400 text-black font-master font-black text-xs uppercase tracking-wider rounded-xl transition flex items-center justify-center gap-2 shadow-lg cursor-pointer mt-2 transform hover:scale-[1.02]">
+                <i class="fas fa-arrow-up-right-from-square text-xs"></i> VISIT LINK
+              </a>
+            ` : `
+              <button disabled class="w-full py-3 bg-white/5 border border-white/10 text-gray-500 font-master font-bold text-xs uppercase tracking-wider rounded-xl flex items-center justify-center gap-2 cursor-not-allowed mt-2 opacity-50"><i class="fas fa-link-slash text-xs"></i> NO LINK</button>
+            `}
+          </div>
+          <div class="card-back">
+            <div class="text-center">
+              <i class="fas fa-shield-halved text-yellow-400 text-2xl mb-2"></i>
+              <p class="text-[10px] font-code text-gray-300">${window.escapeHtml(item.title)}</p>
+              <p class="text-[8px] font-master text-gray-500 mt-1">${item.favorite ? '⭐ Favorite' : '☆ Not favorite'}</p>
+              <button onclick="flipCard(${rIndex})" class="mt-3 px-3 py-1 bg-yellow-400/10 border border-yellow-400/30 text-yellow-400 text-[8px] font-master font-bold rounded-lg hover:bg-yellow-400 hover:text-black transition">Back</button>
             </div>
           </div>
         </div>
-        ${loginUrl ? `
-          <a href="${window.escapeHtml(loginUrl)}" target="_blank" class="w-full py-3 bg-gradient-to-r from-yellow-400 to-amber-500 hover:from-yellow-300 hover:to-amber-400 text-black font-master font-black text-xs uppercase tracking-wider rounded-xl transition flex items-center justify-center gap-2 shadow-lg cursor-pointer mt-2 transform hover:scale-[1.02]">
-            <i class="fas fa-arrow-up-right-from-square text-xs"></i> VISIT LINK
-          </a>
-        ` : `
-          <button disabled class="w-full py-3 bg-white/5 border border-white/10 text-gray-500 font-master font-bold text-xs uppercase tracking-wider rounded-xl flex items-center justify-center gap-2 cursor-not-allowed mt-2 opacity-50"><i class="fas fa-link-slash text-xs"></i> NO LINK</button>
-        `}
       `;
       cardGrid.appendChild(card);
+      setupCardTilt(card);
     });
   }
   // ===== NOTE CARDS =====
@@ -2079,47 +2501,106 @@ window.renderCards = function() {
     filtered.forEach((item) => {
       const rIndex = masterData.indexOf(item);
       const card = document.createElement('div');
-      card.className = "note-card p-5 flex flex-col justify-between h-full border border-white/10 rounded-2xl hover:border-yellow-400/40 transition";
+      card.className = "note-card p-5 flex flex-col justify-between h-full border border-white/10 rounded-2xl hover:border-yellow-400/40 transition tilt-effect";
+      card.dataset.index = rIndex;
       card.innerHTML = `
-        <div>
-          <div class="flex justify-between items-center gap-2 mb-3">
-            <div class="flex items-center gap-2 min-w-0">
-              <button onclick="toggleFavorite(${rIndex})" class="text-xs ${item.favorite ? 'text-yellow-400' : 'text-gray-600 hover:text-yellow-400'} cursor-pointer transition"><i class="fas fa-star"></i></button>
-              <h3 class="font-master text-white font-black text-xs uppercase tracking-wider italic truncate">${window.escapeHtml(item.title)}</h3>
+        <div class="card-inner">
+          <div class="card-front">
+            <div>
+              <div class="flex justify-between items-center gap-2 mb-3">
+                <div class="flex items-center gap-2 min-w-0">
+                  <button onclick="toggleFavorite(${rIndex})" class="text-xs ${item.favorite ? 'text-yellow-400' : 'text-gray-600 hover:text-yellow-400'} cursor-pointer transition"><i class="fas fa-star"></i></button>
+                  <h3 class="font-master text-white font-black text-xs uppercase tracking-wider italic truncate">${window.escapeHtml(item.title)}</h3>
+                </div>
+                <div class="flex items-center gap-1.5 shrink-0">
+                  <button onclick="editItem(${rIndex})" class="text-gray-500 hover:text-cyan-400 text-xs p-1 cursor-pointer transition"><i class="fas fa-pen"></i></button>
+                  <button onclick="deleteItem(${rIndex})" class="text-gray-500 hover:text-red-400 text-xs p-1 cursor-pointer transition"><i class="fas fa-trash"></i></button>
+                  <button onclick="flipCard(${rIndex})" title="Flip Card" class="flip-btn text-gray-500 hover:text-yellow-400 text-xs p-1 cursor-pointer transition"><i class="fas fa-rotate"></i></button>
+                </div>
+              </div>
+              <div class="bg-black/60 border border-white/5 rounded-xl p-3.5 mb-4 border-r-2 border-r-yellow-400 min-h-[140px] max-h-[180px] overflow-y-auto">
+                <p class="text-xs font-body italic text-gray-300 leading-relaxed whitespace-pre-line">${window.escapeHtml(item.content)}</p>
+              </div>
             </div>
-            <div class="flex items-center gap-1.5 shrink-0">
-              <button onclick="editItem(${rIndex})" class="text-gray-500 hover:text-cyan-400 text-xs p-1 cursor-pointer transition"><i class="fas fa-pen"></i></button>
-              <button onclick="deleteItem(${rIndex})" class="text-gray-500 hover:text-red-400 text-xs p-1 cursor-pointer transition"><i class="fas fa-trash"></i></button>
-            </div>
+            <button onclick="copyToClipboard('${window.safeAttr(item.content)}', 'Catatan Disalin!')" class="w-full py-2.5 bg-black/80 border border-white/20 hover:border-yellow-400 hover:bg-yellow-400 hover:text-black text-gray-200 font-master font-bold text-[9px] uppercase tracking-wider rounded-xl transition flex items-center justify-center gap-2 cursor-pointer shadow-md">
+              <i class="far fa-copy text-xs"></i> COPY FULL NOTE
+            </button>
           </div>
-          <div class="bg-black/60 border border-white/5 rounded-xl p-3.5 mb-4 border-r-2 border-r-yellow-400 min-h-[140px] max-h-[180px] overflow-y-auto">
-            <p class="text-xs font-body italic text-gray-300 leading-relaxed whitespace-pre-line">${window.escapeHtml(item.content)}</p>
+          <div class="card-back">
+            <div class="text-center">
+              <i class="fas fa-file-lines text-yellow-400 text-2xl mb-2"></i>
+              <p class="text-[10px] font-code text-gray-300">${window.escapeHtml(item.title)}</p>
+              <p class="text-[8px] font-master text-gray-500 mt-1">${item.favorite ? '⭐ Favorite' : '☆ Not favorite'}</p>
+              <p class="text-[8px] font-code text-gray-600 mt-1">${item.content ? item.content.substring(0, 30) + '...' : 'Empty'}</p>
+              <button onclick="flipCard(${rIndex})" class="mt-3 px-3 py-1 bg-yellow-400/10 border border-yellow-400/30 text-yellow-400 text-[8px] font-master font-bold rounded-lg hover:bg-yellow-400 hover:text-black transition">Back</button>
+            </div>
           </div>
         </div>
-        <button onclick="copyToClipboard('${window.safeAttr(item.content)}', 'Catatan Disalin!')" class="w-full py-2.5 bg-black/80 border border-white/20 hover:border-yellow-400 hover:bg-yellow-400 hover:text-black text-gray-200 font-master font-bold text-[9px] uppercase tracking-wider rounded-xl transition flex items-center justify-center gap-2 cursor-pointer shadow-md">
-          <i class="far fa-copy text-xs"></i> COPY FULL NOTE
-        </button>
       `;
       cardGrid.appendChild(card);
+      setupCardTilt(card);
     });
   }
 
   if (emptyState) {
     emptyState.classList.toggle('hidden', filtered.length > 0);
   }
+  
+  // Apply sparkle effect on render
+  createSparkleParticles();
 };
 
-function createSampleSvg(title, bg1, bg2, txt1, txt2) {
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="600" height="450" viewBox="0 0 600 450">
-    <rect width="600" height="450" fill="${bg1}"/>
-    <rect x="20" y="20" width="560" height="410" rx="16" fill="${bg2}" stroke="#facc15" stroke-width="2" stroke-dasharray="6,6"/>
-    <text x="300" y="160" font-family="sans-serif" font-size="28" font-weight="900" fill="#ffffff" text-anchor="middle">${title}</text>
-    <text x="300" y="220" font-family="monospace" font-size="20" font-weight="bold" fill="#facc15" text-anchor="middle">${txt1}</text>
-    <text x="300" y="270" font-family="sans-serif" font-size="16" fill="#9ca3af" text-anchor="middle">${txt2}</text>
-    <circle cx="300" cy="340" r="30" fill="#facc15" opacity="0.2"/>
-    <path d="M290 340 L300 330 L310 340 M300 330 L300 355" stroke="#facc15" stroke-width="4" stroke-linecap="round"/>
-  </svg>`;
-  return "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
+// ==========================================
+// CARD 3D TILT
+// ==========================================
+function setupCardTilt(card) {
+  card.addEventListener('mousemove', function(e) {
+    const rect = this.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const centerX = rect.width / 2;
+    const centerY = rect.height / 2;
+    const rotateX = (y - centerY) / centerY * -8;
+    const rotateY = (x - centerX) / centerX * 8;
+    this.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-6px) scale(1.01)`;
+  });
+  card.addEventListener('mouseleave', function() {
+    this.style.transform = '';
+  });
+}
+
+// ==========================================
+// CARD FLIP
+// ==========================================
+window.flipCard = function(index) {
+  const cards = document.querySelectorAll('.note-card');
+  const target = Array.from(cards).find(c => parseInt(c.dataset.index) === index);
+  if (target) {
+    target.classList.toggle('flipped');
+    if (!isMuted && audioCtx) playBeep(900, 60);
+  }
+};
+
+// ==========================================
+// SPARKLE PARTICLES
+// ==========================================
+function createSparkleParticles() {
+  const container = document.getElementById('cardGrid');
+  if (!container) return;
+  const cards = container.querySelectorAll('.note-card');
+  cards.forEach((card, i) => {
+    if (Math.random() > 0.7) {
+      const sparkle = document.createElement('div');
+      sparkle.className = 'sparkle-particle';
+      const rect = card.getBoundingClientRect();
+      sparkle.style.left = (rect.left + Math.random() * rect.width) + 'px';
+      sparkle.style.top = (rect.top + Math.random() * rect.height) + 'px';
+      sparkle.style.width = (3 + Math.random() * 6) + 'px';
+      sparkle.style.height = sparkle.style.width;
+      document.body.appendChild(sparkle);
+      setTimeout(() => sparkle.remove(), 800);
+    }
+  });
 }
 
 // ==========================================
@@ -2153,7 +2634,7 @@ window.renderScriptEditor = function() {
     const btn = document.createElement('button');
     btn.className = `promo-tab px-4 py-2.5 rounded-xl font-master font-black text-[9px] uppercase tracking-wider transition ${activeSlotIndex === i ? 'active' : ''}`;
     btn.innerHTML = `<div>${slot.title}</div><div class="text-[7px] opacity-60">${slot.extraInfo || 'Promo'}</div>`;
-    btn.onclick = () => { activeSlotIndex = i; loadSlotData(); };
+    btn.onclick = () => { activeSlotIndex = i; loadSlotData(); if (!isMuted && audioCtx) playBeep(650, 40); };
     tabContainer.appendChild(btn);
   });
   loadSlotData();
@@ -2214,6 +2695,7 @@ window.saveCurrentSlot = function() {
   window.saveData();
   renderScriptEditor();
   window.showToast('Slot Script Berhasil Disimpan!', 'success');
+  if (!isMuted && audioCtx) playBeep(1000, 80);
 };
 
 window.formatCode = function() {
@@ -2247,6 +2729,7 @@ window.cloneSlot = function() {
     activeSlotIndex = masterData.filter(d => d.category === activeMenu && !d.deleted).length - 1;
     renderScriptEditor();
     window.showToast('Slot Berhasil Di-Clone!', 'success');
+    if (!isMuted && audioCtx) playBeep(800, 60);
   }
 };
 
@@ -2305,6 +2788,7 @@ window.toggleAlarmStatus = function(idx) {
     window.saveData();
     renderCards();
     window.showToast(masterData[idx].alarmOn ? 'Alarm Diaktifkan (ON)' : 'Alarm Dimatikan (OFF)', 'info');
+    if (!isMuted && audioCtx) playBeep(masterData[idx].alarmOn ? 1000 : 300, 60);
   }
 };
 
@@ -2314,6 +2798,7 @@ window.toggleFavorite = function(idx) {
     window.saveData();
     renderCards();
     window.showToast(masterData[idx].favorite ? 'Ditambah ke Favorit' : 'Dihapus dari Favorit', 'info');
+    if (!isMuted && audioCtx) playBeep(700, 40);
   }
 };
 
@@ -2327,6 +2812,7 @@ window.toggleFavoritesFilter = function() {
     }
   }
   renderCards();
+  if (!isMuted && audioCtx) playBeep(500, 40);
 };
 
 window.resetFilters = function() {
@@ -2334,6 +2820,7 @@ window.resetFilters = function() {
   if (searchInput) searchInput.value = '';
   renderCards();
   window.showToast('Filter Direset', 'info');
+  if (!isMuted && audioCtx) playBeep(400, 40);
 };
 
 window.toggleCardPassVisibility = function(idx) {
@@ -2347,6 +2834,7 @@ window.togglePasaranDone = function(idx) {
     window.saveData();
     renderCards();
     window.showToast(masterData[idx].pasaranDone ? 'Pasaran Ditandai DONE (Redup)' : 'Pasaran PENDING (Hidup Kembali)', 'info');
+    if (!isMuted && audioCtx) playBeep(600, 50);
   }
 };
 
@@ -2356,6 +2844,7 @@ window.togglePasaranVisibility = function(idx) {
     window.saveData();
     renderCards();
     window.showToast(masterData[idx].hiddenNum ? 'Pasaran Di-Hide (Redup & Mati Hari Ini)' : 'Pasaran Ditampilkan Kembali', 'info');
+    if (!isMuted && audioCtx) playBeep(500, 40);
   }
 };
 
@@ -2365,17 +2854,20 @@ window.deleteItem = function(idx) {
     window.saveData();
     renderCards();
     window.showToast('Entry Dihapus', 'info');
+    if (!isMuted && audioCtx) playBeep(300, 100, 'sawtooth');
   }
 };
 
 window.editItem = function(idx) {
   openDataModal(idx);
+  if (!isMuted && audioCtx) playBeep(750, 50);
 };
 
 window.copyToClipboard = function(text, msg = 'Disalin!') {
   if (!text) return window.showToast('Teks kosong!', 'error');
   navigator.clipboard.writeText(text);
   window.showToast(msg, 'success');
+  if (!isMuted && audioCtx) playBeep(800, 40);
 };
 
 window.copyImageFromCard = async function(src) {
@@ -2438,6 +2930,7 @@ window.handleDirectFileUpload = function(event) {
       window.saveData();
       renderCards();
       window.showToast('Foto Berhasil Diperbarui!', 'success');
+      if (!isMuted && audioCtx) playBeep(1000, 60);
     } else {
       const titleName = prompt("Masukkan Judul / Nama Foto Kendala:", "FOTO KENDALA " + (masterData.length + 1));
       if (titleName) {
@@ -2445,6 +2938,7 @@ window.handleDirectFileUpload = function(event) {
         window.saveData();
         renderCards();
         window.showToast('Foto Kendala Berhasil Diunggah!', 'success');
+        if (!isMuted && audioCtx) playBeep(1000, 60);
       }
     }
   };
@@ -2459,6 +2953,7 @@ window.openImageLightbox = function(src, title) {
   if (img) img.src = src;
   if (cap) cap.innerText = title || "PRATINJAU GAMBAR";
   openModal('imageLightboxModal');
+  if (!isMuted && audioCtx) playHum();
 };
 
 window.closeImageLightbox = function() {
@@ -2479,6 +2974,7 @@ window.openSettingsModal = function() {
   if (bgFrontUrlInput) bgFrontUrlInput.value = customBgFront;
   if (bgInnerUrlInput) bgInnerUrlInput.value = customBgInner;
   openModal('settingsModal');
+  if (!isMuted && audioCtx) playHum();
 };
 
 window.closeSettingsModal = function() { closeModal('settingsModal'); };
@@ -2493,6 +2989,7 @@ window.saveMasterAccountSettings = function() {
   masterAuth.pass = newPass;
   window.saveData();
   window.showToast('Username & Password Master Berhasil Diperbarui!', 'success');
+  if (!isMuted && audioCtx) playBeep(1100, 80);
 };
 
 window.handleBgFrontFileUpload = function(e) {
@@ -2506,6 +3003,7 @@ window.handleBgFrontFileUpload = function(e) {
     window.saveData();
     if (bgFrontUrlInput) bgFrontUrlInput.value = customBgFront;
     window.showToast('Background Depan Berhasil Diperbarui!', 'success');
+    if (!isMuted && audioCtx) playBeep(1000, 60);
   };
   reader.readAsDataURL(file);
   e.target.value = '';
@@ -2519,6 +3017,7 @@ window.applyBgFrontFromInput = function() {
   window.applyBackgrounds();
   window.saveData();
   window.showToast('Background Depan Berhasil Diperbarui!', 'success');
+  if (!isMuted && audioCtx) playBeep(1000, 60);
 };
 
 window.resetBgFront = function() {
@@ -2528,6 +3027,7 @@ window.resetBgFront = function() {
   window.applyBackgrounds();
   window.saveData();
   window.showToast('Background Depan Direset!', 'info');
+  if (!isMuted && audioCtx) playBeep(400, 40);
 };
 
 window.handleBgInnerFileUpload = function(e) {
@@ -2541,6 +3041,7 @@ window.handleBgInnerFileUpload = function(e) {
     window.saveData();
     if (bgInnerUrlInput) bgInnerUrlInput.value = customBgInner;
     window.showToast('Background Dalam Berhasil Diperbarui!', 'success');
+    if (!isMuted && audioCtx) playBeep(1000, 60);
   };
   reader.readAsDataURL(file);
   e.target.value = '';
@@ -2554,6 +3055,7 @@ window.applyBgInnerFromInput = function() {
   window.applyBackgrounds();
   window.saveData();
   window.showToast('Background Dalam Berhasil Diperbarui!', 'success');
+  if (!isMuted && audioCtx) playBeep(1000, 60);
 };
 
 window.resetBgInner = function() {
@@ -2563,12 +3065,13 @@ window.resetBgInner = function() {
   window.applyBackgrounds();
   window.saveData();
   window.showToast('Background Dalam Direset!', 'info');
+  if (!isMuted && audioCtx) playBeep(400, 40);
 };
 
 // ==========================================
 // FOLDER MODAL
 // ==========================================
-window.openFolderModal = function() { openModal('menuModal'); };
+window.openFolderModal = function() { openModal('menuModal'); if (!isMuted && audioCtx) playHum(); };
 window.closeMenuModal = function() { closeModal('menuModal'); };
 
 window.addNewMenu = function() {
@@ -2594,6 +3097,7 @@ window.addNewMenu = function() {
   closeMenuModal();
   if (nameInput) nameInput.value = '';
   window.showToast(`Folder ${name} Berhasil Dibuat!`, 'success');
+  if (!isMuted && audioCtx) playBeep(1100, 80);
 };
 
 window.deleteMenu = function(name) {
@@ -2603,6 +3107,7 @@ window.deleteMenu = function(name) {
     window.saveData();
     window.switchMenu(menus[0] ? menus[0].name : "ALARM CENTER");
     window.showToast(`Folder Dihapus`, 'info');
+    if (!isMuted && audioCtx) playBeep(300, 100, 'sawtooth');
   }
 };
 
@@ -2709,6 +3214,7 @@ window.openDataModal = function(index = null) {
     if (mInfo.type === 'alarm') window.presetDays('DAILY');
   }
   openModal('dataModal');
+  if (!isMuted && audioCtx) playHum();
 };
 
 window.closeDataModal = function() { closeModal('dataModal'); };
@@ -2757,6 +3263,7 @@ if (vaultForm) {
     renderCards();
     closeDataModal();
     window.showToast('Entry Berhasil Disimpan!', 'success');
+    if (!isMuted && audioCtx) playBeep(1100, 80);
   };
 }
 
@@ -2806,6 +3313,7 @@ window.openCommandPalette = function() {
   const input = document.getElementById('paletteInput');
   if (input) input.focus();
   filterPalette();
+  if (!isMuted && audioCtx) playBeep(600, 40);
 };
 
 window.closeCommandPalette = function() { closeModal('paletteModal'); };
@@ -2837,7 +3345,7 @@ function filterPalette() {
     if (m.name.toLowerCase().includes(val)) {
       const div = document.createElement('div');
       div.className = "p-2.5 bg-[#080c14] hover:bg-yellow-400/20 hover:text-yellow-400 rounded-xl cursor-pointer flex justify-between items-center transition";
-      div.onclick = () => { window.switchMenu(m.name); window.closeCommandPalette(); };
+      div.onclick = () => { window.switchMenu(m.name); window.closeCommandPalette(); if (!isMuted && audioCtx) playBeep(700, 40); };
       div.innerHTML = `<span><i class="fas ${m.icon} mr-2 w-4 text-center"></i> Buka Folder: ${window.escapeHtml(m.name)}</span> <span class="text-[8px] text-gray-500 font-bold uppercase">MENU</span>`;
       container.appendChild(div);
     }
@@ -2847,7 +3355,7 @@ function filterPalette() {
 // ==========================================
 // PASSWORD GENERATOR
 // ==========================================
-window.openPasswordGenerator = function() { openModal('genModal'); generatePass(); };
+window.openPasswordGenerator = function() { openModal('genModal'); generatePass(); if (!isMuted && audioCtx) playHum(); };
 window.closePasswordGenerator = function() { closeModal('genModal'); };
 
 function generatePass() {
@@ -2862,13 +3370,13 @@ function generatePass() {
 
 window.copyGeneratedPass = function() {
   const out = document.getElementById('genOutput');
-  if (out) { navigator.clipboard.writeText(out.innerText); window.showToast('Password Disalin!', 'success'); }
+  if (out) { navigator.clipboard.writeText(out.innerText); window.showToast('Password Disalin!', 'success'); if (!isMuted && audioCtx) playBeep(800, 40); }
 };
 
 // ==========================================
 // BACKUP
 // ==========================================
-window.openImportExportModal = function() { openModal('ioModal'); };
+window.openImportExportModal = function() { openModal('ioModal'); if (!isMuted && audioCtx) playHum(); };
 window.closeImportExportModal = function() { closeModal('ioModal'); };
 
 window.exportVaultData = function() {
@@ -2880,6 +3388,7 @@ window.exportVaultData = function() {
   a.download = `vault_backup_${new Date().toISOString().slice(0,10)}.json`;
   a.click();
   window.showToast('Backup JSON Diunduh!', 'success');
+  if (!isMuted && audioCtx) playBeep(1000, 60);
 };
 
 window.importVaultData = function() {
@@ -2897,6 +3406,7 @@ window.importVaultData = function() {
         window.switchMenu(menus[0].name);
         closeImportExportModal();
         window.showToast('Data Berhasil Dipulihkan!', 'success');
+        if (!isMuted && audioCtx) playBeep(1100, 80);
       }
     } catch (err) { window.showToast('File JSON Tidak Valid!', 'error'); }
   };
@@ -2936,6 +3446,9 @@ function updateClock() {
 
   if (clockTime) clockTime.innerText = timeStr;
   if (clockDate) clockDate.innerText = dateStr;
+
+  // Update metrics
+  updateMetrics();
 
   masterData.forEach((item, index) => {
     if (item.category === 'ALARM CENTER' && item.alarmOn && item.alarmTime === currentHHMM) {
@@ -2989,6 +3502,39 @@ function updateClock() {
 }
 
 // ==========================================
+// SYSTEM METRICS
+// ==========================================
+function updateMetrics() {
+  // Ping Latency (simulasi)
+  const pingEl = document.getElementById('pingLatency');
+  if (pingEl) {
+    const latency = 15 + Math.floor(Math.random() * 30);
+    pingEl.textContent = latency + 'ms';
+    const dot = pingEl.closest('.metric-item')?.querySelector('.metric-dot');
+    if (dot) {
+      dot.className = 'metric-dot ' + (latency < 30 ? 'green' : latency < 60 ? 'yellow' : 'red');
+    }
+  }
+  
+  // Uptime
+  const uptimeEl = document.getElementById('uptimeCounter');
+  if (uptimeEl) {
+    const elapsed = Math.floor((Date.now() - sessionStartTime) / 1000);
+    const h = String(Math.floor(elapsed / 3600)).padStart(2, '0');
+    const m = String(Math.floor((elapsed % 3600) / 60)).padStart(2, '0');
+    const s = String(elapsed % 60).padStart(2, '0');
+    uptimeEl.textContent = `${h}:${m}:${s}`;
+  }
+  
+  // Memory (simulasi)
+  const memEl = document.getElementById('memoryUsage');
+  if (memEl) {
+    const usage = 30 + Math.floor(Math.random() * 40);
+    memEl.textContent = usage + '%';
+  }
+}
+
+// ==========================================
 // NOTIFICATION
 // ==========================================
 function triggerBottomRightNotification(title, subtext, type = 'alarm') {
@@ -3038,90 +3584,194 @@ function triggerBottomRightNotification(title, subtext, type = 'alarm') {
 }
 
 // ==========================================
-// PARTICLES (HD - Enhanced)
+// INTERACTIVE PARTICLE MESH CANVAS
 // ==========================================
-const canvas = document.getElementById('particleCanvas');
-if (canvas) {
-  const ctx = canvas.getContext('2d');
-  let width, height;
-  
-  function resizeCanvas() {
-    width = window.innerWidth;
-    height = window.innerHeight;
-    canvas.width = width;
-    canvas.height = height;
+const meshCanvas = document.getElementById('particleMeshCanvas');
+if (meshCanvas) {
+  const ctx = meshCanvas.getContext('2d');
+  let meshWidth, meshHeight;
+  let meshParticles = [];
+  let mouseX = -1000, mouseY = -1000;
+  let meshActive = true;
+
+  function resizeMesh() {
+    meshWidth = window.innerWidth;
+    meshHeight = window.innerHeight;
+    meshCanvas.width = meshWidth;
+    meshCanvas.height = meshHeight;
   }
-  window.addEventListener('resize', resizeCanvas);
-  resizeCanvas();
-  
-  let particles = [];
-  const particleCount = window.innerWidth < 768 ? 50 : 100;
-  
-  for (let i = 0; i < particleCount; i++) {
-    particles.push({
-      x: Math.random() * width,
-      y: Math.random() * height,
-      size: Math.random() * 3 + 0.5,
-      speedX: (Math.random() - 0.5) * 0.4,
-      speedY: (Math.random() - 0.5) * 0.4,
-      opacity: Math.random() * 0.6 + 0.2,
-      pulse: Math.random() * Math.PI * 2,
-      color: ['rgba(250,204,21', 'rgba(59,130,246', 'rgba(239,68,68', 'rgba(16,185,129'][Math.floor(Math.random() * 4)]
+  window.addEventListener('resize', resizeMesh);
+  resizeMesh();
+
+  // Particle generation
+  const meshCount = Math.min(80, Math.floor(window.innerWidth / 16));
+  for (let i = 0; i < meshCount; i++) {
+    meshParticles.push({
+      x: Math.random() * meshWidth,
+      y: Math.random() * meshHeight,
+      vx: (Math.random() - 0.5) * 0.6,
+      vy: (Math.random() - 0.5) * 0.6,
+      size: 1.5 + Math.random() * 2
     });
   }
-  
-  function animateParticles() {
-    ctx.clearRect(0, 0, width, height);
+
+  document.addEventListener('mousemove', (e) => {
+    mouseX = e.clientX;
+    mouseY = e.clientY;
+  });
+
+  function drawMesh() {
+    if (!meshActive) return;
+    ctx.clearRect(0, 0, meshWidth, meshHeight);
     
-    particles.forEach((p, i) => {
-      p.x += p.speedX;
-      p.y += p.speedY;
-      p.pulse += 0.02;
+    // Update particles
+    meshParticles.forEach(p => {
+      p.x += p.vx;
+      p.y += p.vy;
       
-      if (p.x < 0 || p.x > width) p.speedX *= -1;
-      if (p.y < 0 || p.y > height) p.speedY *= -1;
+      // Mouse interaction - repulsion
+      const dx = p.x - mouseX;
+      const dy = p.y - mouseY;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      if (dist < 150 && dist > 0) {
+        const force = (150 - dist) / 150 * 0.5;
+        p.vx += (dx / dist) * force;
+        p.vy += (dy / dist) * force;
+      }
       
-      const pulseOpacity = p.opacity * (0.6 + 0.4 * Math.sin(p.pulse));
-      const currentSize = p.size * (0.8 + 0.2 * Math.sin(p.pulse + 0.5));
+      // Boundary
+      if (p.x < 0 || p.x > meshWidth) p.vx *= -0.8;
+      if (p.y < 0 || p.y > meshHeight) p.vy *= -0.8;
       
-      // Glow
-      const gradient = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, currentSize * 4);
-      gradient.addColorStop(0, `${p.color}, ${pulseOpacity})`);
-      gradient.addColorStop(0.3, `${p.color}, ${pulseOpacity * 0.5})`);
-      gradient.addColorStop(1, `${p.color}, 0)`);
+      // Damping
+      p.vx *= 0.995;
+      p.vy *= 0.995;
       
-      ctx.beginPath();
-      ctx.arc(p.x, p.y, currentSize * 4, 0, Math.PI * 2);
-      ctx.fillStyle = gradient;
-      ctx.fill();
-      
-      // Core
-      ctx.beginPath();
-      ctx.arc(p.x, p.y, currentSize * 0.5, 0, Math.PI * 2);
-      ctx.fillStyle = `rgba(255, 255, 255, ${pulseOpacity * 0.6})`;
-      ctx.fill();
-      
-      // Connection lines
-      particles.forEach((p2, j) => {
-        if (i === j) return;
-        const dx = p.x - p2.x;
-        const dy = p.y - p2.y;
+      // Clamp speed
+      const speed = Math.sqrt(p.vx * p.vx + p.vy * p.vy);
+      if (speed > 1.5) {
+        p.vx = (p.vx / speed) * 1.5;
+        p.vy = (p.vy / speed) * 1.5;
+      }
+    });
+
+    // Draw connections
+    for (let i = 0; i < meshParticles.length; i++) {
+      for (let j = i + 1; j < meshParticles.length; j++) {
+        const dx = meshParticles[i].x - meshParticles[j].x;
+        const dy = meshParticles[i].y - meshParticles[j].y;
         const dist = Math.sqrt(dx * dx + dy * dy);
         if (dist < 120) {
+          const alpha = 0.15 * (1 - dist / 120);
           ctx.beginPath();
-          ctx.moveTo(p.x, p.y);
-          ctx.lineTo(p2.x, p2.y);
-          ctx.strokeStyle = `rgba(250, 204, 21, ${0.1 * (1 - dist / 120)})`;
+          ctx.moveTo(meshParticles[i].x, meshParticles[i].y);
+          ctx.lineTo(meshParticles[j].x, meshParticles[j].y);
+          ctx.strokeStyle = `rgba(250, 204, 21, ${alpha})`;
           ctx.lineWidth = 0.5;
           ctx.stroke();
         }
-      });
+      }
+    }
+
+    // Draw particles
+    meshParticles.forEach(p => {
+      const grad = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size * 3);
+      grad.addColorStop(0, 'rgba(250, 204, 21, 0.6)');
+      grad.addColorStop(1, 'rgba(250, 204, 21, 0)');
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.size * 3, 0, Math.PI * 2);
+      ctx.fillStyle = grad;
+      ctx.fill();
+      
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(250, 204, 21, 0.7)';
+      ctx.fill();
     });
-    
-    requestAnimationFrame(animateParticles);
+
+    requestAnimationFrame(drawMesh);
   }
-  animateParticles();
+  drawMesh();
 }
+
+// ==========================================
+// CURSOR TRAIL
+// ==========================================
+let trailElements = [];
+let trailActive = true;
+
+document.addEventListener('mousemove', (e) => {
+  if (!trailActive) return;
+  const trail = document.createElement('div');
+  trail.className = 'cursor-trail';
+  trail.style.left = e.clientX + 'px';
+  trail.style.top = e.clientY + 'px';
+  trail.style.width = '12px';
+  trail.style.height = '12px';
+  trail.style.opacity = '0.6';
+  document.body.appendChild(trail);
+  trailElements.push(trail);
+  
+  setTimeout(() => {
+    trail.style.opacity = '0';
+    trail.style.width = '4px';
+    trail.style.height = '4px';
+  }, 100);
+  
+  setTimeout(() => {
+    if (trail.parentNode) trail.remove();
+    trailElements = trailElements.filter(t => t.parentNode);
+  }, 500);
+});
+
+// ==========================================
+// CLICK SHOCKWAVE
+// ==========================================
+document.addEventListener('click', (e) => {
+  const shockwave = document.createElement('div');
+  shockwave.className = 'shockwave-pulse';
+  shockwave.style.left = e.clientX + 'px';
+  shockwave.style.top = e.clientY + 'px';
+  shockwave.style.width = '20px';
+  shockwave.style.height = '20px';
+  shockwave.style.transform = 'translate(-50%, -50%)';
+  document.body.appendChild(shockwave);
+  
+  setTimeout(() => {
+    if (shockwave.parentNode) shockwave.remove();
+  }, 800);
+  
+  // Sparkle burst
+  for (let i = 0; i < 8; i++) {
+    const sparkle = document.createElement('div');
+    sparkle.className = 'sparkle-particle';
+    const angle = Math.random() * Math.PI * 2;
+    const dist = 30 + Math.random() * 80;
+    sparkle.style.left = (e.clientX + Math.cos(angle) * dist) + 'px';
+    sparkle.style.top = (e.clientY + Math.sin(angle) * dist) + 'px';
+    sparkle.style.width = (2 + Math.random() * 4) + 'px';
+    sparkle.style.height = sparkle.style.width;
+    document.body.appendChild(sparkle);
+    setTimeout(() => sparkle.remove(), 800);
+  }
+});
+
+// ==========================================
+// AUDIO VISUALIZER
+// ==========================================
+function animateVisualizer() {
+  const bars = document.querySelectorAll('.visualizer-bar');
+  if (!bars.length) return;
+  const freqs = [0.5, 0.7, 1.0, 0.8, 0.6, 1.2, 0.7, 0.9, 0.4];
+  bars.forEach((bar, i) => {
+    const val = 0.3 + 0.7 * Math.abs(Math.sin(Date.now() / 200 + i * 1.2 + Math.sin(Date.now() / 400 + i) * 0.5));
+    const height = 4 + val * 22;
+    bar.style.height = height + 'px';
+    bar.style.opacity = 0.3 + 0.7 * val;
+  });
+  requestAnimationFrame(animateVisualizer);
+}
+animateVisualizer();
 
 // ==========================================
 // INITIALIZE
@@ -3146,12 +3796,19 @@ if (auth.currentUser) {
   loadFromLocalStorage();
 }
 
+// Update weather time
+if (document.getElementById('weatherTime')) {
+  setInterval(() => {
+    document.getElementById('weatherTime').textContent = new Date().toLocaleTimeString();
+  }, 30000);
+}
+
 setInterval(updateClock, 1000);
 updateClock();
 
 window.updateClock = updateClock;
 
-console.log('🚀 MR.RCT Executive Vault v20 loaded with HD visuals!');
+console.log('🚀 MR.RCT Executive Vault v22 loaded with HD visuals and advanced effects!');
 </script>
 </body>
 </html>
