@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ANONIMUS - EXECUTIVE VAULT v19 (LOGIN & SETTINGS SYSTEM)</title>
+<title>MR.RCT - Executive Vault v20</title>
 
 <!-- Tailwind CSS -->
 <script src="https://cdn.tailwindcss.com"></script>
@@ -13,6 +13,17 @@
 
 <!-- Google Fonts -->
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500&family=JetBrains+Mono:wght@400;500;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+
+<!-- FIREBASE SDK (MODULAR VIA CDN) -->
+<script type="importmap">
+{
+  "imports": {
+    "firebase/app": "https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js",
+    "firebase/database": "https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js",
+    "firebase/auth": "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"
+  }
+}
+</script>
 
 <script>
 tailwind.config = {
@@ -38,12 +49,15 @@ tailwind.config = {
         'pulse-slow': 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
         'glow-pulse': 'glowPulse 1.2s infinite alternate ease-in-out',
         'slide-in': 'slideIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards',
-        'popup': 'popupIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards'
+        'popup': 'popupIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards',
+        'float': 'float 6s ease-in-out infinite',
+        'shimmer': 'shimmer 3s infinite',
+        'gradient': 'gradient 8s ease infinite'
       },
       keyframes: {
         glowPulse: {
           '0%': { boxShadow: '0 0 10px rgba(239, 68, 68, 0.4), inset 0 0 5px rgba(239, 68, 68, 0.2)', borderColor: 'rgba(239, 68, 68, 0.6)' },
-          '100%': { boxShadow: '0 0 30px rgba(239, 68, 68, 0.9), inset 0 0 20px rgba(239, 68, 68, 0.5)', borderColor: '#ef4444' }
+          '100%': { boxShadow: '0 0 40px rgba(239, 68, 68, 0.9), inset 0 0 25px rgba(239, 68, 68, 0.5)', borderColor: '#ef4444' }
         },
         slideIn: {
           '0%': { transform: 'translateY(-30px) scale(0.9)', opacity: '0' },
@@ -52,6 +66,18 @@ tailwind.config = {
         popupIn: {
           '0%': { transform: 'translateY(100px) scale(0.8)', opacity: '0' },
           '100%': { transform: 'translateY(0) scale(1)', opacity: '1' }
+        },
+        float: {
+          '0%, 100%': { transform: 'translateY(0px)' },
+          '50%': { transform: 'translateY(-20px)' }
+        },
+        shimmer: {
+          '0%': { backgroundPosition: '-200% center' },
+          '100%': { backgroundPosition: '200% center' }
+        },
+        gradient: {
+          '0%, 100%': { backgroundPosition: '0% 50%' },
+          '50%': { backgroundPosition: '100% 50%' }
         }
       }
     }
@@ -67,7 +93,8 @@ tailwind.config = {
   --border-glow: rgba(250, 204, 21, 0.3);
 }
 
-/* Enhanced Scrollbar */
+* { box-sizing: border-box; }
+
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: rgba(3, 7, 18, 0.9); border-radius: 10px; }
 ::-webkit-scrollbar-thumb { 
@@ -77,8 +104,41 @@ tailwind.config = {
 }
 ::-webkit-scrollbar-thumb:hover { background: linear-gradient(180deg, #ffffff, #facc15); }
 
-/* Video Background */
-.bg-video-element {
+/* ===== BACKGROUND HD ===== */
+#bgLayer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: -5;
+  background: 
+    radial-gradient(ellipse at 20% 50%, #0a0a2a 0%, transparent 60%),
+    radial-gradient(ellipse at 80% 20%, #1a0a2a 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 100%, #0a1a2a 0%, transparent 40%),
+    #030712;
+  overflow: hidden;
+}
+
+#bgLayer::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: 
+    repeating-linear-gradient(45deg, 
+      rgba(255,255,255,0.01) 0px, 
+      rgba(255,255,255,0.01) 2px,
+      transparent 2px,
+      transparent 8px
+    );
+  pointer-events: none;
+}
+
+/* Video Background HD */
+#bgVideo {
   position: absolute;
   top: 50%;
   left: 50%;
@@ -86,255 +146,328 @@ tailwind.config = {
   min-height: 100%;
   width: auto;
   height: auto;
-  z-index: -3;
   transform: translateX(-50%) translateY(-50%);
   object-fit: cover;
-  opacity: 0.85;
+  opacity: 0.3;
+  filter: blur(2px) brightness(0.6);
+  z-index: -4;
+  pointer-events: none;
 }
 
-#dynamicBg {
-  position: fixed;
-  top: 0; left: 0; width: 100vw; height: 100vh;
-  z-index: -2;
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  transition: background 0.6s ease;
-  overflow: hidden;
-}
-
+/* Particle Canvas HD */
 #particleCanvas {
   position: fixed;
-  top: 0; left: 0; width: 100vw; height: 100vh;
-  z-index: -1;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: -3;
   pointer-events: none;
-  opacity: 0.6;
+  opacity: 0.8;
 }
 
-/* Login Screen */
+/* Glow Orbs */
+.glow-orb {
+  position: fixed;
+  border-radius: 50%;
+  filter: blur(80px);
+  pointer-events: none;
+  z-index: -2;
+  animation: float 12s ease-in-out infinite;
+}
+.glow-orb-1 {
+  width: 500px;
+  height: 500px;
+  background: rgba(250, 204, 21, 0.08);
+  top: -100px;
+  right: -100px;
+  animation-delay: 0s;
+}
+.glow-orb-2 {
+  width: 400px;
+  height: 400px;
+  background: rgba(59, 130, 246, 0.06);
+  bottom: -50px;
+  left: -50px;
+  animation-delay: -4s;
+}
+.glow-orb-3 {
+  width: 300px;
+  height: 300px;
+  background: rgba(239, 68, 68, 0.05);
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  animation-delay: -8s;
+}
+
+/* ===== LOGIN SCREEN HD ===== */
 #loginScreen {
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  transition: background 0.6s ease;
-  overflow: hidden;
+  background: rgba(3, 7, 18, 0.92);
+  backdrop-filter: blur(30px);
+  -webkit-backdrop-filter: blur(30px);
 }
 
 .login-glass-box {
-  background: rgba(255, 255, 255, 0.06);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  border-radius: 28px;
-  box-shadow: 0 8px 40px 0 rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(40px);
+  -webkit-backdrop-filter: blur(40px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 32px;
+  box-shadow: 
+    0 30px 80px 0 rgba(0, 0, 0, 0.7),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05),
+    0 0 60px rgba(250, 204, 21, 0.03);
+}
+
+.login-glass-box::before {
+  content: '';
+  position: absolute;
+  top: -1px;
+  left: -1px;
+  right: -1px;
+  bottom: -1px;
+  border-radius: 32px;
+  background: linear-gradient(135deg, rgba(250,204,21,0.1), transparent, rgba(250,204,21,0.05));
+  z-index: -1;
 }
 
 .login-input-line {
   background: transparent !important;
   border: none !important;
-  border-bottom: 2px solid rgba(255, 255, 255, 0.3) !important;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.15) !important;
   border-radius: 0 !important;
   padding-left: 0 !important;
   padding-right: 30px !important;
-  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  transition: all 0.4s ease;
 }
 .login-input-line:focus {
   border-bottom-color: #facc15 !important;
-  box-shadow: 0 2px 10px rgba(250, 204, 21, 0.15) !important;
+  box-shadow: 0 4px 30px rgba(250, 204, 21, 0.08) !important;
 }
 
-/* Sidebar Items */
+/* ===== SIDEBAR ===== */
 .sidebar-item {
   font-family: 'Orbitron', sans-serif;
   font-size: 10px;
   font-weight: 700;
   letter-spacing: 0.8px;
-  transition: all 0.25s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   border-left: 3px solid transparent;
-  border-radius: 8px;
+  border-radius: 10px;
+  position: relative;
 }
 .sidebar-item:hover {
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.04);
+  transform: translateX(4px);
 }
 .sidebar-item.active {
   color: #facc15;
-  background: linear-gradient(90deg, rgba(250, 204, 21, 0.12) 0%, rgba(250, 204, 21, 0.02) 100%);
+  background: linear-gradient(90deg, rgba(250, 204, 21, 0.1) 0%, rgba(250, 204, 21, 0.01) 100%);
   border-left-color: #facc15;
-  text-shadow: 0 0 12px rgba(250, 204, 21, 0.3);
+  text-shadow: 0 0 20px rgba(250, 204, 21, 0.15);
 }
 
-/* Pasaran Row */
-.pasaran-row {
-  position: relative;
-  background: linear-gradient(180deg, rgba(13, 19, 34, 0.95) 0%, rgba(8, 12, 22, 0.98) 100%);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: 16px;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-.pasaran-row:hover {
-  border-color: rgba(250, 204, 21, 0.4);
-  box-shadow: 0 4px 25px -5px rgba(250, 204, 21, 0.15);
-  transform: translateY(-1px);
-}
-.pasaran-row.glowing-approaching {
-  border: 2px solid #ef4444 !important;
-  box-shadow: 0 0 30px rgba(239, 68, 68, 0.6), inset 0 0 15px rgba(239, 68, 68, 0.2) !important;
-  animation: glowPulse 1.2s infinite alternate ease-in-out !important;
-}
-.pasaran-row.pasaran-done-mode {
-  opacity: 0.35 !important;
-  filter: grayscale(85%) !important;
-  background: rgba(8, 12, 20, 0.4) !important;
-  border-color: rgba(255, 255, 255, 0.04) !important;
-  box-shadow: none !important;
-  animation: none !important;
-}
-.pasaran-row.pasaran-hidden-mode {
-  opacity: 0.2 !important;
-  filter: blur(1px) grayscale(100%) !important;
-  background: rgba(3, 7, 18, 0.5) !important;
-  border-color: rgba(255, 255, 255, 0.02) !important;
-  box-shadow: none !important;
-  animation: none !important;
-}
-.pasaran-row.pending-status {
-  border-color: rgba(250, 204, 21, 0.1);
-}
-
-/* Note Cards */
+/* ===== CARDS HD ===== */
 .note-card {
-  background: #080c14;
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: 20px;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  background: rgba(8, 12, 20, 0.85);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 24px;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
 }
 .note-card:hover {
-  border-color: rgba(250, 204, 21, 0.4);
-  box-shadow: 0 0 30px rgba(250, 204, 21, 0.1);
-  transform: translateY(-2px);
+  border-color: rgba(250, 204, 21, 0.3);
+  box-shadow: 0 8px 50px rgba(250, 204, 21, 0.06);
+  transform: translateY(-4px);
 }
 
-/* Modal Glow Box */
-.modal-glow-box {
-  background: #080c14;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 0 50px rgba(0, 0, 0, 0.8), 0 0 20px rgba(250, 204, 21, 0.06);
-  border-radius: 28px;
+/* ===== PASARAN ROW ===== */
+.pasaran-row {
+  position: relative;
+  background: linear-gradient(180deg, rgba(13, 19, 34, 0.9) 0%, rgba(8, 12, 22, 0.95) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  border-radius: 18px;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   backdrop-filter: blur(10px);
 }
+.pasaran-row:hover {
+  border-color: rgba(250, 204, 21, 0.25);
+  box-shadow: 0 4px 40px rgba(250, 204, 21, 0.06);
+  transform: translateY(-2px);
+}
+.pasaran-row.glowing-approaching {
+  border: 2px solid #ef4444 !important;
+  box-shadow: 0 0 50px rgba(239, 68, 68, 0.4), inset 0 0 20px rgba(239, 68, 68, 0.15) !important;
+  animation: glowPulse 1.2s infinite alternate ease-in-out !important;
+}
+.pasaran-row.pasaran-done-mode {
+  opacity: 0.3 !important;
+  filter: grayscale(90%) !important;
+  background: rgba(8, 12, 20, 0.3) !important;
+  border-color: rgba(255, 255, 255, 0.02) !important;
+}
+.pasaran-row.pasaran-hidden-mode {
+  opacity: 0.15 !important;
+  filter: blur(2px) grayscale(100%) !important;
+}
 
-/* Day Selector */
+/* ===== MODAL HD ===== */
+.modal-glow-box {
+  background: rgba(8, 12, 20, 0.95);
+  backdrop-filter: blur(30px);
+  -webkit-backdrop-filter: blur(30px);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.8), 0 0 60px rgba(250, 204, 21, 0.03);
+  border-radius: 32px;
+}
+
+/* ===== DAY SELECTOR ===== */
 .day-select-btn {
-  padding: 6px 14px;
-  background: rgba(255,255,255,0.04);
-  border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 10px;
+  padding: 6px 16px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 12px;
   font-size: 9px;
   font-family: 'Orbitron', sans-serif;
   color: #94a3b8;
-  transition: all 0.25s ease;
+  transition: all 0.3s ease;
   cursor: pointer;
   font-weight: 700;
   letter-spacing: 0.5px;
 }
 .day-select-btn:hover {
-  background: rgba(250, 204, 21, 0.1);
-  border-color: rgba(250, 204, 21, 0.3);
+  background: rgba(250, 204, 21, 0.08);
+  border-color: rgba(250, 204, 21, 0.2);
 }
 .day-select-btn.active {
   background: linear-gradient(135deg, #facc15, #f59e0b);
   color: #000;
   border-color: #facc15;
   font-weight: 900;
-  box-shadow: 0 0 15px rgba(250, 204, 21, 0.3);
+  box-shadow: 0 0 25px rgba(250, 204, 21, 0.2);
 }
 
-/* Promo Tabs */
+/* ===== PROMO TABS ===== */
 .promo-tab {
-  background: rgba(255,255,255,0.03);
-  border: 1px solid rgba(255,255,255,0.06);
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,255,255,0.04);
   color: #94a3b8;
-  transition: all 0.25s ease;
-  border-radius: 12px;
+  transition: all 0.3s ease;
+  border-radius: 14px;
   padding: 10px 20px;
 }
 .promo-tab:hover {
-  background: rgba(255,255,255,0.06);
+  background: rgba(255,255,255,0.04);
 }
 .promo-tab.active {
   background: linear-gradient(135deg, #3b82f6, #2563eb);
   color: white;
   border-color: #60a5fa;
-  box-shadow: 0 4px 20px rgba(37, 99, 235, 0.3);
+  box-shadow: 0 4px 30px rgba(37, 99, 235, 0.2);
 }
 
 .editor-textarea {
-  background: #0d1117;
+  background: rgba(13, 17, 23, 0.9);
   color: #c9d1d9;
   font-family: 'JetBrains Mono', monospace;
   resize: none;
-  border: 1px solid rgba(255,255,255,0.08);
-  transition: border-color 0.3s ease;
+  border: 1px solid rgba(255,255,255,0.06);
+  transition: all 0.3s ease;
   font-size: 12px;
-  line-height: 1.6;
+  line-height: 1.8;
+  border-radius: 16px;
+  padding: 16px;
 }
 .editor-textarea:focus {
   border-color: #3b82f6;
   outline: none;
-  box-shadow: 0 0 20px rgba(59, 130, 246, 0.1);
+  box-shadow: 0 0 40px rgba(59, 130, 246, 0.05);
 }
 
-/* Toast & Notification */
+/* ===== TOAST & NOTIFICATION ===== */
 .toast-animate {
-  animation: slideIn 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+  animation: slideIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
 }
 .alarm-notification-popup {
-  animation: popupIn 0.45s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-  box-shadow: 0 0 40px rgba(250, 204, 21, 0.3), 0 10px 40px rgba(0, 0, 0, 0.7);
+  animation: popupIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7), 0 0 60px rgba(250, 204, 21, 0.05);
 }
 
-/* Utility Classes */
+/* ===== UTILITY ===== */
 .glass-effect {
-  background: rgba(255, 255, 255, 0.03);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.02);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.04);
 }
 
 .shadow-glow {
-  box-shadow: 0 0 30px rgba(250, 204, 21, 0.08);
+  box-shadow: 0 0 40px rgba(250, 204, 21, 0.04);
 }
 
-/* Time Input Styling */
-input[type="time"]::-webkit-calendar-picker-indicator {
-  filter: invert(1);
-  cursor: pointer;
-  opacity: 0.6;
-  transition: opacity 0.3s;
-}
-input[type="time"]::-webkit-calendar-picker-indicator:hover {
-  opacity: 1;
-}
-
-/* Responsive tweaks */
+/* ===== RESPONSIVE ===== */
 @media (max-width: 768px) {
   .login-glass-box {
     padding: 24px !important;
-    border-radius: 20px;
+    border-radius: 24px;
   }
   .note-card {
     padding: 16px !important;
   }
+  .glow-orb {
+    display: none;
+  }
+}
+
+/* ===== SCROLLBAR KUSTOM ===== */
+.custom-scroll::-webkit-scrollbar { width: 4px; }
+.custom-scroll::-webkit-scrollbar-track { background: rgba(255,255,255,0.02); }
+.custom-scroll::-webkit-scrollbar-thumb { background: rgba(250,204,21,0.2); border-radius: 10px; }
+
+/* ===== SHIMMER TEXT ===== */
+.shimmer-text {
+  background: linear-gradient(90deg, #facc15, #f59e0b, #facc15);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shimmer 4s linear infinite;
+}
+
+/* ===== GLOW BORDER ===== */
+.glow-border {
+  position: relative;
+}
+.glow-border::after {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  background: linear-gradient(135deg, rgba(250,204,21,0.1), transparent, rgba(250,204,21,0.05));
+  z-index: -1;
+  opacity: 0.5;
+  transition: opacity 0.4s ease;
+}
+.glow-border:hover::after {
+  opacity: 1;
 }
 </style>
 </head>
 <body class="font-body bg-vault-bg text-slate-100 h-screen flex overflow-hidden select-none">
 
-<!-- Dynamic Background Layer -->
-<div id="dynamicBg"></div>
+<!-- ===== BACKGROUND LAYERS ===== -->
+<div id="bgLayer">
+  <video id="bgVideo" autoplay muted loop playsinline>
+    <source src="https://assets.mixkit.co/videos/preview/mixkit-digital-particles-falling-1076-large.mp4" type="video/mp4">
+  </video>
+  <div class="glow-orb glow-orb-1"></div>
+  <div class="glow-orb glow-orb-2"></div>
+  <div class="glow-orb glow-orb-3"></div>
+</div>
 <canvas id="particleCanvas"></canvas>
 
 <!-- Hidden File Inputs -->
@@ -349,12 +482,12 @@ input[type="time"]::-webkit-calendar-picker-indicator:hover {
 <div id="bottomRightNotificationContainer" class="fixed bottom-6 right-6 z-[10000] flex flex-col gap-3 pointer-events-auto max-w-sm w-full"></div>
 
 <!-- ==================== LOGIN SCREEN ==================== -->
-<div id="loginScreen" style="display: none;" class="fixed inset-0 z-[9999] flex flex-col transition-all duration-500 font-body">
+<div id="loginScreen" style="display: none;" class="fixed inset-0 z-[9999] flex flex-col transition-all duration-700 font-body">
 
-  <!-- Top Navigation -->
   <header class="w-full flex justify-between items-center px-8 md:px-16 py-6 text-white relative z-10">
-    <div class="text-2xl md:text-3xl font-black tracking-tighter flex items-center gap-2">
-      <span class="text-yellow-400">✦</span> Logo
+    <div class="text-3xl md:text-4xl font-black tracking-tighter flex items-center gap-3">
+      <span class="text-yellow-400 text-4xl">✦</span>
+      <span class="shimmer-text font-display">MR.RCT</span>
     </div>
     <nav class="hidden md:flex gap-8 font-medium text-sm">
       <a href="#" class="hover:text-yellow-400 transition duration-300">Home</a>
@@ -367,41 +500,39 @@ input[type="time"]::-webkit-calendar-picker-indicator:hover {
     </button>
   </header>
 
-  <!-- Center Login Box -->
   <div class="flex-grow flex items-center justify-center p-4">
-    <div class="login-glass-box w-full max-w-[400px] p-8 md:p-10 relative overflow-hidden">
+    <div class="login-glass-box w-full max-w-[420px] p-8 md:p-10 relative overflow-hidden">
       
-      <!-- Close Button -->
       <button class="absolute top-4 right-4 w-8 h-8 flex items-center justify-center bg-black/40 text-white/60 rounded-lg hover:bg-red-500/80 hover:text-white transition cursor-pointer border border-white/10">
         <i class="fas fa-times text-xs"></i>
       </button>
 
-      <h2 class="text-center text-2xl md:text-3xl font-bold text-white mb-8 tracking-wide">Welcome Back</h2>
+      <div class="text-center mb-8">
+        <h2 class="text-3xl md:text-4xl font-bold text-white tracking-wide font-display">Welcome Back</h2>
+        <p class="text-[10px] font-master text-yellow-400/70 uppercase tracking-[4px] mt-2">MR.RCT EXECUTIVE VAULT</p>
+      </div>
 
-      <div class="space-y-6">
-        <!-- Username -->
+      <div class="space-y-5">
         <div>
           <label class="block text-white/70 text-sm font-medium mb-1.5">Email / Username</label>
           <div class="relative">
-            <input type="text" id="loginUser" value="admin"
-              class="login-input-line w-full text-white outline-none py-2 placeholder:text-white/30 text-sm"
+            <input type="text" id="loginUser" value="rykcocastio557@gmail.com"
+              class="login-input-line w-full text-white outline-none py-2.5 placeholder:text-white/30 text-sm"
               placeholder="Enter your email or username">
-            <i class="fas fa-envelope absolute right-0 top-3 text-white/50 text-sm"></i>
+            <i class="fas fa-envelope absolute right-0 top-3.5 text-white/50 text-sm"></i>
           </div>
         </div>
 
-        <!-- Password -->
         <div>
           <label class="block text-white/70 text-sm font-medium mb-1.5">Password</label>
           <div class="relative">
             <input type="password" id="loginPass" onkeypress="if(event.key==='Enter') handleLogin()"
-              class="login-input-line w-full text-white outline-none py-2 placeholder:text-white/30 text-sm"
+              class="login-input-line w-full text-white outline-none py-2.5 placeholder:text-white/30 text-sm"
               placeholder="Enter your password">
-            <i class="fas fa-lock absolute right-0 top-3 text-white/50 text-sm"></i>
+            <i class="fas fa-lock absolute right-0 top-3.5 text-white/50 text-sm"></i>
           </div>
         </div>
 
-        <!-- Remember & Forgot -->
         <div class="flex justify-between items-center text-[11px] text-white/80">
           <label class="flex items-center gap-2 cursor-pointer hover:text-white transition">
             <input type="checkbox" checked class="w-3.5 h-3.5 accent-yellow-400 rounded">
@@ -410,8 +541,7 @@ input[type="time"]::-webkit-calendar-picker-indicator:hover {
           <a href="#" class="hover:text-yellow-400 transition">Forgot Password?</a>
         </div>
 
-        <!-- Login Button -->
-        <button onclick="handleLogin()" class="w-full bg-gradient-to-r from-yellow-400 to-amber-500 hover:from-yellow-300 hover:to-amber-400 text-black font-bold py-3.5 rounded-xl transition duration-300 shadow-xl hover:shadow-2xl transform hover:scale-[1.02]">
+        <button onclick="handleLogin()" class="w-full bg-gradient-to-r from-yellow-400 to-amber-500 hover:from-yellow-300 hover:to-amber-400 text-black font-bold py-4 rounded-xl transition duration-300 shadow-xl hover:shadow-2xl transform hover:scale-[1.02] text-sm tracking-wider">
           <i class="fas fa-arrow-right-to-bracket mr-2"></i> Login
         </button>
 
@@ -429,24 +559,22 @@ input[type="time"]::-webkit-calendar-picker-indicator:hover {
 <!-- ==================== SIDEBAR ==================== -->
 <aside id="mainSidebar" class="fixed lg:static inset-y-0 left-0 w-80 bg-[#050811]/95 backdrop-blur-sm flex flex-col border-r border-white/5 z-40 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 shadow-2xl">
 
-  <!-- Profile Card -->
   <div class="p-4 border-b border-white/5">
-    <div class="bg-[#080c14] border border-yellow-400/20 rounded-2xl p-5 text-center shadow-[0_0_20px_rgba(250,204,21,0.06)]">
+    <div class="bg-[#080c14]/80 border border-yellow-400/20 rounded-2xl p-5 text-center shadow-[0_0_30px_rgba(250,204,21,0.04)]">
       <div class="w-14 h-14 rounded-2xl bg-black/60 border-2 border-yellow-400/40 flex items-center justify-center mx-auto mb-2.5 text-yellow-400 text-2xl shadow-inner">
         <i class="fas fa-crown"></i>
       </div>
-      <h2 class="font-master font-black text-sm text-white tracking-wider uppercase">ANONIMUS KENCET</h2>
+      <h2 class="font-master font-black text-sm text-white tracking-wider uppercase">MR.RCT</h2>
       <div class="flex items-center justify-center gap-2 mt-1.5">
-        <span id="firebaseStatusDot" class="w-2 h-2 rounded-full bg-amber-500"></span>
-        <span id="firebaseStatusText" class="text-[8px] font-master font-bold text-amber-500 uppercase tracking-[2px]">LOCAL STORAGE</span>
+        <span id="firebaseStatusDot" class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
+        <span id="firebaseStatusText" class="text-[8px] font-master font-bold text-amber-500 uppercase tracking-[2px]">SYNCING...</span>
       </div>
+      <div class="mt-2 text-[7px] font-master text-gray-500 tracking-[2px] uppercase">Executive Vault v20</div>
     </div>
   </div>
 
-  <!-- Menu List -->
-  <div class="flex-grow overflow-y-auto p-3 space-y-0.5" id="sidebarMenu"></div>
+  <div class="flex-grow overflow-y-auto p-3 space-y-0.5 custom-scroll" id="sidebarMenu"></div>
 
-  <!-- Quick Actions -->
   <div class="p-4 border-t border-white/5 bg-black/30 space-y-2.5">
     <button onclick="openFolderModal()" class="w-full py-3.5 rounded-2xl border border-yellow-400/30 bg-yellow-400/5 text-yellow-400 text-[9px] font-master font-bold tracking-[1.5px] hover:bg-yellow-400 hover:text-black transition uppercase flex items-center justify-center gap-2 shadow-lg cursor-pointer group">
       <i class="fas fa-folder-plus text-xs group-hover:scale-110 transition"></i> + Buat Folder Baru
@@ -466,10 +594,8 @@ input[type="time"]::-webkit-calendar-picker-indicator:hover {
 <!-- ==================== MAIN CONTENT ==================== -->
 <main class="flex-grow h-screen overflow-y-auto p-4 md:p-6 relative w-full">
 
-  <!-- Sticky Header -->
-  <div class="sticky top-0 z-[20] -mx-4 md:-mx-6 px-4 md:px-6 py-4 bg-vault-bg/90 backdrop-blur-md border-b border-white/5 mb-6">
+  <div class="sticky top-0 z-[20] -mx-4 md:-mx-6 px-4 md:px-6 py-4 bg-vault-bg/80 backdrop-blur-xl border-b border-white/5 mb-6">
     
-    <!-- Top Bar -->
     <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-5">
       <div class="flex items-center gap-3">
         <button onclick="toggleMobileSidebar(true)" class="lg:hidden p-2.5 rounded-xl bg-slate-900 border border-white/10 text-yellow-400 hover:bg-yellow-400 hover:text-black transition">
@@ -478,14 +604,14 @@ input[type="time"]::-webkit-calendar-picker-indicator:hover {
         <div>
           <div class="flex items-center gap-3">
             <h1 id="currentMenuTitle" class="font-master text-2xl md:text-3xl font-black text-yellow-400 tracking-wider uppercase italic">ALARM CENTER</h1>
-            <span id="secureBadge" class="px-3 py-0.5 rounded-full border border-yellow-400/40 bg-yellow-400/10 text-yellow-400 text-[8px] font-master font-bold tracking-[2px] uppercase animate-pulse">SECURE</span>
+            <span id="secureBadge" class="px-3 py-0.5 rounded-full border border-yellow-400/40 bg-yellow-400/10 text-yellow-400 text-[8px] font-master font-bold tracking-[2px] uppercase animate-pulse">● LIVE</span>
           </div>
-          <p id="folderSubtitle" class="text-[9px] text-gray-400 font-bold uppercase tracking-widest mt-0.5">Centralized Command & Executive Vault Monitoring Console</p>
+          <p id="folderSubtitle" class="text-[9px] text-gray-400 font-bold uppercase tracking-widest mt-0.5">MR.RCT Executive Command Center</p>
         </div>
       </div>
 
       <div class="flex items-center gap-3 w-full lg:w-auto justify-between lg:justify-end">
-        <button onclick="openSettingsModal()" title="Pengaturan & Background" class="px-4 py-2.5 bg-[#090d16] border border-yellow-400/30 hover:bg-yellow-400 hover:text-black rounded-xl text-[10px] font-bold font-master text-yellow-400 transition flex items-center gap-2 shadow-lg cursor-pointer group">
+        <button onclick="openSettingsModal()" class="px-4 py-2.5 bg-[#090d16] border border-yellow-400/30 hover:bg-yellow-400 hover:text-black rounded-xl text-[10px] font-bold font-master text-yellow-400 transition flex items-center gap-2 shadow-lg cursor-pointer group">
           <i class="fas fa-gear text-sm group-hover:rotate-90 transition duration-500"></i>
           <span class="hidden sm:inline">SETTINGS</span>
         </button>
@@ -494,6 +620,11 @@ input[type="time"]::-webkit-calendar-picker-indicator:hover {
           <i class="fas fa-terminal text-yellow-400 group-hover:scale-110 transition"></i>
           <span class="hidden sm:inline">KlikSajaBoy</span>
           <span class="px-2 py-0.5 bg-white/5 text-[8px] rounded text-gray-500 font-code border border-white/5">Ctrl+K</span>
+        </button>
+
+        <button onclick="logoutVault()" class="px-4 py-2.5 bg-red-500/10 border border-red-500/30 hover:bg-red-500 hover:text-white rounded-xl text-[10px] font-bold font-master text-red-400 transition flex items-center gap-2 shadow-lg cursor-pointer group">
+          <i class="fas fa-sign-out-alt text-sm"></i>
+          <span class="hidden sm:inline">LOGOUT</span>
         </button>
 
         <div class="flex items-center gap-3 bg-[#090d16] border border-white/5 px-5 py-2.5 rounded-2xl shadow-xl">
@@ -506,20 +637,19 @@ input[type="time"]::-webkit-calendar-picker-indicator:hover {
       </div>
     </div>
 
-    <!-- Control Bar -->
     <div id="normalControlBar" class="flex flex-col md:flex-row justify-between items-center gap-3">
       <div class="relative w-full md:w-96">
         <input type="text" id="searchInput" oninput="renderCards()" placeholder="Cari data, username, atau pasaran..." 
-          class="w-full bg-[#080c14] border border-white/10 pl-10 pr-4 py-3 rounded-2xl outline-none focus:border-yellow-400 text-xs text-white font-bold transition shadow-xl placeholder:text-gray-600">
+          class="w-full bg-[#080c14]/80 border border-white/10 pl-10 pr-4 py-3 rounded-2xl outline-none focus:border-yellow-400 text-xs text-white font-bold transition shadow-xl placeholder:text-gray-600 backdrop-blur-sm">
         <i class="fas fa-search absolute left-3.5 top-3.5 text-gray-500 text-xs"></i>
       </div>
 
       <div class="flex flex-wrap items-center gap-2.5 w-full md:w-auto justify-end">
-        <button onclick="toggleFavoritesFilter()" id="favToggleBtn" class="px-4 py-3 rounded-2xl bg-[#080c14] border border-white/10 text-gray-300 hover:text-yellow-400 hover:border-yellow-400/40 text-[10px] font-master font-bold transition flex items-center gap-2 cursor-pointer group">
+        <button onclick="toggleFavoritesFilter()" id="favToggleBtn" class="px-4 py-3 rounded-2xl bg-[#080c14]/80 border border-white/10 text-gray-300 hover:text-yellow-400 hover:border-yellow-400/40 text-[10px] font-master font-bold transition flex items-center gap-2 cursor-pointer group backdrop-blur-sm">
           <i class="fas fa-star text-yellow-400"></i> FAVORITES
         </button>
 
-        <button onclick="triggerDirectPhotoUpload()" id="quickUploadBtn" style="display: none;" class="px-5 py-3 rounded-2xl bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-400 hover:to-emerald-500 text-black font-master font-black text-[10px] uppercase tracking-wider transition shadow-[0_0_20px_rgba(16,185,129,0.3)] flex items-center gap-2 cursor-pointer transform hover:scale-[1.02]">
+        <button onclick="triggerDirectPhotoUpload()" id="quickUploadBtn" style="display: none;" class="px-5 py-3 rounded-2xl bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-400 hover:to-emerald-500 text-black font-master font-black text-[10px] uppercase tracking-wider transition shadow-[0_0_30px_rgba(16,185,129,0.2)] flex items-center gap-2 cursor-pointer transform hover:scale-[1.02]">
           <i class="fas fa-cloud-arrow-up text-sm"></i> UPLOAD FOTO
         </button>
 
@@ -531,29 +661,24 @@ input[type="time"]::-webkit-calendar-picker-indicator:hover {
           <i class="fas fa-rotate-left mr-1"></i> RESET
         </button>
 
-        <button onclick="openDataModal()" class="bg-gradient-to-r from-yellow-400 to-amber-500 hover:from-yellow-300 hover:to-amber-400 text-black px-5 py-3 rounded-2xl font-master font-black text-[10px] uppercase tracking-wider transition shadow-[0_0_20px_rgba(250,204,21,0.25)] flex items-center gap-2 shrink-0 cursor-pointer transform hover:scale-[1.02]">
+        <button onclick="openDataModal()" class="bg-gradient-to-r from-yellow-400 to-amber-500 hover:from-yellow-300 hover:to-amber-400 text-black px-5 py-3 rounded-2xl font-master font-black text-[10px] uppercase tracking-wider transition shadow-[0_0_30px_rgba(250,204,21,0.15)] flex items-center gap-2 shrink-0 cursor-pointer transform hover:scale-[1.02]">
           <i class="fas fa-plus text-xs"></i> ADD ENTRY
         </button>
       </div>
     </div>
   </div>
 
-  <!-- ==================== SCRIPT NEW EDITOR ==================== -->
+  <!-- SCRIPT NEW EDITOR -->
   <div id="scriptNewEditor" style="display: none;" class="flex flex-col gap-6">
-    <!-- Slot Navigation -->
     <div id="slotTabs" class="flex flex-wrap gap-2 overflow-x-auto pb-2"></div>
-
     <div class="grid grid-cols-1 xl:grid-cols-2 gap-6 items-start h-[calc(100vh-320px)]">
-      <!-- Editor Column -->
-      <div class="bg-[#080c14] border border-white/10 rounded-2xl p-6 flex flex-col h-full overflow-hidden shadow-2xl">
+      <div class="bg-[#080c14]/80 backdrop-blur-sm border border-white/10 rounded-2xl p-6 flex flex-col h-full overflow-hidden shadow-2xl">
         <div class="flex justify-between items-center mb-6">
           <h3 class="font-master font-black text-sm text-blue-400 uppercase tracking-widest flex items-center gap-2">
             <i class="fas fa-code"></i> EDITOR HTML PROMO
           </h3>
           <span class="px-3 py-1 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-[9px] font-master font-bold rounded-lg uppercase animate-pulse">● SIAP</span>
         </div>
-
-        <!-- Fields -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
           <div>
             <label class="block text-[8px] font-master text-gray-500 uppercase font-bold mb-1.5 tracking-wider">JUDUL SCRIPT</label>
@@ -571,8 +696,6 @@ input[type="time"]::-webkit-calendar-picker-indicator:hover {
             </select>
           </div>
         </div>
-
-        <!-- Action Buttons -->
         <div class="grid grid-cols-3 md:grid-cols-7 gap-2 mb-4">
           <button onclick="saveCurrentSlot()" class="py-2.5 px-2 bg-blue-600 hover:bg-blue-500 text-white font-master font-bold text-[8px] uppercase rounded-xl transition flex items-center justify-center gap-1.5 shadow-lg hover:shadow-blue-500/30">
             <i class="fas fa-save text-[10px]"></i> <span class="hidden sm:inline">Simpan</span>
@@ -596,15 +719,11 @@ input[type="time"]::-webkit-calendar-picker-indicator:hover {
             <i class="fas fa-rotate-left text-[10px]"></i> <span class="hidden sm:inline">Reset</span>
           </button>
         </div>
-
-        <!-- Code Area -->
         <div class="flex-grow">
           <textarea id="promoCodeInput" oninput="updateLivePreview()" class="editor-textarea w-full h-full p-4 rounded-xl text-xs" placeholder="Paste / Tulis kode HTML/CSS Promo di sini..."></textarea>
         </div>
       </div>
-
-      <!-- Preview Column -->
-      <div class="bg-[#080c14] border border-white/10 rounded-2xl p-6 flex flex-col h-full overflow-hidden shadow-2xl">
+      <div class="bg-[#080c14]/80 backdrop-blur-sm border border-white/10 rounded-2xl p-6 flex flex-col h-full overflow-hidden shadow-2xl">
         <div class="flex justify-between items-center mb-6">
           <h3 class="font-master font-black text-sm text-yellow-400 uppercase tracking-widest flex items-center gap-2">
             <i class="fas fa-desktop"></i> PREVIEW REALTIME
@@ -614,15 +733,15 @@ input[type="time"]::-webkit-calendar-picker-indicator:hover {
             <span class="px-3 py-1 bg-red-500/10 border border-red-500/30 text-red-400 text-[9px] font-master font-bold rounded-lg uppercase animate-pulse">● LIVE</span>
           </div>
         </div>
-        <div class="flex-grow bg-white rounded-xl overflow-hidden relative shadow-inner">
+        <div class="flex-grow bg-white/5 rounded-xl overflow-hidden relative shadow-inner border border-white/5">
           <iframe id="promoPreviewFrame" class="w-full h-full border-none"></iframe>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- ==================== PASARAN SUMMARY ==================== -->
-  <div id="pasaranSummaryBar" style="display: none;" class="mb-5 p-4 rounded-2xl bg-[#080c14] border border-white/10 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-3 shadow-lg">
+  <!-- PASARAN SUMMARY -->
+  <div id="pasaranSummaryBar" style="display: none;" class="mb-5 p-4 rounded-2xl bg-[#080c14]/80 backdrop-blur-sm border border-white/10 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-3 shadow-lg">
     <div>
       <p class="text-[8px] font-master font-bold text-gray-500 uppercase tracking-[2px] mb-0.5">SUMMARY PROGRESS</p>
       <p id="pasaranProgressText" class="font-master font-black text-sm md:text-base text-yellow-400 tracking-wide">0 / 0 PASARAN DONE RESULT</p>
@@ -633,11 +752,11 @@ input[type="time"]::-webkit-calendar-picker-indicator:hover {
     </div>
   </div>
 
-  <!-- ==================== CARDS GRID ==================== -->
+  <!-- CARDS GRID -->
   <div id="cardGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5"></div>
 
   <!-- Empty State -->
-  <div id="emptyState" class="hidden text-center py-20 bg-[#080c14] rounded-3xl border border-white/5 my-6">
+  <div id="emptyState" class="hidden text-center py-20 bg-[#080c14]/80 backdrop-blur-sm rounded-3xl border border-white/5 my-6">
     <div class="w-16 h-16 rounded-full bg-white/5 border border-white/10 flex items-center justify-center mx-auto mb-3 text-yellow-400 text-2xl">
       <i class="fas fa-box-open"></i>
     </div>
@@ -653,8 +772,8 @@ input[type="time"]::-webkit-calendar-picker-indicator:hover {
 <!-- ==================== MODALS ==================== -->
 
 <!-- SETTINGS MODAL -->
-<div id="settingsModal" style="display: none;" class="fixed inset-0 bg-black/90 z-[10005] flex items-center justify-center p-4 backdrop-blur-md" onclick="if(event.target === this) closeSettingsModal()">
-  <div class="modal-glow-box p-6 md:p-8 rounded-[30px] w-full max-w-xl text-left border border-yellow-400/20 max-h-[90vh] overflow-y-auto shadow-2xl">
+<div id="settingsModal" style="display: none;" class="fixed inset-0 bg-black/90 z-[10005] flex items-center justify-center p-4 backdrop-blur-xl" onclick="if(event.target === this) closeSettingsModal()">
+  <div class="modal-glow-box p-6 md:p-8 rounded-[30px] w-full max-w-xl text-left border border-yellow-400/20 max-h-[90vh] overflow-y-auto shadow-2xl custom-scroll">
     <div class="flex justify-between items-center border-b border-white/10 pb-4 mb-5">
       <div class="flex items-center gap-3">
         <div class="w-10 h-10 rounded-xl bg-yellow-400/10 border border-yellow-400/30 flex items-center justify-center text-yellow-400 text-lg">
@@ -668,7 +787,6 @@ input[type="time"]::-webkit-calendar-picker-indicator:hover {
       <button onclick="closeSettingsModal()" class="text-gray-400 hover:text-white text-base p-1.5 rounded-lg hover:bg-white/10 transition cursor-pointer"><i class="fas fa-times"></i></button>
     </div>
 
-    <!-- USERNAME & PASSWORD -->
     <div class="bg-black/60 border border-white/10 rounded-2xl p-5 mb-5 space-y-4">
       <h4 class="font-master font-bold text-xs text-yellow-400 uppercase tracking-wider flex items-center gap-2">
         <i class="fas fa-key text-yellow-400"></i> UBAH USERNAME & PASSWORD MASTER
@@ -693,10 +811,9 @@ input[type="time"]::-webkit-calendar-picker-indicator:hover {
       </button>
     </div>
 
-    <!-- BACKGROUND DEPAN -->
     <div class="bg-black/60 border border-white/10 rounded-2xl p-5 mb-5 space-y-3">
       <h4 class="font-master font-bold text-xs text-yellow-400 uppercase tracking-wider flex items-center gap-2">
-        <i class="fas fa-image text-yellow-400"></i> BACKGROUND DEPAN (DATA LOGIN)
+        <i class="fas fa-image text-yellow-400"></i> BACKGROUND DEPAN (LOGIN)
       </h4>
       <div>
         <label class="block text-[8px] font-master text-gray-400 uppercase tracking-[2px] mb-1.5">PASTE URL GAMBAR ATAU VIDEO (.mp4)</label>
@@ -715,7 +832,6 @@ input[type="time"]::-webkit-calendar-picker-indicator:hover {
       </div>
     </div>
 
-    <!-- BACKGROUND DALAM -->
     <div class="bg-black/60 border border-white/10 rounded-2xl p-5 mb-5 space-y-3">
       <h4 class="font-master font-bold text-xs text-yellow-400 uppercase tracking-wider flex items-center gap-2">
         <i class="fas fa-desktop text-yellow-400"></i> BACKGROUND DALAM (DASHBOARD)
@@ -744,7 +860,7 @@ input[type="time"]::-webkit-calendar-picker-indicator:hover {
 </div>
 
 <!-- IMAGE LIGHTBOX -->
-<div id="imageLightboxModal" style="display: none;" class="fixed inset-0 bg-black/95 z-[10005] flex flex-col items-center justify-center p-4 backdrop-blur-xl" onclick="if(event.target === this) closeImageLightbox()">
+<div id="imageLightboxModal" style="display: none;" class="fixed inset-0 bg-black/95 z-[10005] flex flex-col items-center justify-center p-4 backdrop-blur-2xl" onclick="if(event.target === this) closeImageLightbox()">
   <div class="absolute top-5 right-6 flex items-center gap-3 z-[10006]">
     <button onclick="copyLightboxImage()" title="Salin Gambar ke Clipboard" class="px-5 py-2.5 bg-yellow-400 hover:bg-amber-400 text-black font-master font-bold text-xs rounded-xl transition flex items-center gap-2 cursor-pointer shadow-lg hover:shadow-yellow-400/30">
       <i class="far fa-copy text-sm"></i> SALIN GAMBAR
@@ -761,7 +877,7 @@ input[type="time"]::-webkit-calendar-picker-indicator:hover {
 </div>
 
 <!-- FOLDER MODAL -->
-<div id="menuModal" style="display: none;" class="fixed inset-0 bg-black/90 z-[1001] flex items-center justify-center p-4 backdrop-blur-md" onclick="if(event.target === this) closeMenuModal()">
+<div id="menuModal" style="display: none;" class="fixed inset-0 bg-black/90 z-[1001] flex items-center justify-center p-4 backdrop-blur-xl" onclick="if(event.target === this) closeMenuModal()">
   <div class="modal-glow-box p-8 rounded-[28px] w-full max-w-md text-center border border-white/10 shadow-2xl">
     <div class="w-14 h-14 mx-auto mb-4 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-white text-xl shadow-inner">
       <i class="fas fa-folder-plus text-yellow-400"></i>
@@ -784,7 +900,7 @@ input[type="time"]::-webkit-calendar-picker-indicator:hover {
         </select>
       </div>
     </div>
-    <button onclick="addNewMenu()" class="w-full py-3.5 mt-6 bg-gradient-to-r from-yellow-400 to-amber-500 hover:from-yellow-300 hover:to-amber-400 text-black font-master font-black rounded-xl uppercase text-xs tracking-widest transition shadow-[0_0_20px_rgba(250,204,21,0.2)] cursor-pointer transform hover:scale-[1.01]">
+    <button onclick="addNewMenu()" class="w-full py-3.5 mt-6 bg-gradient-to-r from-yellow-400 to-amber-500 hover:from-yellow-300 hover:to-amber-400 text-black font-master font-black rounded-xl uppercase text-xs tracking-widest transition shadow-[0_0_30px_rgba(250,204,21,0.1)] cursor-pointer transform hover:scale-[1.01]">
       SIMPAN FOLDER BARU
     </button>
     <button onclick="closeMenuModal()" class="mt-3 text-gray-500 text-[9px] font-master font-bold uppercase tracking-widest hover:text-white transition cursor-pointer">BATAL</button>
@@ -792,7 +908,7 @@ input[type="time"]::-webkit-calendar-picker-indicator:hover {
 </div>
 
 <!-- ENTRY MODAL -->
-<div id="dataModal" style="display: none;" class="fixed inset-0 bg-black/90 z-[1000] flex items-center justify-center p-4 backdrop-blur-md" onclick="if(event.target === this) closeDataModal()">
+<div id="dataModal" style="display: none;" class="fixed inset-0 bg-black/90 z-[1000] flex items-center justify-center p-4 backdrop-blur-xl" onclick="if(event.target === this) closeDataModal()">
   <div class="modal-glow-box overflow-hidden rounded-[28px] w-full max-w-lg text-left border border-white/10 bg-[#080c14] shadow-2xl">
     <div class="bg-gradient-to-r from-yellow-400 to-amber-500 px-6 py-4 flex justify-between items-center text-black">
       <div class="flex items-center gap-2 font-master font-black text-xs md:text-sm uppercase tracking-wider">
@@ -810,7 +926,6 @@ input[type="time"]::-webkit-calendar-picker-indicator:hover {
         <input type="text" id="inputTitle" required placeholder="NAMA ITEM / ALARM" class="w-full bg-[#050811] border border-white/10 p-3.5 rounded-xl outline-none focus:border-yellow-400 text-white font-bold text-xs uppercase placeholder-gray-600 transition">
       </div>
 
-      <!-- Alarm Fields -->
       <div id="alarmFields" class="hidden space-y-4">
         <div class="grid grid-cols-1 gap-4">
           <div>
@@ -829,7 +944,6 @@ input[type="time"]::-webkit-calendar-picker-indicator:hover {
         </div>
       </div>
 
-      <!-- Image Fields -->
       <div id="imageFields" class="hidden space-y-3">
         <label class="block text-[9px] font-master font-bold text-yellow-400 uppercase tracking-[2px] mb-1">UNGGAH FOTO KENDALA</label>
         <div id="dropZoneBox" onclick="document.getElementById('inputImgFile').click()" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event)" class="border-2 border-dashed border-yellow-400/30 hover:border-yellow-400 bg-black/50 p-6 rounded-2xl text-center cursor-pointer transition flex flex-col items-center justify-center gap-2 group">
@@ -850,7 +964,6 @@ input[type="time"]::-webkit-calendar-picker-indicator:hover {
         </div>
       </div>
 
-      <!-- Account Fields -->
       <div id="accountFields" class="hidden space-y-3">
         <div>
           <label class="block text-[9px] font-master font-bold text-yellow-400 uppercase tracking-[2px] mb-1.5">USERNAME / EMAIL</label>
@@ -866,7 +979,6 @@ input[type="time"]::-webkit-calendar-picker-indicator:hover {
         </div>
       </div>
 
-      <!-- Pasaran Fields -->
       <div id="pasaranFields" class="hidden space-y-4">
         <div class="grid grid-cols-2 gap-4">
           <div>
@@ -890,13 +1002,12 @@ input[type="time"]::-webkit-calendar-picker-indicator:hover {
         </div>
       </div>
 
-      <!-- Note Fields -->
       <div id="noteFields" class="hidden">
         <label class="block text-[9px] font-master font-bold text-yellow-400 uppercase tracking-[2px] mb-1.5">ISI CATATAN / MEMO</label>
         <textarea id="inputContent" rows="5" placeholder="Tuliskan isi catatan di sini..." class="w-full bg-[#050811] border border-white/10 p-3.5 rounded-xl outline-none focus:border-yellow-400 text-white font-body text-xs italic transition resize-none"></textarea>
       </div>
 
-      <button type="submit" class="w-full py-4 mt-2 bg-gradient-to-r from-yellow-400 to-amber-500 hover:from-yellow-300 hover:to-amber-400 text-black font-master font-black rounded-xl uppercase text-xs tracking-widest transition shadow-[0_0_20px_rgba(250,204,21,0.2)] cursor-pointer transform hover:scale-[1.01]">
+      <button type="submit" class="w-full py-4 mt-2 bg-gradient-to-r from-yellow-400 to-amber-500 hover:from-yellow-300 hover:to-amber-400 text-black font-master font-black rounded-xl uppercase text-xs tracking-widest transition shadow-[0_0_30px_rgba(250,204,21,0.1)] cursor-pointer transform hover:scale-[1.01]">
         SAVE CONFIGURATION
       </button>
     </form>
@@ -904,18 +1015,18 @@ input[type="time"]::-webkit-calendar-picker-indicator:hover {
 </div>
 
 <!-- COMMAND PALETTE -->
-<div id="paletteModal" style="display: none;" class="fixed inset-0 bg-black/90 z-[1002] flex items-start justify-center pt-24 p-4 backdrop-blur-md" onclick="if(event.target === this) closeCommandPalette()">
+<div id="paletteModal" style="display: none;" class="fixed inset-0 bg-black/90 z-[1002] flex items-start justify-center pt-24 p-4 backdrop-blur-xl" onclick="if(event.target === this) closeCommandPalette()">
   <div class="modal-glow-box p-5 rounded-2xl w-full max-w-xl text-left shadow-2xl">
     <div class="relative mb-3">
       <input type="text" id="paletteInput" oninput="filterPalette()" placeholder="Ketik nama folder atau pasaran..." class="w-full bg-[#050811] border border-yellow-400/40 p-3.5 pl-10 rounded-xl outline-none text-xs text-yellow-400 font-bold tracking-wider transition focus:border-yellow-400">
       <i class="fas fa-terminal absolute left-3.5 top-4 text-yellow-400 text-xs"></i>
     </div>
-    <div id="paletteResults" class="space-y-1 font-code text-xs max-h-60 overflow-y-auto"></div>
+    <div id="paletteResults" class="space-y-1 font-code text-xs max-h-60 overflow-y-auto custom-scroll"></div>
   </div>
 </div>
 
 <!-- PASSWORD GENERATOR -->
-<div id="genModal" style="display: none;" class="fixed inset-0 bg-black/90 z-[1002] flex items-center justify-center p-4 backdrop-blur-md" onclick="if(event.target === this) closePasswordGenerator()">
+<div id="genModal" style="display: none;" class="fixed inset-0 bg-black/90 z-[1002] flex items-center justify-center p-4 backdrop-blur-xl" onclick="if(event.target === this) closePasswordGenerator()">
   <div class="modal-glow-box p-6 rounded-[28px] w-full max-w-md text-left shadow-2xl">
     <div class="flex justify-between items-center mb-4 border-b border-white/10 pb-3">
       <h3 class="font-master font-black text-sm text-purple-400 uppercase flex items-center gap-2"><i class="fas fa-key"></i> Password Generator</h3>
@@ -938,7 +1049,7 @@ input[type="time"]::-webkit-calendar-picker-indicator:hover {
 </div>
 
 <!-- BACKUP MODAL -->
-<div id="ioModal" style="display: none;" class="fixed inset-0 bg-black/90 z-[1002] flex items-center justify-center p-4 backdrop-blur-md" onclick="if(event.target === this) closeImportExportModal()">
+<div id="ioModal" style="display: none;" class="fixed inset-0 bg-black/90 z-[1002] flex items-center justify-center p-4 backdrop-blur-xl" onclick="if(event.target === this) closeImportExportModal()">
   <div class="modal-glow-box p-6 rounded-[28px] w-full max-w-md text-left shadow-2xl">
     <div class="flex justify-between items-center mb-4 border-b border-white/10 pb-3">
       <h3 class="font-master font-black text-sm text-cyan-400 uppercase flex items-center gap-2"><i class="fas fa-database"></i> Backup & Restore Data</h3>
@@ -960,158 +1071,459 @@ input[type="time"]::-webkit-calendar-picker-indicator:hover {
 </div>
 
 <!-- ==================== JAVASCRIPT ==================== -->
-<script>
-// ==========================================
-// MASTER AUTH & BACKGROUND STATE
-// ==========================================
-// Password default: 12345
-let masterAuth = { user: "admin", pass: "12345" };
-let customBgFront = "";
-let customBgInner = "";
+<script type="module">
+import { initializeApp } from "firebase/app";
+import { getDatabase, ref, onValue, set, push, update, remove } from "firebase/database";
+import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "firebase/auth";
 
-try {
-  let savedAuth = localStorage.getItem('v19_master_auth');
-  if(savedAuth) {
-    let parsedA = JSON.parse(savedAuth);
-    if(parsedA && parsedA.user && parsedA.pass) masterAuth = parsedA;
+// ==========================================
+// FIREBASE CONFIGURATION (PRIVATE)
+// ==========================================
+const firebaseConfig = {
+  apiKey: "AIzaSyC8YdVWL_l9ESjKkAjbJjR6SJPZSRM5Oi0",
+  authDomain: "database-portal-1c1b0.firebaseapp.com",
+  projectId: "database-portal-1c1b0",
+  storageBucket: "database-portal-1c1b0.firebasestorage.app",
+  messagingSenderId: "953623500959",
+  appId: "1:953623500959:web:d00b69c6088fe11f9eeaaa",
+  measurementId: "G-BHGXZ31FGR"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+const auth = getAuth(app);
+
+// ==========================================
+// GLOBAL STATE
+// ==========================================
+window.masterAuth = { user: "rykcocastio557@gmail.com", pass: "SMB778899" };
+window.customBgFront = "";
+window.customBgInner = "";
+window.menus = [];
+window.masterData = [];
+window.activeMenu = "";
+window.activeSlotIndex = 0;
+window.favoritesOnlyFilter = false;
+window.passVisibleMap = {};
+window.currentLightboxSrc = '';
+window.targetUploadCardIndex = null;
+window.triggeredAlarmsMap = {};
+window.isFirebaseConnected = false;
+window.isSyncing = false;
+window.dbRef = ref(db, 'vault_data');
+
+// ==========================================
+// DOM REFS
+// ==========================================
+const loginScreen = document.getElementById('loginScreen');
+const loginUser = document.getElementById('loginUser');
+const loginPass = document.getElementById('loginPass');
+const toastContainer = document.getElementById('toastContainer');
+const notifContainer = document.getElementById('bottomRightNotificationContainer');
+const sidebarMenu = document.getElementById('sidebarMenu');
+const cardGrid = document.getElementById('cardGrid');
+const emptyState = document.getElementById('emptyState');
+const searchInput = document.getElementById('searchInput');
+const clockTime = document.getElementById('clockTime');
+const clockDate = document.getElementById('clockDate');
+const currentMenuTitle = document.getElementById('currentMenuTitle');
+const folderSubtitle = document.getElementById('folderSubtitle');
+const doneBadge = document.getElementById('doneCounterBadge');
+const pasaranSummaryBar = document.getElementById('pasaranSummaryBar');
+const pasaranProgressText = document.getElementById('pasaranProgressText');
+const upcomingContainer = document.getElementById('upcomingPasaranContainer');
+const favToggleBtn = document.getElementById('favToggleBtn');
+const quickUploadBtn = document.getElementById('quickUploadBtn');
+const bgFrontUrlInput = document.getElementById('bgFrontUrlInput');
+const bgInnerUrlInput = document.getElementById('bgInnerUrlInput');
+const settingNewUser = document.getElementById('settingNewUser');
+const settingNewPass = document.getElementById('settingNewPass');
+const firebaseStatusDot = document.getElementById('firebaseStatusDot');
+const firebaseStatusText = document.getElementById('firebaseStatusText');
+
+// ==========================================
+// AUTH STATE
+// ==========================================
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    window.isFirebaseConnected = true;
+    firebaseStatusDot.className = "w-2 h-2 rounded-full bg-emerald-400 animate-pulse";
+    firebaseStatusText.className = "text-[8px] font-master font-bold text-emerald-400 uppercase tracking-[2px]";
+    firebaseStatusText.innerText = "ONLINE";
+    console.log('✅ Firebase Auth: User signed in:', user.email);
+    loginScreen.style.display = 'none';
+    loadFromFirebase();
+  } else {
+    window.isFirebaseConnected = false;
+    firebaseStatusDot.className = "w-2 h-2 rounded-full bg-amber-500 animate-pulse";
+    firebaseStatusText.className = "text-[8px] font-master font-bold text-amber-500 uppercase tracking-[2px]";
+    firebaseStatusText.innerText = "OFFLINE";
+    loginScreen.style.display = 'flex';
+    console.log('❌ Firebase Auth: No user signed in');
   }
-  let savedBgF = localStorage.getItem('v19_bg_front');
-  if(savedBgF) customBgFront = savedBgF;
-  let savedBgI = localStorage.getItem('v19_bg_inner');
-  if(savedBgI) customBgInner = savedBgI;
-} catch(e) {}
+});
 
-function saveMasterAuth() {
-  localStorage.setItem('v19_master_auth', JSON.stringify(masterAuth));
-  saveData();
+// ==========================================
+// LOGIN HANDLER
+// ==========================================
+window.handleLogin = function() {
+  const email = loginUser.value.trim();
+  const password = loginPass.value.trim();
+  
+  if (!email || !password) {
+    showToast('Email dan Password harus diisi!', 'error');
+    return;
+  }
+
+  signInWithEmailAndPassword(auth, email, password)
+    .then((userCredential) => {
+      const user = userCredential.user;
+      console.log('✅ Login success:', user.email);
+      sessionStorage.setItem('v19_session_active', 'true');
+      loginScreen.style.display = 'none';
+      showToast('Selamat datang, MR.RCT!', 'success');
+    })
+    .catch((error) => {
+      console.error('❌ Login error:', error);
+      showToast('Login gagal: ' + error.message, 'error');
+    });
+};
+
+// ==========================================
+// LOGOUT
+// ==========================================
+window.logoutVault = function() {
+  signOut(auth).then(() => {
+    sessionStorage.removeItem('v19_session_active');
+    closeSettingsModal();
+    loginScreen.style.display = 'flex';
+    loginPass.value = '';
+    showToast('Terminal Dikunci!', 'info');
+  }).catch((error) => {
+    console.error('Logout error:', error);
+    showToast('Gagal logout: ' + error.message, 'error');
+  });
+};
+
+// ==========================================
+// FIREBASE DATA LOAD
+// ==========================================
+function loadFromFirebase() {
+  if (window.isSyncing) return;
+  window.isSyncing = true;
+
+  onValue(window.dbRef, (snapshot) => {
+    const val = snapshot.val();
+    if (val) {
+      try {
+        if (val.menus && Array.isArray(val.menus)) {
+          window.menus = val.menus;
+          localStorage.setItem('v19_menus', JSON.stringify(window.menus));
+        }
+        if (val.data && Array.isArray(val.data)) {
+          window.masterData = val.data;
+          localStorage.setItem('v19_data', JSON.stringify(window.masterData));
+        }
+        if (val.auth && val.auth.user && val.auth.pass) {
+          window.masterAuth = val.auth;
+          localStorage.setItem('v19_master_auth', JSON.stringify(window.masterAuth));
+        }
+        if (val.bgFront !== undefined) {
+          window.customBgFront = val.bgFront || "";
+          localStorage.setItem('v19_bg_front', window.customBgFront);
+        }
+        if (val.bgInner !== undefined) {
+          window.customBgInner = val.bgInner || "";
+          localStorage.setItem('v19_bg_inner', window.customBgInner);
+        }
+        if (val.activeMenu) {
+          window.activeMenu = val.activeMenu;
+          localStorage.setItem('v19_active', window.activeMenu);
+        }
+
+        if (!window.menus || window.menus.length === 0) {
+          window.menus = getDefaultMenus();
+          localStorage.setItem('v19_menus', JSON.stringify(window.menus));
+        }
+        if (!window.masterData || window.masterData.length === 0) {
+          window.masterData = getInitialData();
+          localStorage.setItem('v19_data', JSON.stringify(window.masterData));
+        }
+        if (!window.activeMenu || !window.menus.find(m => m.name === window.activeMenu)) {
+          window.activeMenu = window.menus[0]?.name || "ALARM CENTER";
+        }
+
+        applyBackgrounds();
+        renderSidebar();
+        switchMenu(window.activeMenu);
+        updateClock();
+        console.log('✅ Data loaded from Firebase');
+        window.isSyncing = false;
+      } catch (e) {
+        console.warn('Firebase data parse error:', e);
+        window.isSyncing = false;
+      }
+    } else {
+      // First time - push default data
+      const defaultMenus = getDefaultMenus();
+      const defaultData = getInitialData();
+      const defaultAuth = window.masterAuth;
+      
+      set(window.dbRef, {
+        menus: defaultMenus,
+        data: defaultData,
+        auth: defaultAuth,
+        bgFront: "",
+        bgInner: "",
+        activeMenu: "ALARM CENTER",
+        updatedAt: new Date().toISOString()
+      }).then(() => {
+        window.menus = defaultMenus;
+        window.masterData = defaultData;
+        localStorage.setItem('v19_menus', JSON.stringify(window.menus));
+        localStorage.setItem('v19_data', JSON.stringify(window.masterData));
+        applyBackgrounds();
+        renderSidebar();
+        switchMenu("ALARM CENTER");
+        window.isSyncing = false;
+        console.log('✅ Default data pushed to Firebase');
+      }).catch(err => {
+        console.error('Firebase push error:', err);
+        window.isSyncing = false;
+      });
+    }
+  }, (error) => {
+    console.warn('Firebase listener error:', error);
+    window.isSyncing = false;
+    // Fallback to localStorage
+    loadFromLocalStorage();
+  });
+}
+
+// ==========================================
+// LOCAL STORAGE FALLBACK
+// ==========================================
+function loadFromLocalStorage() {
+  try {
+    const savedM = localStorage.getItem('v19_menus');
+    const savedD = localStorage.getItem('v19_data');
+    const savedA = localStorage.getItem('v19_active');
+    const savedAuth = localStorage.getItem('v19_master_auth');
+    const savedBgF = localStorage.getItem('v19_bg_front');
+    const savedBgI = localStorage.getItem('v19_bg_inner');
+
+    if (savedM) {
+      const parsedM = JSON.parse(savedM);
+      if (Array.isArray(parsedM) && parsedM.length > 0) window.menus = parsedM;
+    }
+    if (savedD) {
+      const parsedD = JSON.parse(savedD);
+      if (Array.isArray(parsedD) && parsedD.length > 0) window.masterData = parsedD;
+    }
+    if (savedA) window.activeMenu = savedA;
+    if (savedAuth) {
+      const parsedA = JSON.parse(savedAuth);
+      if (parsedA && parsedA.user && parsedA.pass) window.masterAuth = parsedA;
+    }
+    if (savedBgF) window.customBgFront = savedBgF;
+    if (savedBgI) window.customBgInner = savedBgI;
+
+    if (!window.menus || window.menus.length === 0) window.menus = getDefaultMenus();
+    if (!window.masterData || window.masterData.length === 0) window.masterData = getInitialData();
+    if (!window.activeMenu || !window.menus.find(m => m.name === window.activeMenu)) {
+      window.activeMenu = window.menus[0]?.name || "ALARM CENTER";
+    }
+
+    applyBackgrounds();
+    renderSidebar();
+    switchMenu(window.activeMenu);
+    updateClock();
+    console.log('✅ Data loaded from localStorage (fallback)');
+  } catch (e) {
+    console.warn('LocalStorage fallback error:', e);
+    window.menus = getDefaultMenus();
+    window.masterData = getInitialData();
+    window.activeMenu = "ALARM CENTER";
+    renderSidebar();
+    switchMenu("ALARM CENTER");
+  }
+}
+
+// ==========================================
+// SAVE TO FIREBASE
+// ==========================================
+window.saveData = function() {
+  localStorage.setItem('v19_menus', JSON.stringify(window.menus));
+  localStorage.setItem('v19_data', JSON.stringify(window.masterData));
+  localStorage.setItem('v19_active', window.activeMenu);
+  localStorage.setItem('v19_master_auth', JSON.stringify(window.masterAuth));
+  localStorage.setItem('v19_bg_front', window.customBgFront);
+  localStorage.setItem('v19_bg_inner', window.customBgInner);
+
+  if (window.isFirebaseConnected && !window.isSyncing) {
+    set(window.dbRef, {
+      menus: window.menus,
+      data: window.masterData,
+      auth: window.masterAuth,
+      bgFront: window.customBgFront,
+      bgInner: window.customBgInner,
+      activeMenu: window.activeMenu,
+      updatedAt: new Date().toISOString()
+    }).catch((err) => {
+      console.error('Firebase save error:', err);
+      showToast('Gagal menyimpan ke Firebase, tapi data lokal tersimpan', 'error');
+    });
+  }
+};
+
+// ==========================================
+// DEFAULT DATA
+// ==========================================
+function getDefaultMenus() {
+  return [
+    { name: "ALARM CENTER", type: "alarm", icon: "fa-bell", subtitle: "Centralized Command & Executive Vault" },
+    { name: "POTO KENDALA", type: "image_note", icon: "fa-images", subtitle: "Centralized Command & Executive Vault" },
+    { name: "DATA LOGIN", type: "account", icon: "fa-shield-halved", subtitle: "Sistem Kredensial Akun Rahasia" },
+    { name: "DATA LOGIN LINK BIO", type: "account", icon: "fa-shield-halved", subtitle: "Credential Vault Link Bio" },
+    { name: "DATA LOGIN SOSMED", type: "account", icon: "fa-shield-halved", subtitle: "Credential Vault Sosial Media" },
+    { name: "RESULT PASARAN", type: "pasaran", icon: "fa-dice", subtitle: "Centralized Command & Executive Vault" },
+    { name: "PK CS", type: "note", icon: "fa-headset", subtitle: "Centralized Command & Executive Vault" },
+    { name: "PERFECT KEYBOARD", type: "note", icon: "fa-keyboard", subtitle: "Folder Kustom Master Catatan" }
+  ];
+}
+
+function getInitialData() {
+  const now = new Date();
+  const h = now.getHours().toString().padStart(2, '0');
+  const m = (now.getMinutes() + 5).toString().padStart(2, '0');
+  const sampleTime = `${h}:${m}`;
+
+  function createSvg(title, bg1, bg2, txt1, txt2) {
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="600" height="450" viewBox="0 0 600 450">
+      <rect width="600" height="450" fill="${bg1}"/>
+      <rect x="20" y="20" width="560" height="410" rx="16" fill="${bg2}" stroke="#facc15" stroke-width="2" stroke-dasharray="6,6"/>
+      <text x="300" y="160" font-family="sans-serif" font-size="28" font-weight="900" fill="#ffffff" text-anchor="middle">${title}</text>
+      <text x="300" y="220" font-family="monospace" font-size="20" font-weight="bold" fill="#facc15" text-anchor="middle">${txt1}</text>
+      <text x="300" y="270" font-family="sans-serif" font-size="16" fill="#9ca3af" text-anchor="middle">${txt2}</text>
+      <circle cx="300" cy="340" r="30" fill="#facc15" opacity="0.2"/>
+      <path d="M290 340 L300 330 L310 340 M300 330 L300 355" stroke="#facc15" stroke-width="4" stroke-linecap="round"/>
+    </svg>`;
+    return "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
+  }
+
+  return [
+    { category: "ALARM CENTER", title: "BCA & BSI OFFLINE", alarmTime: "22:00", alarmDays: "SENIN, SELASA, RABU, KAMIS, JUMAT", alarmOn: true, favorite: false },
+    { category: "ALARM CENTER", title: "MANDIRI OFFLINE", alarmTime: "23:00", alarmDays: "DAILY", alarmOn: true, favorite: true },
+    { category: "ALARM CENTER", title: "BSI OFFLINE", alarmTime: "22:00", alarmDays: "SABTU, MINGGU", alarmOn: true, favorite: false },
+    { category: "ALARM CENTER", title: "BCA & BSI ONLINE", alarmTime: "00:20", alarmDays: "SENIN, SELASA, RABU, KAMIS, JUMAT", alarmOn: true, favorite: false },
+    { category: "ALARM CENTER", title: "BSI ONLINE", alarmTime: "00:20", alarmDays: "SENIN, MINGGU", alarmOn: true, favorite: false },
+    { category: "ALARM CENTER", title: "MANDIRI ONLINE", alarmTime: "03:00", alarmDays: "DAILY", alarmOn: true, favorite: false },
+    { category: "ALARM CENTER", title: "POSTING LINK ALTERNATIF", alarmTime: "06:00", alarmDays: "SENIN", alarmOn: true, favorite: false },
+    { category: "ALARM CENTER", title: "TEST", alarmTime: sampleTime, alarmDays: "DAILY", alarmOn: true, favorite: false },
+    
+    { category: "POTO KENDALA", title: "PROFIL AKUN DANA", imageUrl: createSvg("PROFIL AKUN DANA", "#050b14", "#091122", "Rp718.353", "Kartu Tersimpan: 0 Cards"), favorite: true },
+    { category: "POTO KENDALA", title: "CARA DEPOSIT QRIS", imageUrl: createSvg("CARA DEPOSIT QRIS", "#111827", "#1f2937", "MANDIRI / BCA / QRIS", "Pilih Bank Auto QRIS Depo"), favorite: true },
+    { category: "POTO KENDALA", title: "CEK RIWAYAT PERMAINAN...", imageUrl: createSvg("CEK RIWAYAT PERMAINAN", "#1a0c0c", "#2d1212", "MAHJONG WAYS 2", "Kemenangan 006"), favorite: true },
+    { category: "POTO KENDALA", title: "CEK TRANSAKSI MEMBER", imageUrl: createSvg("CEK TRANSAKSI MEMBER", "#090d16", "#111a2e", "MENU TRANSAKSI", "History / Invoice / Promo"), favorite: true },
+    { category: "POTO KENDALA", title: "CARA KIRIM SS DI LIVECHAT", imageUrl: createSvg("CARA KIRIM SS DI LIVECHAT", "#0f172a", "#1e293b", "ATTACH SCREENSHOT", "Panduan Upload Bukti Transfer"), favorite: true },
+    { category: "POTO KENDALA", title: "PERATURAN PIHAK KETIGA", imageUrl: createSvg("PERATURAN PIHAK KETIGA", "#180e04", "#2c1706", "PERATURAN DEPOSIT", "Transfer Pihak Ketiga Dilarang"), favorite: true },
+    
+    { category: "DATA LOGIN", title: "GMAIL", user: "rickycharles0509@gmail.com", pass: "password123", loginUrl: "", favorite: true },
+    { category: "DATA LOGIN", title: "ADMIN", user: "voxaarickychar", pass: "mastersecret123", loginUrl: "http://agwl7.idnpaito.com?passkey=zlknCLkuysXUSwi", favorite: true },
+    
+    { category: "RESULT PASARAN", title: "CAMBODIA 11:50", pasaranClose: "11:35", pasaranResultTime: "11:50", pasaranDone: false, favorite: false, url: "", hiddenNum: false },
+    { category: "RESULT PASARAN", title: "HOKIDRAW", pasaranClose: "20:00", pasaranResultTime: "20:15", pasaranDone: true, favorite: true, url: "https://hokidraw.com", hiddenNum: false },
+    { category: "RESULT PASARAN", title: "TOTOMALI 2030", pasaranClose: "21:40", pasaranResultTime: sampleTime, pasaranDone: false, favorite: true, url: "https://totomali.com", hiddenNum: false }
+  ];
 }
 
 // ==========================================
 // UTILITY FUNCTIONS
 // ==========================================
-function isVideoUrl(url) {
-  if (!url) return false;
-  return url.match(/\.(mp4|webm|ogg|mov)$/i) !== null || url.includes("video");
-}
-
-function applyBackgrounds() {
-  const loginEl = document.getElementById('loginScreen');
-  const bgInnerEl = document.getElementById('dynamicBg');
-
-  if(loginEl) {
-    let existingVideo = loginEl.querySelector('.bg-video-element');
-    if(isVideoUrl(customBgFront)) {
-      if(!existingVideo) {
-        existingVideo = document.createElement('video');
-        existingVideo.className = 'bg-video-element';
-        existingVideo.autoplay = true;
-        existingVideo.muted = true;
-        existingVideo.loop = true;
-        existingVideo.playsInline = true;
-        loginEl.prepend(existingVideo);
-      }
-      if(existingVideo.src !== customBgFront) existingVideo.src = customBgFront;
-      loginEl.style.backgroundImage = 'none';
-    } else {
-      if(existingVideo) existingVideo.remove();
-      if(customBgFront) loginEl.style.backgroundImage = `url("${customBgFront}")`;
-      else loginEl.style.backgroundImage = `radial-gradient(circle at 50% 10%, #0d1527 0%, #030712 90%)`;
-    }
-  }
-
-  if(bgInnerEl) {
-    let existingVideo = bgInnerEl.querySelector('.bg-video-element');
-    if(isVideoUrl(customBgInner)) {
-      if(!existingVideo) {
-        existingVideo = document.createElement('video');
-        existingVideo.className = 'bg-video-element';
-        existingVideo.autoplay = true;
-        existingVideo.muted = true;
-        existingVideo.loop = true;
-        existingVideo.playsInline = true;
-        bgInnerEl.prepend(existingVideo);
-      }
-      if(existingVideo.src !== customBgInner) existingVideo.src = customBgInner;
-      bgInnerEl.style.backgroundImage = 'none';
-    } else {
-      if(existingVideo) existingVideo.remove();
-      if(customBgInner) bgInnerEl.style.backgroundImage = `url("${customBgInner}")`;
-      else bgInnerEl.style.backgroundImage = `radial-gradient(circle at 50% 10%, #0d1527 0%, #030712 90%)`;
-    }
-  }
-}
-
-function showToast(msg, type = 'success') {
-  const container = document.getElementById('toastContainer');
-  if(!container) return;
+window.showToast = function(msg, type = 'success') {
+  if (!toastContainer) return;
   const toast = document.createElement('div');
   const bg = type === 'success' ? 'bg-emerald-500' : type === 'error' ? 'bg-red-500' : 'bg-yellow-400';
   toast.className = `toast-animate pointer-events-auto px-5 py-3 rounded-xl ${bg} text-black font-master font-bold text-xs shadow-2xl flex items-center gap-3 z-[10000] border border-white/20`;
   toast.innerHTML = `<i class="fas fa-circle-check text-sm"></i> <span>${escapeHtml(msg)}</span>`;
-  container.appendChild(toast);
-  setTimeout(() => { if(toast.parentNode) toast.remove(); }, 2800);
-}
+  toastContainer.appendChild(toast);
+  setTimeout(() => { if (toast.parentNode) toast.remove(); }, 3000);
+};
 
-function playAlarmChime() {
-  try {
-    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    const osc = audioCtx.createOscillator();
-    const gain = audioCtx.createGain();
-    osc.type = 'sine';
-    osc.frequency.setValueAtTime(880, audioCtx.currentTime);
-    osc.frequency.exponentialRampToValueAtTime(1320, audioCtx.currentTime + 0.25);
-    gain.gain.setValueAtTime(0.4, audioCtx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
-    osc.connect(gain);
-    gain.connect(audioCtx.destination);
-    osc.start();
-    osc.stop(audioCtx.currentTime + 0.5);
-  } catch(e) {}
-}
+window.escapeHtml = function(str) {
+  return String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+};
 
-function triggerBottomRightNotification(title, subtext, type = 'alarm') {
-  playAlarmChime();
-  const container = document.getElementById('bottomRightNotificationContainer');
-  if(!container) return;
-  const card = document.createElement('div');
-  card.className = "alarm-notification-popup bg-[#080c14] border-2 border-yellow-400 rounded-2xl p-4 text-white flex flex-col gap-2 relative z-[10000] shadow-2xl";
-  const isPasaran = type === 'pasaran';
-  const icon = isPasaran ? 'fa-bullhorn text-red-400' : 'fa-bell text-yellow-400';
-  const badgeText = isPasaran ? 'RESULT PASARAN TAHU!' : 'ALARM PENGINGAT';
-  const badgeBg = isPasaran ? 'bg-red-500/20 text-red-400 border-red-500/40' : 'bg-yellow-400/20 text-yellow-400 border-yellow-400/40';
+window.escapeJsString = function(str) {
+  return String(str || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/\n/g, '\\n').replace(/\r/g, '');
+};
 
-  card.innerHTML = `
-    <div class="flex items-center justify-between border-b border-white/10 pb-2">
-      <div class="flex items-center gap-2">
-        <i class="fas ${icon} text-lg animate-bounce"></i>
-        <span class="px-2.5 py-0.5 rounded-md border ${badgeBg} font-master text-[8px] font-bold tracking-[2px] uppercase">${badgeText}</span>
-      </div>
-      <button onclick="this.parentElement.parentElement.remove()" class="text-gray-400 hover:text-white p-1.5 rounded-lg hover:bg-white/10 transition cursor-pointer"><i class="fas fa-times"></i></button>
-    </div>
-    <div>
-      <h4 class="font-master font-black text-sm text-yellow-400 uppercase tracking-wider">${escapeHtml(title)}</h4>
-      <p class="text-xs font-code text-gray-300 mt-1">${escapeHtml(subtext)}</p>
-    </div>
-    <div class="pt-1 flex justify-end">
-      <button onclick="this.parentElement.parentElement.remove()" class="px-4 py-1.5 bg-yellow-400 text-black font-master font-bold text-[9px] rounded-lg uppercase hover:bg-amber-400 transition cursor-pointer shadow-md">
-        MENGERTI / TUTUP
-      </button>
-    </div>
-  `;
-  container.appendChild(card);
-  setTimeout(() => { if(card.parentNode) card.remove(); }, 12000);
-}
+window.safeAttr = function(str) {
+  return window.escapeHtml(window.escapeJsString(str));
+};
 
-function openModal(id) {
-  const el = document.getElementById(id);
-  if(el) el.style.display = 'flex';
-}
-function closeModal(id) {
-  const el = document.getElementById(id);
-  if(el) el.style.display = 'none';
-}
+window.isVideoUrl = function(url) {
+  if (!url) return false;
+  return url.match(/\.(mp4|webm|ogg|mov)$/i) !== null || url.includes("video");
+};
 
-function parseTimeToMinutes(timeStr) {
+window.applyBackgrounds = function() {
+  const bgLayer = document.getElementById('bgLayer');
+  const bgVideo = document.getElementById('bgVideo');
+  
+  if (bgLayer) {
+    if (window.isVideoUrl(window.customBgInner)) {
+      if (bgVideo) {
+        bgVideo.src = window.customBgInner;
+        bgVideo.style.display = 'block';
+      }
+      bgLayer.style.background = 'none';
+    } else {
+      if (bgVideo) bgVideo.style.display = 'none';
+      if (window.customBgInner) {
+        bgLayer.style.background = `url("${window.customBgInner}") center/cover no-repeat fixed`;
+      } else {
+        bgLayer.style.background = `
+          radial-gradient(ellipse at 20% 50%, #0a0a2a 0%, transparent 60%),
+          radial-gradient(ellipse at 80% 20%, #1a0a2a 0%, transparent 50%),
+          radial-gradient(ellipse at 50% 100%, #0a1a2a 0%, transparent 40%),
+          #030712
+        `;
+      }
+    }
+  }
+
+  // Login background
+  if (loginScreen) {
+    if (window.isVideoUrl(window.customBgFront)) {
+      // Handle video for login
+      let vid = loginScreen.querySelector('.bg-login-video');
+      if (!vid) {
+        vid = document.createElement('video');
+        vid.className = 'bg-login-video';
+        vid.style.cssText = 'position:absolute;top:50%;left:50%;min-width:100%;min-height:100%;width:auto;height:auto;transform:translateX(-50%) translateY(-50%);object-fit:cover;opacity:0.3;z-index:-1;pointer-events:none;';
+        vid.autoplay = true;
+        vid.muted = true;
+        vid.loop = true;
+        vid.playsInline = true;
+        loginScreen.prepend(vid);
+      }
+      vid.src = window.customBgFront;
+      loginScreen.style.background = 'rgba(3, 7, 18, 0.92)';
+    } else {
+      const oldVid = loginScreen.querySelector('.bg-login-video');
+      if (oldVid) oldVid.remove();
+      if (window.customBgFront) {
+        loginScreen.style.background = `url("${window.customBgFront}") center/cover no-repeat fixed`;
+      } else {
+        loginScreen.style.background = 'rgba(3, 7, 18, 0.92)';
+      }
+    }
+  }
+};
+
+window.parseTimeToMinutes = function(timeStr) {
   if (!timeStr || typeof timeStr !== 'string') return 9999;
   const clean = timeStr.trim().replace('.', ':');
   const parts = clean.split(':');
@@ -1120,10 +1532,10 @@ function parseTimeToMinutes(timeStr) {
   const m = parseInt(parts[1], 10);
   if (isNaN(h) || isNaN(m)) return 9999;
   return h * 60 + m;
-}
+};
 
-function getPasaranTimerInfo(resultTimeStr, isDone, isHidden) {
-  if(isDone || isHidden || !resultTimeStr || !resultTimeStr.includes(':')) {
+window.getPasaranTimerInfo = function(resultTimeStr, isDone, isHidden) {
+  if (isDone || isHidden || !resultTimeStr || !resultTimeStr.includes(':')) {
     return { isApproaching: false, countdownStr: '' };
   }
   const now = new Date();
@@ -1134,7 +1546,7 @@ function getPasaranTimerInfo(resultTimeStr, isDone, isHidden) {
 
   if (targetDate < now) {
     const diffPassedMs = now - targetDate;
-    if(diffPassedMs > 300000) {
+    if (diffPassedMs > 300000) {
       targetDate.setDate(targetDate.getDate() + 1);
     } else {
       return { isApproaching: false, countdownStr: '' };
@@ -1150,488 +1562,93 @@ function getPasaranTimerInfo(resultTimeStr, isDone, isHidden) {
     return { isApproaching: true, countdownStr: `(${m}:${s.toString().padStart(2, '0')})` };
   }
   return { isApproaching: false, countdownStr: '' };
-}
+};
 
-function safeAttr(str) { return escapeHtml(escapeJsString(str)); }
+window.openModal = function(id) {
+  const el = document.getElementById(id);
+  if (el) el.style.display = 'flex';
+};
 
-function escapeJsString(str) {
-  return String(str || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/\n/g, '\\n').replace(/\r/g, '');
-}
-
-function escapeHtml(str) {
-  return String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-}
-
-// ==========================================
-// MASTER DEFAULT DATA
-// ==========================================
-const defaultMenus = [
-  { name: "ALARM CENTER", type: "alarm", icon: "fa-bell", subtitle: "Centralized Command & Executive Vault Monitoring Console" },
-  { name: "POTO KENDALA", type: "image_note", icon: "fa-images", subtitle: "Centralized Command & Executive Vault Monitoring Console" },
-  { name: "DATA LOGIN", type: "account", icon: "fa-shield-halved", subtitle: "Sistem Kredensial Akun Rahasia" },
-  { name: "DATA LOGIN LINK BIO", type: "account", icon: "fa-shield-halved", subtitle: "Credential Vault Link Bio" },
-  { name: "DATA LOGIN SOSMED", type: "account", icon: "fa-shield-halved", subtitle: "Credential Vault Sosial Media" },
-  { name: "RESULT PASARAN", type: "pasaran", icon: "fa-dice", subtitle: "Centralized Command & Executive Vault Monitoring Console" },
-  { name: "PK CS", type: "note", icon: "fa-headset", subtitle: "Centralized Command & Executive Vault Monitoring Console" },
-  { name: "PERFECT KEYBOARD", type: "note", icon: "fa-keyboard", subtitle: "Folder Kustom Master Catatan" }
-];
-
-function getSampleTime(plusMinutes) {
-  const now = new Date();
-  now.setMinutes(now.getMinutes() + plusMinutes);
-  const h = now.getHours().toString().padStart(2, '0');
-  const m = now.getMinutes().toString().padStart(2, '0');
-  return `${h}:${m}`;
-}
-
-function createSampleSvg(title, bgGradient, text1, text2) {
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="600" height="450" viewBox="0 0 600 450">
-    <rect width="600" height="450" fill="${bgGradient[0]}"/>
-    <rect x="20" y="20" width="560" height="410" rx="16" fill="${bgGradient[1]}" stroke="#facc15" stroke-width="2" stroke-dasharray="6,6"/>
-    <text x="300" y="160" font-family="sans-serif" font-size="28" font-weight="900" fill="#ffffff" text-anchor="middle">${title}</text>
-    <text x="300" y="220" font-family="monospace" font-size="20" font-weight="bold" fill="#facc15" text-anchor="middle">${text1}</text>
-    <text x="300" y="270" font-family="sans-serif" font-size="16" fill="#9ca3af" text-anchor="middle">${text2}</text>
-    <circle cx="300" cy="340" r="30" fill="#facc15" opacity="0.2"/>
-    <path d="M290 340 L300 330 L310 340 M300 330 L300 355" stroke="#facc15" stroke-width="4" stroke-linecap="round"/>
-  </svg>`;
-  return "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
-}
-
-const initialVaultData = [
-  { category: "ALARM CENTER", title: "BCA & BSI OFFLINE", alarmTime: "22:00", alarmDays: "SENIN, SELASA, RABU, KAMIS, JUMAT", alarmOn: true, favorite: false },
-  { category: "ALARM CENTER", title: "MANDIRI OFFLINE", alarmTime: "23:00", alarmDays: "DAILY", alarmOn: true, favorite: true },
-  { category: "ALARM CENTER", title: "BSI OFFLINE", alarmTime: "22:00", alarmDays: "SABTU, MINGGU", alarmOn: true, favorite: false },
-  { category: "ALARM CENTER", title: "BCA & BSI ONLINE", alarmTime: "00:20", alarmDays: "SENIN, SELASA, RABU, KAMIS, JUMAT", alarmOn: true, favorite: false },
-  { category: "ALARM CENTER", title: "BSI ONLINE", alarmTime: "00:20", alarmDays: "SENIN, MINGGU", alarmOn: true, favorite: false },
-  { category: "ALARM CENTER", title: "MANDIRI ONLINE", alarmTime: "03:00", alarmDays: "DAILY", alarmOn: true, favorite: false },
-  { category: "ALARM CENTER", title: "POSTING LINK ALTERNATIF", alarmTime: "06:00", alarmDays: "SENIN", alarmOn: true, favorite: false },
-  { category: "ALARM CENTER", title: "TEST", alarmTime: "05:09", alarmDays: "RABU", alarmOn: true, favorite: false },
-  
-  { category: "POTO KENDALA", title: "PROFIL AKUN DANA", imageUrl: createSampleSvg("PROFIL AKUN DANA", ["#050b14", "#091122"], "Rp718.353", "Kartu Tersimpan: 0 Cards"), favorite: true },
-  { category: "POTO KENDALA", title: "CARA DEPOSIT QRIS", imageUrl: createSampleSvg("CARA DEPOSIT QRIS", ["#111827", "#1f2937"], "MANDIRI / BCA / QRIS", "Pilih Bank Auto QRIS Depo"), favorite: true },
-  { category: "POTO KENDALA", title: "CEK RIWAYAT PERMAINAN...", imageUrl: createSampleSvg("CEK RIWAYAT PERMAINAN", ["#1a0c0c", "#2d1212"], "MAHJONG WAYS 2", "Kemenangan 006"), favorite: true },
-  { category: "POTO KENDALA", title: "CEK TRANSAKSI MEMBER", imageUrl: createSampleSvg("CEK TRANSAKSI MEMBER", ["#090d16", "#111a2e"], "MENU TRANSAKSI", "History / Invoice / Promo"), favorite: true },
-  { category: "POTO KENDALA", title: "CARA KIRIM SS DI LIVECHAT", imageUrl: createSampleSvg("CARA KIRIM SS DI LIVECHAT", ["#0f172a", "#1e293b"], "ATTACH SCREENSHOT", "Panduan Upload Bukti Transfer"), favorite: true },
-  { category: "POTO KENDALA", title: "PERATURAN PIHAK KETIGA", imageUrl: createSampleSvg("PERATURAN PIHAK KETIGA", ["#180e04", "#2c1706"], "PERATURAN DEPOSIT", "Transfer Pihak Ketiga Dilarang"), favorite: true },
-  
-  { category: "DATA LOGIN", title: "GMAIL", user: "rickycharles0509@gmail.com", pass: "password123", loginUrl: "", favorite: true },
-  { category: "DATA LOGIN", title: "ADMIN", user: "voxaarickychar", pass: "mastersecret123", loginUrl: "http://agwl7.idnpaito.com?passkey=zlknCLkuysXUSwi", favorite: true },
-  
-  { category: "RESULT PASARAN", title: "CAMBODIA 11:50", pasaranClose: "11:35", pasaranResultTime: "11:50", pasaranDone: false, favorite: false, url: "", hiddenNum: false },
-  { category: "RESULT PASARAN", title: "HOKIDRAW", pasaranClose: "20:00", pasaranResultTime: "20:15", pasaranDone: true, favorite: true, url: "https://hokidraw.com", hiddenNum: false },
-  { category: "RESULT PASARAN", title: "TOTOMALI 2030", pasaranClose: "21:40", pasaranResultTime: getSampleTime(8), pasaranDone: false, favorite: true, url: "https://totomali.com", hiddenNum: false }
-];
-
-// ==========================================
-// STATE
-// ==========================================
-let menus = defaultMenus;
-let activeMenu = "ALARM CENTER";
-let masterData = initialVaultData;
-let activeSlotIndex = 0;
-
-try {
-  let savedM = localStorage.getItem('v19_menus');
-  let savedD = localStorage.getItem('v19_data');
-  let savedA = localStorage.getItem('v19_active');
-
-  if(savedM) {
-    let parsedM = JSON.parse(savedM);
-    if(Array.isArray(parsedM) && parsedM.length > 0) menus = parsedM;
-  }
-  if(savedD) {
-    let parsedD = JSON.parse(savedD);
-    if(Array.isArray(parsedD) && parsedD.length > 0) masterData = parsedD;
-  }
-  if(savedA) activeMenu = savedA;
-} catch(e) {}
-
-if(!menus || !Array.isArray(menus) || menus.length === 0) menus = defaultMenus;
-if(!masterData || !Array.isArray(masterData) || masterData.length === 0) masterData = initialVaultData;
-if(!activeMenu || !menus.find(m => m.name === activeMenu)) activeMenu = menus[0].name;
-
-let favoritesOnlyFilter = false;
-let passVisibleMap = {};
-let currentLightboxSrc = '';
-let targetUploadCardIndex = null;
-let triggeredAlarmsMap = {};
-
-// ==========================================
-// SAVE DATA (LOCAL STORAGE ONLY)
-// ==========================================
-function saveData() {
-  localStorage.setItem('v19_menus', JSON.stringify(menus));
-  localStorage.setItem('v19_data', JSON.stringify(masterData));
-  localStorage.setItem('v19_active', activeMenu);
-}
-
-// ==========================================
-// AUTH
-// ==========================================
-function checkInitialLogin() {
-  const isSessionLoggedIn = sessionStorage.getItem('v19_session_active');
-  const loginScreen = document.getElementById('loginScreen');
-  if(loginScreen) {
-    if(isSessionLoggedIn === 'true') {
-      loginScreen.style.display = 'none';
-    } else {
-      loginScreen.style.display = 'flex';
-      const userEl = document.getElementById('loginUser');
-      const passEl = document.getElementById('loginPass');
-      if(userEl) userEl.value = masterAuth.user;
-      if(passEl) passEl.value = '';
-    }
-  }
-}
-
-function handleLogin() {
-  const u = document.getElementById('loginUser').value.trim();
-  const p = document.getElementById('loginPass').value.trim();
-  if(u.toLowerCase() === masterAuth.user.toLowerCase() && p === masterAuth.pass) {
-    sessionStorage.setItem('v19_session_active', 'true');
-    closeModal('loginScreen');
-    showToast('Akses Terminal Diberikan!', 'success');
-  } else {
-    showToast('Username atau Password Salah!', 'error');
-  }
-}
-
-function logoutVault() {
-  sessionStorage.removeItem('v19_session_active');
-  closeSettingsModal();
-  openModal('loginScreen');
-  const passEl = document.getElementById('loginPass');
-  if(passEl) passEl.value = '';
-  showToast('Terminal Dikunci!', 'info');
-}
-
-// ==========================================
-// SETTINGS
-// ==========================================
-function openSettingsModal() {
-  document.getElementById('settingNewUser').value = masterAuth.user;
-  document.getElementById('settingNewPass').value = masterAuth.pass;
-  document.getElementById('bgFrontUrlInput').value = customBgFront;
-  document.getElementById('bgInnerUrlInput').value = customBgInner;
-  openModal('settingsModal');
-}
-
-function closeSettingsModal() { closeModal('settingsModal'); }
-
-function saveMasterAccountSettings() {
-  const newUser = document.getElementById('settingNewUser').value.trim();
-  const newPass = document.getElementById('settingNewPass').value.trim();
-  if(!newUser || !newPass) {
-    return showToast('Username dan Password tidak boleh kosong!', 'error');
-  }
-  masterAuth.user = newUser;
-  masterAuth.pass = newPass;
-  saveMasterAuth();
-  showToast('Username & Password Master Berhasil Diperbarui!', 'success');
-}
-
-function handleBgFrontFileUpload(e) {
-  const file = e.target.files[0];
-  if(!file) return;
-  const reader = new FileReader();
-  reader.onload = function(evt) {
-    customBgFront = evt.target.result;
-    localStorage.setItem('v19_bg_front', customBgFront);
-    applyBackgrounds();
-    saveData();
-    document.getElementById('bgFrontUrlInput').value = customBgFront;
-    showToast('Background Depan Berhasil Diperbarui!', 'success');
-  };
-  reader.readAsDataURL(file);
-  e.target.value = '';
-}
-
-function applyBgFrontFromInput() {
-  const url = document.getElementById('bgFrontUrlInput').value.trim();
-  if(!url) return showToast('Masukkan URL Gambar!', 'error');
-  customBgFront = url;
-  localStorage.setItem('v19_bg_front', customBgFront);
-  applyBackgrounds();
-  saveData();
-  showToast('Background Depan Berhasil Diperbarui!', 'success');
-}
-
-function resetBgFront() {
-  customBgFront = "";
-  localStorage.removeItem('v19_bg_front');
-  document.getElementById('bgFrontUrlInput').value = "";
-  applyBackgrounds();
-  saveData();
-  showToast('Background Depan Direset!', 'info');
-}
-
-function handleBgInnerFileUpload(e) {
-  const file = e.target.files[0];
-  if(!file) return;
-  const reader = new FileReader();
-  reader.onload = function(evt) {
-    customBgInner = evt.target.result;
-    localStorage.setItem('v19_bg_inner', customBgInner);
-    applyBackgrounds();
-    saveData();
-    document.getElementById('bgInnerUrlInput').value = customBgInner;
-    showToast('Background Dalam Berhasil Diperbarui!', 'success');
-  };
-  reader.readAsDataURL(file);
-  e.target.value = '';
-}
-
-function applyBgInnerFromInput() {
-  const url = document.getElementById('bgInnerUrlInput').value.trim();
-  if(!url) return showToast('Masukkan URL Gambar!', 'error');
-  customBgInner = url;
-  localStorage.setItem('v19_bg_inner', customBgInner);
-  applyBackgrounds();
-  saveData();
-  showToast('Background Dalam Berhasil Diperbarui!', 'success');
-}
-
-function resetBgInner() {
-  customBgInner = "";
-  localStorage.removeItem('v19_bg_inner');
-  document.getElementById('bgInnerUrlInput').value = "";
-  applyBackgrounds();
-  saveData();
-  showToast('Background Dalam Direset!', 'info');
-}
+window.closeModal = function(id) {
+  const el = document.getElementById(id);
+  if (el) el.style.display = 'none';
+};
 
 // ==========================================
 // SIDEBAR
 // ==========================================
-function renderSidebar() {
-  const container = document.getElementById('sidebarMenu');
-  if(!container) return;
-  container.innerHTML = '';
+window.renderSidebar = function() {
+  if (!sidebarMenu) return;
+  sidebarMenu.innerHTML = '';
 
-  menus.forEach((m) => {
-    const isActive = activeMenu === m.name;
+  window.menus.forEach((m) => {
+    const isActive = window.activeMenu === m.name;
     const div = document.createElement('div');
     div.className = `sidebar-item p-3 rounded-xl cursor-pointer flex justify-between items-center mb-0.5 group ${isActive ? 'active' : 'text-gray-400 hover:bg-white/5'}`;
     div.innerHTML = `
-      <span onclick="switchMenu('${safeAttr(m.name)}')" class="flex items-center gap-3 w-full truncate">
+      <span onclick="switchMenu('${window.safeAttr(m.name)}')" class="flex items-center gap-3 w-full truncate">
         <i class="fas ${m.icon || 'fa-folder'} text-xs w-4 text-center"></i>
-        <span class="truncate text-xs">${escapeHtml(m.name)}</span>
+        <span class="truncate text-xs">${window.escapeHtml(m.name)}</span>
       </span>
       <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition">
-        <button onclick="deleteMenu('${safeAttr(m.name)}')" title="Hapus Folder" class="p-1 text-gray-500 hover:text-red-400 text-xs cursor-pointer"><i class="fas fa-trash"></i></button>
+        <button onclick="deleteMenu('${window.safeAttr(m.name)}')" title="Hapus Folder" class="p-1 text-gray-500 hover:text-red-400 text-xs cursor-pointer"><i class="fas fa-trash"></i></button>
       </div>
     `;
-    container.appendChild(div);
+    sidebarMenu.appendChild(div);
   });
-}
+};
 
-function switchMenu(name) {
-  activeMenu = name;
-  localStorage.setItem('v19_active', activeMenu);
+window.switchMenu = function(name) {
+  window.activeMenu = name;
+  localStorage.setItem('v19_active', window.activeMenu);
   toggleMobileSidebar(false);
 
-  const mInfo = menus.find(m => m.name === activeMenu) || menus[0];
-  const titleEl = document.getElementById('currentMenuTitle');
-  const subEl = document.getElementById('folderSubtitle');
-  if(titleEl) titleEl.innerText = mInfo.name;
-  if(subEl) subEl.innerText = mInfo.subtitle || "Centralized Command & Executive Vault Monitoring Console";
+  const mInfo = window.menus.find(m => m.name === window.activeMenu) || window.menus[0];
+  if (currentMenuTitle) currentMenuTitle.innerText = mInfo.name;
+  if (folderSubtitle) folderSubtitle.innerText = mInfo.subtitle || "MR.RCT Executive Command Center";
 
-  activeSlotIndex = 0;
+  window.activeSlotIndex = 0;
   renderCards();
   renderSidebar();
-}
+};
 
-function toggleMobileSidebar(open) {
+window.toggleMobileSidebar = function(open) {
   const sb = document.getElementById('mainSidebar');
   const ov = document.getElementById('mobileOverlay');
-  if(sb && ov) {
-    if(open) { sb.classList.remove('-translate-x-full'); ov.style.display = 'block'; }
+  if (sb && ov) {
+    if (open) { sb.classList.remove('-translate-x-full'); ov.style.display = 'block'; }
     else { sb.classList.add('-translate-x-full'); ov.style.display = 'none'; }
   }
-}
-
-// ==========================================
-// SCRIPT EDITOR
-// ==========================================
-function renderScriptEditor() {
-  const editorUI = document.getElementById('scriptNewEditor');
-  const controlBar = document.getElementById('normalControlBar');
-  const grid = document.getElementById('cardGrid');
-  const emptyState = document.getElementById('emptyState');
-
-  if (!editorUI) return;
-
-  editorUI.style.display = 'flex';
-  controlBar.style.display = 'none';
-  grid.style.display = 'none';
-  if(emptyState) emptyState.style.display = 'none';
-
-  const slots = masterData.filter(d => d.category === activeMenu && !d.deleted);
-
-  const tabContainer = document.getElementById('slotTabs');
-  tabContainer.innerHTML = '';
-
-  if (slots.length === 0) {
-    masterData.push({ category: activeMenu, title: "PROMO 1", content: "", extraInfo: "Promo", status: "Aktif" });
-    saveData();
-    return renderScriptEditor();
-  }
-
-  slots.forEach((slot, i) => {
-    const btn = document.createElement('button');
-    btn.className = `promo-tab px-4 py-2.5 rounded-xl font-master font-black text-[9px] uppercase tracking-wider transition ${activeSlotIndex === i ? 'active' : ''}`;
-    btn.innerHTML = `<div>${slot.title}</div><div class="text-[7px] opacity-60">${slot.extraInfo || 'Promo'}</div>`;
-    btn.onclick = () => { activeSlotIndex = i; loadSlotData(); };
-    tabContainer.appendChild(btn);
-  });
-
-  loadSlotData();
-}
-
-function loadSlotData() {
-  const slots = masterData.filter(d => d.category === activeMenu && !d.deleted);
-  const slot = slots[activeSlotIndex];
-  if(!slot) return;
-
-  document.getElementById('editorPromoTitle').value = slot.title;
-  document.getElementById('editorPromoCategory').value = slot.extraInfo || "Promo";
-  document.getElementById('editorPromoStatus').value = slot.status || "Aktif";
-  document.getElementById('promoCodeInput').value = slot.content || "";
-
-  updateLivePreview();
-
-  document.querySelectorAll('.promo-tab').forEach((t, i) => {
-    t.classList.toggle('active', i === activeSlotIndex);
-  });
-}
-
-function updateLivePreview() {
-  const code = document.getElementById('promoCodeInput').value;
-  const iframe = document.getElementById('promoPreviewFrame');
-  const charCount = document.getElementById('charCount');
-
-  if (iframe) {
-    const doc = iframe.contentDocument || iframe.contentWindow.document;
-    doc.open();
-    doc.write(code);
-    doc.close();
-  }
-  if (charCount) charCount.innerText = `${code.length} CHARS`;
-}
-
-function saveCurrentSlot() {
-  const slots = masterData.filter(d => d.category === activeMenu && !d.deleted);
-  const slot = slots[activeSlotIndex];
-  if(!slot) return;
-
-  const masterIdx = masterData.indexOf(slot);
-  masterData[masterIdx].title = document.getElementById('editorPromoTitle').value.toUpperCase();
-  masterData[masterIdx].extraInfo = document.getElementById('editorPromoCategory').value;
-  masterData[masterIdx].status = document.getElementById('editorPromoStatus').value;
-  masterData[masterIdx].content = document.getElementById('promoCodeInput').value;
-
-  saveData();
-  renderScriptEditor();
-  showToast('Slot Script Berhasil Disimpan!', 'success');
-}
-
-function formatCode() {
-  const input = document.getElementById('promoCodeInput');
-  let code = input.value;
-  code = code.replace(/>\s+</g, '>\n<');
-  input.value = code;
-  updateLivePreview();
-  showToast('Kode Dirapikan (Basic)', 'info');
-}
-
-function resetEditor() {
-  if(confirm('Reset semua isi di editor ini?')) {
-    document.getElementById('promoCodeInput').value = "";
-    updateLivePreview();
-  }
-}
-
-function cloneSlot() {
-  const slots = masterData.filter(d => d.category === activeMenu && !d.deleted);
-  const slot = slots[activeSlotIndex];
-  const newSlot = {...slot, title: slot.title + " (CLONE)"};
-  masterData.push(newSlot);
-  saveData();
-  activeSlotIndex = masterData.filter(d => d.category === activeMenu && !d.deleted).length - 1;
-  renderScriptEditor();
-  showToast('Slot Berhasil Di-Clone!', 'success');
-}
-
-function applyTemplate() {
-  const template = `<div class="go-wrapper">
-<style>
-.go-wrapper { width: 100%; max-width: 920px; margin: 18px auto; font-family: sans-serif; color: #FFD700; background: #330000; border: 4px solid #FFD700; padding: 20px; border-radius: 20px; text-align: center; }
-.go-title { font-size: 24px; font-weight: 900; margin-bottom: 20px; text-transform: uppercase; }
-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
-th, td { border: 1px solid #FFD700; padding: 10px; }
-.btn-claim { background: #FFD700; color: #000; padding: 10px 20px; border-radius: 10px; font-weight: bold; text-decoration: none; display: inline-block; }
-</style>
-<div class="go-title">EVENT BONUS SUPER SCATTER</div>
-<table>
-<tr><th>BET</th><th>1 SCATTER</th><th>2 SCATTER</th></tr>
-<tr><td>800 - 1.600</td><td>50.000</td><td>100.000</td></tr>
-</table>
-<a href="#" class="btn-claim">SYARAT & KETENTUAN</a>
-</div>`;
-  document.getElementById('promoCodeInput').value = template;
-  updateLivePreview();
-}
-
-function exportCode() {
-  const code = document.getElementById('promoCodeInput').value;
-  const blob = new Blob([code], {type: 'text/html'});
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = `promo_script_${Date.now()}.html`;
-  a.click();
-}
-
-function toggleEditorFullscreen() {
-  const editor = document.getElementById('promoCodeInput');
-  if (!document.fullscreenElement) {
-    editor.requestFullscreen().catch(err => alert(`Error: ${err.message}`));
-  } else {
-    document.exitFullscreen();
-  }
-}
+};
 
 // ==========================================
 // RENDER CARDS
 // ==========================================
-function renderCards() {
-  const grid = document.getElementById('cardGrid');
-  const editorUI = document.getElementById('scriptNewEditor');
-  const controlBar = document.getElementById('normalControlBar');
-
-  if(!grid) return;
-  const searchInput = document.getElementById('searchInput');
+window.renderCards = function() {
+  if (!cardGrid) return;
   const search = searchInput ? searchInput.value.toLowerCase() : '';
+  const mInfo = window.menus.find(m => m.name === window.activeMenu) || { type: 'alarm' };
 
-  const mInfo = menus.find(m => m.name === activeMenu) || { type: 'alarm' };
-
+  // Script Editor Mode
   if (mInfo.type === 'script_promo') {
     renderScriptEditor();
     return;
   } else {
-    if(editorUI) editorUI.style.display = 'none';
-    if(controlBar) controlBar.style.display = 'flex';
-    grid.style.display = 'grid';
+    const editorUI = document.getElementById('scriptNewEditor');
+    const controlBar = document.getElementById('normalControlBar');
+    if (editorUI) editorUI.style.display = 'none';
+    if (controlBar) controlBar.style.display = 'flex';
+    cardGrid.style.display = 'grid';
   }
 
-  grid.innerHTML = '';
+  cardGrid.innerHTML = '';
+  let filtered = window.masterData.filter(d => d.category === window.activeMenu && !d.deleted);
 
-  let filtered = masterData.filter(d => d.category === activeMenu && !d.deleted);
-
-  if(favoritesOnlyFilter) {
+  if (window.favoritesOnlyFilter) {
     filtered = filtered.filter(d => d.favorite);
   }
 
-  if(search) {
+  if (search) {
     filtered = filtered.filter(d =>
       (d.title && d.title.toLowerCase().includes(search)) ||
       (d.content && d.content.toLowerCase().includes(search)) ||
@@ -1641,57 +1658,52 @@ function renderCards() {
   }
 
   const doneCount = filtered.filter(d => d.pasaranDone).length;
-  const doneBadge = document.getElementById('doneCounterBadge');
-  const pasaranText = document.getElementById('pasaranProgressText');
-  if(doneBadge) doneBadge.innerText = `${doneCount} / ${filtered.length} DONE`;
-  if(pasaranText) pasaranText.innerText = `${doneCount} / ${filtered.length} PASARAN DONE RESULT`;
+  if (doneBadge) doneBadge.innerText = `${doneCount} / ${filtered.length} DONE`;
+  if (pasaranProgressText) pasaranProgressText.innerText = `${doneCount} / ${filtered.length} PASARAN DONE RESULT`;
 
   if (mInfo.type === 'pasaran') {
     filtered.sort((a, b) => {
-      let timeA = parseTimeToMinutes(a.pasaranClose);
-      if (timeA === 9999) timeA = parseTimeToMinutes(a.pasaranResultTime);
-      let timeB = parseTimeToMinutes(b.pasaranClose);
-      if (timeB === 9999) timeB = parseTimeToMinutes(b.pasaranResultTime);
+      let timeA = window.parseTimeToMinutes(a.pasaranClose);
+      if (timeA === 9999) timeA = window.parseTimeToMinutes(a.pasaranResultTime);
+      let timeB = window.parseTimeToMinutes(b.pasaranClose);
+      if (timeB === 9999) timeB = window.parseTimeToMinutes(b.pasaranResultTime);
       if (timeA !== timeB) return timeA - timeB;
-      let resA = parseTimeToMinutes(a.pasaranResultTime);
-      let resB = parseTimeToMinutes(b.pasaranResultTime);
+      let resA = window.parseTimeToMinutes(a.pasaranResultTime);
+      let resB = window.parseTimeToMinutes(b.pasaranResultTime);
       return resA - resB;
     });
   } else if (mInfo.type === 'alarm') {
     filtered.sort((a, b) => {
-      let timeA = parseTimeToMinutes(a.alarmTime);
-      let timeB = parseTimeToMinutes(b.alarmTime);
+      let timeA = window.parseTimeToMinutes(a.alarmTime);
+      let timeB = window.parseTimeToMinutes(b.alarmTime);
       return timeA - timeB;
     });
   }
 
-  const quickUploadBtn = document.getElementById('quickUploadBtn');
-  if(quickUploadBtn) {
-    if(mInfo.type === 'image_note' || activeMenu === 'POTO KENDALA') {
-      quickUploadBtn.style.display = 'flex';
-    } else {
-      quickUploadBtn.style.display = 'none';
-    }
+  if (quickUploadBtn) {
+    quickUploadBtn.style.display = (mInfo.type === 'image_note' || window.activeMenu === 'POTO KENDALA') ? 'flex' : 'none';
   }
 
-  const pasaranSummaryBar = document.getElementById('pasaranSummaryBar');
+  if (pasaranSummaryBar) {
+    pasaranSummaryBar.style.display = (mInfo.type === 'pasaran') ? 'flex' : 'none';
+  }
+  if (doneBadge) {
+    doneBadge.style.display = (mInfo.type === 'pasaran') ? 'block' : 'none';
+  }
 
-  if(mInfo.type === 'alarm' || activeMenu === 'ALARM CENTER') {
-    if(pasaranSummaryBar) pasaranSummaryBar.style.display = 'none';
-    if(doneBadge) doneBadge.style.display = 'none';
-    grid.className = "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5";
-
+  if (mInfo.type === 'alarm' || window.activeMenu === 'ALARM CENTER') {
+    cardGrid.className = "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5";
     filtered.forEach((item) => {
-      const rIndex = masterData.indexOf(item);
+      const rIndex = window.masterData.indexOf(item);
       const card = document.createElement('div');
       const isAlarmActive = item.alarmOn !== false;
-      card.className = `note-card p-6 bg-[#080c14] border ${isAlarmActive ? 'border-yellow-400/40 shadow-[0_0_20px_rgba(250,204,21,0.08)]' : 'border-white/10 opacity-60'} rounded-2xl transition flex flex-col justify-between h-full min-h-[190px]`;
+      card.className = `note-card p-6 border ${isAlarmActive ? 'border-yellow-400/40 shadow-[0_0_30px_rgba(250,204,21,0.05)]' : 'border-white/10 opacity-60'} rounded-2xl transition flex flex-col justify-between h-full min-h-[190px]`;
       card.innerHTML = `
         <div>
           <div class="flex justify-between items-start gap-2 mb-3">
             <div class="min-w-0">
-              <p class="text-[8px] font-master font-black text-yellow-400 tracking-[2px] uppercase truncate mb-0.5">${escapeHtml(item.alarmDays || 'DAILY')}</p>
-              <h3 class="font-master text-white font-black text-xs uppercase tracking-wider italic truncate">${escapeHtml(item.title)}</h3>
+              <p class="text-[8px] font-master font-black text-yellow-400 tracking-[2px] uppercase truncate mb-0.5">${window.escapeHtml(item.alarmDays || 'DAILY')}</p>
+              <h3 class="font-master text-white font-black text-xs uppercase tracking-wider italic truncate">${window.escapeHtml(item.title)}</h3>
             </div>
             <div class="flex items-center gap-1.5 shrink-0">
               <button onclick="toggleFavorite(${rIndex})" class="text-xs ${item.favorite ? 'text-yellow-400' : 'text-gray-600 hover:text-yellow-400'} cursor-pointer p-0.5 transition"><i class="fas fa-star"></i></button>
@@ -1700,7 +1712,7 @@ function renderCards() {
             </div>
           </div>
           <div class="my-3">
-            <h2 class="font-master font-black text-4xl md:text-5xl text-white tracking-widest">${escapeHtml(item.alarmTime || '00:00')}</h2>
+            <h2 class="font-master font-black text-4xl md:text-5xl text-white tracking-widest">${window.escapeHtml(item.alarmTime || '00:00')}</h2>
           </div>
         </div>
         <div class="flex justify-end items-center mt-3">
@@ -1710,19 +1722,15 @@ function renderCards() {
           </button>
         </div>
       `;
-      grid.appendChild(card);
+      cardGrid.appendChild(card);
     });
-
-  } else if(mInfo.type === 'pasaran') {
-    if(pasaranSummaryBar) pasaranSummaryBar.style.display = 'flex';
-    if(doneBadge) doneBadge.style.display = 'block';
-    grid.className = "space-y-3";
-
+  } else if (mInfo.type === 'pasaran') {
+    cardGrid.className = "space-y-3";
     filtered.forEach((item) => {
-      const rIndex = masterData.indexOf(item);
+      const rIndex = window.masterData.indexOf(item);
       const isHidden = !!item.hiddenNum;
       const isDone = !!item.pasaranDone;
-      const timerInfo = getPasaranTimerInfo(item.pasaranResultTime, isDone, isHidden);
+      const timerInfo = window.getPasaranTimerInfo(item.pasaranResultTime, isDone, isHidden);
 
       let cardClass = "pasaran-row p-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 ";
       if (isHidden) cardClass += "pasaran-hidden-mode ";
@@ -1738,15 +1746,15 @@ function renderCards() {
           <div class="w-9 h-9 rounded-xl bg-black/60 border border-white/10 flex items-center justify-center text-yellow-400"><i class="fas fa-dice text-base"></i></div>
           <div class="flex flex-col min-w-0">
             <div class="flex items-center gap-2 flex-wrap">
-              <h3 class="font-master text-white font-black text-xs md:text-sm uppercase italic truncate">${escapeHtml(item.title)}</h3>
+              <h3 class="font-master text-white font-black text-xs md:text-sm uppercase italic truncate">${window.escapeHtml(item.title)}</h3>
               ${(timerInfo.isApproaching && !isHidden && !isDone) ? `<span class="px-2.5 py-0.5 bg-red-950/90 border border-red-500 text-red-400 font-code font-bold text-[9px] rounded-md animate-pulse shadow-md flex items-center gap-1"><i class="fas fa-clock text-[8px]"></i> ${timerInfo.countdownStr}</span>` : ''}
             </div>
           </div>
         </div>
         <div class="flex flex-wrap items-center gap-3 font-code text-xs">
-          <div><span class="text-[8px] uppercase font-master text-gray-500 tracking-wider mr-1">CLOSE:</span><span class="text-white font-bold">${escapeHtml(item.pasaranClose) || '00:00'}</span></div>
-          <div><span class="text-[8px] uppercase font-master text-gray-500 tracking-wider mr-1">RESULT:</span><span class="text-yellow-400 font-bold">${escapeHtml(item.pasaranResultTime) || '00:00'}</span></div>
-          ${item.url ? `<a href="${escapeHtml(item.url)}" target="_blank" class="px-3.5 py-1.5 rounded-xl bg-white/5 border border-white/10 hover:border-yellow-400/40 text-gray-300 hover:text-yellow-400 font-master font-bold text-[9px] transition"><i class="fas fa-arrow-up-right-from-square"></i> Link</a>` : ''}
+          <div><span class="text-[8px] uppercase font-master text-gray-500 tracking-wider mr-1">CLOSE:</span><span class="text-white font-bold">${window.escapeHtml(item.pasaranClose) || '00:00'}</span></div>
+          <div><span class="text-[8px] uppercase font-master text-gray-500 tracking-wider mr-1">RESULT:</span><span class="text-yellow-400 font-bold">${window.escapeHtml(item.pasaranResultTime) || '00:00'}</span></div>
+          ${item.url ? `<a href="${window.escapeHtml(item.url)}" target="_blank" class="px-3.5 py-1.5 rounded-xl bg-white/5 border border-white/10 hover:border-yellow-400/40 text-gray-300 hover:text-yellow-400 font-master font-bold text-[9px] transition"><i class="fas fa-arrow-up-right-from-square"></i> Link</a>` : ''}
           <div class="flex items-center gap-2">
             <button onclick="togglePasaranVisibility(${rIndex})" title="${item.hiddenNum ? 'Nyalakan Pasaran' : 'Matikan Pasaran'}" class="text-gray-500 hover:text-white p-1 cursor-pointer transition"><i class="fas ${item.hiddenNum ? 'fa-eye-slash text-yellow-400' : 'fa-eye text-gray-300'} text-xs"></i></button>
             <button onclick="editItem(${rIndex})" class="text-gray-500 hover:text-cyan-400 p-1 cursor-pointer transition"><i class="fas fa-pen text-xs"></i></button>
@@ -1755,25 +1763,21 @@ function renderCards() {
           </div>
         </div>
       `;
-      grid.appendChild(row);
+      cardGrid.appendChild(row);
     });
-
-  } else if(mInfo.type === 'image_note' || activeMenu === 'POTO KENDALA') {
-    if(pasaranSummaryBar) pasaranSummaryBar.style.display = 'none';
-    if(doneBadge) doneBadge.style.display = 'none';
-    grid.className = "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5";
-
+  } else if (mInfo.type === 'image_note' || window.activeMenu === 'POTO KENDALA') {
+    cardGrid.className = "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5";
     filtered.forEach((item) => {
-      const rIndex = masterData.indexOf(item);
+      const rIndex = window.masterData.indexOf(item);
       const card = document.createElement('div');
-      const imgUrl = item.imageUrl || createSampleSvg(item.title || "POTO KENDALA", ["#050b14", "#091122"], "NO IMAGE", "Klik Upload Foto");
-      card.className = "note-card p-5 bg-[#080c14] border border-white/10 rounded-2xl hover:border-yellow-400/40 transition flex flex-col justify-between h-full group";
+      const imgUrl = item.imageUrl || createSampleSvg(item.title || "POTO KENDALA", "#050b14", "#091122", "NO IMAGE", "Klik Upload Foto");
+      card.className = "note-card p-5 border border-white/10 rounded-2xl hover:border-yellow-400/40 transition flex flex-col justify-between h-full group";
       card.innerHTML = `
         <div>
           <div class="flex justify-between items-center gap-2 mb-3">
             <div class="flex items-center gap-2 min-w-0">
               <button onclick="toggleFavorite(${rIndex})" class="text-xs ${item.favorite ? 'text-yellow-400' : 'text-gray-600 hover:text-yellow-400'} cursor-pointer transition"><i class="fas fa-star"></i></button>
-              <h3 class="font-master text-white font-black text-xs uppercase tracking-wider italic truncate">${escapeHtml(item.title)}</h3>
+              <h3 class="font-master text-white font-black text-xs uppercase tracking-wider italic truncate">${window.escapeHtml(item.title)}</h3>
             </div>
             <div class="flex items-center gap-1.5 shrink-0">
               <button onclick="triggerCardPhotoUpload(${rIndex})" title="Ganti Foto" class="text-emerald-400 hover:text-emerald-300 text-xs p-1 cursor-pointer transition"><i class="fas fa-camera"></i></button>
@@ -1781,8 +1785,8 @@ function renderCards() {
               <button onclick="deleteItem(${rIndex})" title="Hapus" class="text-gray-500 hover:text-red-400 text-xs p-1 cursor-pointer transition"><i class="fas fa-trash"></i></button>
             </div>
           </div>
-          <div onclick="openImageLightbox('${safeAttr(imgUrl)}', '${safeAttr(item.title)}')" class="relative bg-black/60 border border-white/10 rounded-xl overflow-hidden cursor-pointer group-hover:border-yellow-400/40 transition h-52 flex items-center justify-center p-1.5 mb-3">
-            <img src="${escapeHtml(imgUrl)}" alt="${escapeHtml(item.title)}" class="w-full h-full object-cover rounded-lg group-hover:scale-105 transition duration-300">
+          <div onclick="openImageLightbox('${window.safeAttr(imgUrl)}', '${window.safeAttr(item.title)}')" class="relative bg-black/60 border border-white/10 rounded-xl overflow-hidden cursor-pointer group-hover:border-yellow-400/40 transition h-52 flex items-center justify-center p-1.5 mb-3">
+            <img src="${window.escapeHtml(imgUrl)}" alt="${window.escapeHtml(item.title)}" class="w-full h-full object-cover rounded-lg group-hover:scale-105 transition duration-300">
             <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition flex items-center justify-center gap-2 text-white font-master text-xs font-bold uppercase tracking-wider">
               <i class="fas fa-expand text-yellow-400 text-sm"></i> KLIK PRATINJAU
             </div>
@@ -1792,34 +1796,30 @@ function renderCards() {
           <button onclick="triggerCardPhotoUpload(${rIndex})" class="py-2.5 bg-emerald-500/20 hover:bg-emerald-500 border border-emerald-500/40 text-emerald-300 hover:text-black font-master font-bold text-[8px] uppercase tracking-wider rounded-xl transition flex items-center justify-center gap-1 cursor-pointer">
             <i class="fas fa-cloud-arrow-up text-xs"></i> UPLOAD
           </button>
-          <button onclick="copyImageFromCard('${safeAttr(imgUrl)}')" class="py-2.5 bg-black/80 border border-white/20 hover:border-yellow-400 hover:bg-yellow-400 hover:text-black text-gray-200 font-master font-bold text-[8px] uppercase tracking-wider rounded-xl transition flex items-center justify-center gap-1 cursor-pointer shadow-md">
+          <button onclick="copyImageFromCard('${window.safeAttr(imgUrl)}')" class="py-2.5 bg-black/80 border border-white/20 hover:border-yellow-400 hover:bg-yellow-400 hover:text-black text-gray-200 font-master font-bold text-[8px] uppercase tracking-wider rounded-xl transition flex items-center justify-center gap-1 cursor-pointer shadow-md">
             <i class="far fa-copy text-xs"></i> SALIN
           </button>
         </div>
       `;
-      grid.appendChild(card);
+      cardGrid.appendChild(card);
     });
-
-  } else if(mInfo.type === 'account' || activeMenu.includes('DATA LOGIN')) {
-    if(pasaranSummaryBar) pasaranSummaryBar.style.display = 'none';
-    if(doneBadge) doneBadge.style.display = 'none';
-    grid.className = "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5";
-
+  } else if (mInfo.type === 'account' || window.activeMenu.includes('DATA LOGIN')) {
+    cardGrid.className = "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5";
     filtered.forEach((item) => {
-      const rIndex = masterData.indexOf(item);
+      const rIndex = window.masterData.indexOf(item);
       const card = document.createElement('div');
-      const isPassVisible = passVisibleMap[rIndex] || false;
+      const isPassVisible = window.passVisibleMap[rIndex] || false;
       const rawPass = item.pass || '';
       const displayedPass = isPassVisible ? rawPass : '••••••••';
       const loginUrl = item.loginUrl || item.url || '';
 
-      card.className = `note-card p-5 bg-[#080c14] border ${loginUrl ? 'border-yellow-400/40 shadow-[0_0_20px_rgba(250,204,21,0.06)]' : 'border-white/10'} rounded-2xl transition flex flex-col justify-between h-full`;
+      card.className = `note-card p-5 border ${loginUrl ? 'border-yellow-400/40 shadow-[0_0_30px_rgba(250,204,21,0.04)]' : 'border-white/10'} rounded-2xl transition flex flex-col justify-between h-full`;
       card.innerHTML = `
         <div>
           <div class="flex justify-between items-center gap-2 mb-4">
             <div class="flex items-center gap-2 min-w-0">
               <button onclick="toggleFavorite(${rIndex})" class="text-xs ${item.favorite ? 'text-yellow-400' : 'text-gray-600 hover:text-yellow-400'} cursor-pointer transition"><i class="fas fa-star"></i></button>
-              <h3 class="font-master text-white font-black text-xs uppercase tracking-wider italic truncate">${escapeHtml(item.title)}</h3>
+              <h3 class="font-master text-white font-black text-xs uppercase tracking-wider italic truncate">${window.escapeHtml(item.title)}</h3>
             </div>
             <div class="flex items-center gap-1.5 shrink-0">
               <button onclick="editItem(${rIndex})" class="text-gray-500 hover:text-cyan-400 text-xs p-1 cursor-pointer transition"><i class="fas fa-pen"></i></button>
@@ -1828,50 +1828,46 @@ function renderCards() {
           </div>
           <div class="space-y-2.5 mb-4">
             <div class="bg-black/70 border border-white/10 rounded-xl px-3.5 py-2.5 flex justify-between items-center font-code text-xs">
-              <span class="text-gray-300 font-medium truncate mr-2">${escapeHtml(item.user || 'No Username')}</span>
-              <button onclick="copyToClipboard('${safeAttr(item.user)}', 'Username Disalin!')" class="text-gray-400 hover:text-yellow-400 transition cursor-pointer p-1 shrink-0"><i class="far fa-copy text-xs"></i></button>
+              <span class="text-gray-300 font-medium truncate mr-2">${window.escapeHtml(item.user || 'No Username')}</span>
+              <button onclick="copyToClipboard('${window.safeAttr(item.user)}', 'Username Disalin!')" class="text-gray-400 hover:text-yellow-400 transition cursor-pointer p-1 shrink-0"><i class="far fa-copy text-xs"></i></button>
             </div>
             <div class="bg-black/70 border border-white/10 rounded-xl px-3.5 py-2.5 flex justify-between items-center font-code text-xs">
               <span class="text-gray-300 font-medium tracking-wider truncate mr-2">${displayedPass}</span>
               <div class="flex items-center gap-2 shrink-0">
                 <button onclick="toggleCardPassVisibility(${rIndex})" class="text-gray-400 hover:text-white transition cursor-pointer p-0.5"><i class="fas ${isPassVisible ? 'fa-eye-slash text-yellow-400' : 'fa-eye'} text-xs"></i></button>
-                <button onclick="copyToClipboard('${safeAttr(rawPass)}', 'Password Disalin!')" class="text-gray-400 hover:text-yellow-400 transition cursor-pointer p-0.5"><i class="far fa-copy text-xs"></i></button>
+                <button onclick="copyToClipboard('${window.safeAttr(rawPass)}', 'Password Disalin!')" class="text-gray-400 hover:text-yellow-400 transition cursor-pointer p-0.5"><i class="far fa-copy text-xs"></i></button>
               </div>
             </div>
             <div class="bg-black/70 border ${loginUrl ? 'border-yellow-400/40' : 'border-white/10'} rounded-xl px-3.5 py-2.5 flex justify-between items-center font-code text-xs">
               ${loginUrl ? `
-                <span class="text-yellow-400 italic truncate mr-2 text-[10px]">${escapeHtml(loginUrl)}</span>
-                <button onclick="copyToClipboard('${safeAttr(loginUrl)}', 'Link Disalin!')" class="text-gray-400 hover:text-yellow-400 transition cursor-pointer p-1 shrink-0"><i class="far fa-copy text-xs"></i></button>
+                <span class="text-yellow-400 italic truncate mr-2 text-[10px]">${window.escapeHtml(loginUrl)}</span>
+                <button onclick="copyToClipboard('${window.safeAttr(loginUrl)}', 'Link Disalin!')" class="text-gray-400 hover:text-yellow-400 transition cursor-pointer p-1 shrink-0"><i class="far fa-copy text-xs"></i></button>
               ` : `<span class="text-yellow-500/60 italic font-medium">No Link</span><button onclick="copyToClipboard('', 'Link Kosong')" class="text-gray-600 p-1 shrink-0"><i class="far fa-copy text-xs"></i></button>`}
             </div>
           </div>
         </div>
         ${loginUrl ? `
-          <a href="${escapeHtml(loginUrl)}" target="_blank" class="w-full py-3 bg-gradient-to-r from-yellow-400 to-amber-500 hover:from-yellow-300 hover:to-amber-400 text-black font-master font-black text-xs uppercase tracking-wider rounded-xl transition flex items-center justify-center gap-2 shadow-lg cursor-pointer mt-2 transform hover:scale-[1.02]">
+          <a href="${window.escapeHtml(loginUrl)}" target="_blank" class="w-full py-3 bg-gradient-to-r from-yellow-400 to-amber-500 hover:from-yellow-300 hover:to-amber-400 text-black font-master font-black text-xs uppercase tracking-wider rounded-xl transition flex items-center justify-center gap-2 shadow-lg cursor-pointer mt-2 transform hover:scale-[1.02]">
             <i class="fas fa-arrow-up-right-from-square text-xs"></i> VISIT LINK
           </a>
         ` : `
           <button disabled class="w-full py-3 bg-white/5 border border-white/10 text-gray-500 font-master font-bold text-xs uppercase tracking-wider rounded-xl flex items-center justify-center gap-2 cursor-not-allowed mt-2 opacity-50"><i class="fas fa-link-slash text-xs"></i> NO LINK</button>
         `}
       `;
-      grid.appendChild(card);
+      cardGrid.appendChild(card);
     });
-
   } else {
-    if(pasaranSummaryBar) pasaranSummaryBar.style.display = 'none';
-    if(doneBadge) doneBadge.style.display = 'none';
-    grid.className = "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4";
-
+    cardGrid.className = "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4";
     filtered.forEach((item) => {
-      const rIndex = masterData.indexOf(item);
+      const rIndex = window.masterData.indexOf(item);
       const card = document.createElement('div');
-      card.className = "note-card p-5 flex flex-col justify-between h-full bg-[#080c14] border border-white/10 rounded-2xl hover:border-yellow-400/40 transition";
+      card.className = "note-card p-5 flex flex-col justify-between h-full border border-white/10 rounded-2xl hover:border-yellow-400/40 transition";
       card.innerHTML = `
         <div>
           <div class="flex justify-between items-center gap-2 mb-3">
             <div class="flex items-center gap-2 min-w-0">
               <button onclick="toggleFavorite(${rIndex})" class="text-xs ${item.favorite ? 'text-yellow-400' : 'text-gray-600 hover:text-yellow-400'} cursor-pointer transition"><i class="fas fa-star"></i></button>
-              <h3 class="font-master text-white font-black text-xs uppercase tracking-wider italic truncate">${escapeHtml(item.title)}</h3>
+              <h3 class="font-master text-white font-black text-xs uppercase tracking-wider italic truncate">${window.escapeHtml(item.title)}</h3>
             </div>
             <div class="flex items-center gap-1.5 shrink-0">
               <button onclick="editItem(${rIndex})" class="text-gray-500 hover:text-cyan-400 text-xs p-1 cursor-pointer transition"><i class="fas fa-pen"></i></button>
@@ -1879,209 +1875,294 @@ function renderCards() {
             </div>
           </div>
           <div class="bg-black/60 border border-white/5 rounded-xl p-3.5 mb-4 border-r-2 border-r-yellow-400 min-h-[140px] max-h-[180px] overflow-y-auto">
-            <p class="text-xs font-body italic text-gray-300 leading-relaxed whitespace-pre-line">${escapeHtml(item.content)}</p>
+            <p class="text-xs font-body italic text-gray-300 leading-relaxed whitespace-pre-line">${window.escapeHtml(item.content)}</p>
           </div>
         </div>
-        <button onclick="copyToClipboard('${safeAttr(item.content)}', 'Catatan Disalin!')" class="w-full py-2.5 bg-black/80 border border-white/20 hover:border-yellow-400 hover:bg-yellow-400 hover:text-black text-gray-200 font-master font-bold text-[9px] uppercase tracking-wider rounded-xl transition flex items-center justify-center gap-2 cursor-pointer shadow-md">
+        <button onclick="copyToClipboard('${window.safeAttr(item.content)}', 'Catatan Disalin!')" class="w-full py-2.5 bg-black/80 border border-white/20 hover:border-yellow-400 hover:bg-yellow-400 hover:text-black text-gray-200 font-master font-bold text-[9px] uppercase tracking-wider rounded-xl transition flex items-center justify-center gap-2 cursor-pointer shadow-md">
           <i class="far fa-copy text-xs"></i> COPY FULL NOTE
         </button>
       `;
-      grid.appendChild(card);
+      cardGrid.appendChild(card);
     });
   }
 
-  const emptyEl = document.getElementById('emptyState');
-  if(emptyEl) emptyEl.classList.toggle('hidden', filtered.length > 0);
+  if (emptyState) {
+    emptyState.classList.toggle('hidden', filtered.length > 0);
+  }
+};
+
+function createSampleSvg(title, bg1, bg2, txt1, txt2) {
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="600" height="450" viewBox="0 0 600 450">
+    <rect width="600" height="450" fill="${bg1}"/>
+    <rect x="20" y="20" width="560" height="410" rx="16" fill="${bg2}" stroke="#facc15" stroke-width="2" stroke-dasharray="6,6"/>
+    <text x="300" y="160" font-family="sans-serif" font-size="28" font-weight="900" fill="#ffffff" text-anchor="middle">${title}</text>
+    <text x="300" y="220" font-family="monospace" font-size="20" font-weight="bold" fill="#facc15" text-anchor="middle">${txt1}</text>
+    <text x="300" y="270" font-family="sans-serif" font-size="16" fill="#9ca3af" text-anchor="middle">${txt2}</text>
+    <circle cx="300" cy="340" r="30" fill="#facc15" opacity="0.2"/>
+    <path d="M290 340 L300 330 L310 340 M300 330 L300 355" stroke="#facc15" stroke-width="4" stroke-linecap="round"/>
+  </svg>`;
+  return "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
 }
 
 // ==========================================
-// CLOCK & TICKER
+// SCRIPT EDITOR
 // ==========================================
-function updateClock() {
-  const now = new Date();
-  const hours = now.getHours().toString().padStart(2, '0');
-  const mins = now.getMinutes().toString().padStart(2, '0');
-  const secs = now.getSeconds().toString().padStart(2, '0');
+window.renderScriptEditor = function() {
+  const editorUI = document.getElementById('scriptNewEditor');
+  const controlBar = document.getElementById('normalControlBar');
+  const grid = document.getElementById('cardGrid');
+  const emptyState = document.getElementById('emptyState');
 
-  const timeStr = `${hours}.${mins}.${secs}`;
-  const currentHHMM = `${hours}:${mins}`;
+  if (!editorUI) return;
+  editorUI.style.display = 'flex';
+  if (controlBar) controlBar.style.display = 'none';
+  if (grid) grid.style.display = 'none';
+  if (emptyState) emptyState.style.display = 'none';
 
-  const listHari = ["MINGGU", "SENIN", "SELASA", "RABU", "KAMIS", "JUMAT", "SABTU"];
-  const hariIni = listHari[now.getDay()];
-  const dateStr = now.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }).toUpperCase();
+  const slots = window.masterData.filter(d => d.category === window.activeMenu && !d.deleted);
+  const tabContainer = document.getElementById('slotTabs');
+  if (!tabContainer) return;
+  tabContainer.innerHTML = '';
 
-  const clockEl = document.getElementById('clockTime');
-  const dateEl = document.getElementById('clockDate');
-  if(clockEl) clockEl.innerText = timeStr;
-  if(dateEl) dateEl.innerText = dateStr;
+  if (slots.length === 0) {
+    window.masterData.push({ category: window.activeMenu, title: "PROMO 1", content: "", extraInfo: "Promo", status: "Aktif" });
+    window.saveData();
+    renderScriptEditor();
+    return;
+  }
 
-  // Check alarms
-  masterData.forEach((item, index) => {
-    if(item.category === 'ALARM CENTER' && item.alarmOn && item.alarmTime === currentHHMM) {
-      const jadwal = (item.alarmDays || "DAILY").toUpperCase();
-      const isTodayMatch = jadwal.includes(hariIni) || jadwal.includes("DAILY");
-      if (isTodayMatch) {
-        const triggerKey = `alarm_${index}_${currentHHMM}`;
-        if(!triggeredAlarmsMap[triggerKey]) {
-          triggeredAlarmsMap[triggerKey] = true;
-          triggerBottomRightNotification(item.title, `Waktu Alarm: ${item.alarmTime} WIB (${hariIni})`, 'alarm');
-        }
-      }
-    }
+  slots.forEach((slot, i) => {
+    const btn = document.createElement('button');
+    btn.className = `promo-tab px-4 py-2.5 rounded-xl font-master font-black text-[9px] uppercase tracking-wider transition ${window.activeSlotIndex === i ? 'active' : ''}`;
+    btn.innerHTML = `<div>${slot.title}</div><div class="text-[7px] opacity-60">${slot.extraInfo || 'Promo'}</div>`;
+    btn.onclick = () => { window.activeSlotIndex = i; loadSlotData(); };
+    tabContainer.appendChild(btn);
   });
+  loadSlotData();
+};
 
-  // Check pasaran results
-  masterData.forEach((item, index) => {
-    if(item.pasaranResultTime && item.pasaranResultTime === currentHHMM && !item.pasaranDone && !item.hiddenNum) {
-      const triggerKey = `pasaran_${index}_${currentHHMM}`;
-      if(!triggeredAlarmsMap[triggerKey]) {
-        triggeredAlarmsMap[triggerKey] = true;
-        triggerBottomRightNotification(`WAKTU RESULT PASARAN! - ${item.title}`, `Pasaran ${item.title} telah memasuki jam result (${item.pasaranResultTime})`, 'pasaran');
-      }
-    }
+function loadSlotData() {
+  const slots = window.masterData.filter(d => d.category === window.activeMenu && !d.deleted);
+  const slot = slots[window.activeSlotIndex];
+  if (!slot) return;
+
+  const titleInput = document.getElementById('editorPromoTitle');
+  const categoryInput = document.getElementById('editorPromoCategory');
+  const statusSelect = document.getElementById('editorPromoStatus');
+  const codeInput = document.getElementById('promoCodeInput');
+
+  if (titleInput) titleInput.value = slot.title;
+  if (categoryInput) categoryInput.value = slot.extraInfo || "Promo";
+  if (statusSelect) statusSelect.value = slot.status || "Aktif";
+  if (codeInput) codeInput.value = slot.content || "";
+
+  updateLivePreview();
+
+  document.querySelectorAll('.promo-tab').forEach((t, i) => {
+    t.classList.toggle('active', i === window.activeSlotIndex);
   });
+}
 
-  // Update upcoming container
-  const upcomingContainer = document.getElementById('upcomingPasaranContainer');
-  if(upcomingContainer) {
-    upcomingContainer.innerHTML = '';
-    const upcomingList = [];
-    masterData.forEach((item) => {
-      if(item.category === 'RESULT PASARAN' && !item.pasaranDone && !item.hiddenNum && item.pasaranResultTime) {
-        const info = getPasaranTimerInfo(item.pasaranResultTime, false, false);
-        if(info.isApproaching) {
-          upcomingList.push({ title: item.title, countdown: info.countdownStr });
-        }
-      }
-    });
+window.updateLivePreview = function() {
+  const code = document.getElementById('promoCodeInput');
+  const iframe = document.getElementById('promoPreviewFrame');
+  const charCount = document.getElementById('charCount');
 
-    if(upcomingList.length === 0) {
-      upcomingContainer.innerHTML = '<span class="text-[9px] text-gray-500 font-bold uppercase font-code">TIDAK ADA PASARAN DEKAT</span>';
+  if (iframe && code) {
+    const doc = iframe.contentDocument || iframe.contentWindow.document;
+    doc.open();
+    doc.write(code.value);
+    doc.close();
+  }
+  if (charCount && code) charCount.innerText = `${code.value.length} CHARS`;
+};
+
+window.saveCurrentSlot = function() {
+  const slots = window.masterData.filter(d => d.category === window.activeMenu && !d.deleted);
+  const slot = slots[window.activeSlotIndex];
+  if (!slot) return;
+
+  const masterIdx = window.masterData.indexOf(slot);
+  const titleInput = document.getElementById('editorPromoTitle');
+  const categoryInput = document.getElementById('editorPromoCategory');
+  const statusSelect = document.getElementById('editorPromoStatus');
+  const codeInput = document.getElementById('promoCodeInput');
+
+  window.masterData[masterIdx].title = titleInput ? titleInput.value.toUpperCase() : slot.title;
+  window.masterData[masterIdx].extraInfo = categoryInput ? categoryInput.value : slot.extraInfo;
+  window.masterData[masterIdx].status = statusSelect ? statusSelect.value : slot.status;
+  window.masterData[masterIdx].content = codeInput ? codeInput.value : slot.content;
+
+  window.saveData();
+  renderScriptEditor();
+  window.showToast('Slot Script Berhasil Disimpan!', 'success');
+};
+
+window.formatCode = function() {
+  const input = document.getElementById('promoCodeInput');
+  if (input) {
+    let code = input.value;
+    code = code.replace(/>\s+</g, '>\n<');
+    input.value = code;
+    updateLivePreview();
+    window.showToast('Kode Dirapikan (Basic)', 'info');
+  }
+};
+
+window.resetEditor = function() {
+  if (confirm('Reset semua isi di editor ini?')) {
+    const input = document.getElementById('promoCodeInput');
+    if (input) {
+      input.value = "";
+      updateLivePreview();
+    }
+  }
+};
+
+window.cloneSlot = function() {
+  const slots = window.masterData.filter(d => d.category === window.activeMenu && !d.deleted);
+  const slot = slots[window.activeSlotIndex];
+  if (slot) {
+    const newSlot = { ...slot, title: slot.title + " (CLONE)" };
+    window.masterData.push(newSlot);
+    window.saveData();
+    window.activeSlotIndex = window.masterData.filter(d => d.category === window.activeMenu && !d.deleted).length - 1;
+    renderScriptEditor();
+    window.showToast('Slot Berhasil Di-Clone!', 'success');
+  }
+};
+
+window.applyTemplate = function() {
+  const template = `<div class="go-wrapper">
+<style>
+.go-wrapper { width: 100%; max-width: 920px; margin: 18px auto; font-family: sans-serif; color: #FFD700; background: #330000; border: 4px solid #FFD700; padding: 20px; border-radius: 20px; text-align: center; }
+.go-title { font-size: 24px; font-weight: 900; margin-bottom: 20px; text-transform: uppercase; }
+table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+th, td { border: 1px solid #FFD700; padding: 10px; }
+.btn-claim { background: #FFD700; color: #000; padding: 10px 20px; border-radius: 10px; font-weight: bold; text-decoration: none; display: inline-block; }
+</style>
+<div class="go-title">EVENT BONUS SUPER SCATTER</div>
+<table>
+<tr><th>BET</th><th>1 SCATTER</th><th>2 SCATTER</th></tr>
+<tr><td>800 - 1.600</td><td>50.000</td><td>100.000</td></tr>
+</table>
+<a href="#" class="btn-claim">SYARAT & KETENTUAN</a>
+</div>`;
+  const input = document.getElementById('promoCodeInput');
+  if (input) {
+    input.value = template;
+    updateLivePreview();
+  }
+};
+
+window.exportCode = function() {
+  const input = document.getElementById('promoCodeInput');
+  if (input) {
+    const code = input.value;
+    const blob = new Blob([code], { type: 'text/html' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `promo_script_${Date.now()}.html`;
+    a.click();
+  }
+};
+
+window.toggleEditorFullscreen = function() {
+  const editor = document.getElementById('promoCodeInput');
+  if (editor) {
+    if (!document.fullscreenElement) {
+      editor.requestFullscreen().catch(err => alert(`Error: ${err.message}`));
     } else {
-      upcomingList.forEach(u => {
-        const badge = document.createElement('span');
-        badge.className = "px-2.5 py-1 bg-red-500/20 border border-red-500/40 text-red-400 font-code font-bold text-[9px] rounded-lg animate-pulse flex items-center gap-1.5 shadow-md";
-        badge.innerHTML = `<i class="fas fa-clock text-[8px]"></i> ${escapeHtml(u.title)} <span class="text-white font-black">${u.countdown}</span>`;
-        upcomingContainer.appendChild(badge);
-      });
+      document.exitFullscreen();
     }
   }
-
-  renderCards();
-}
+};
 
 // ==========================================
 // ACTIONS
 // ==========================================
-function toggleAlarmStatus(idx) {
-  if(masterData[idx]) {
-    masterData[idx].alarmOn = !masterData[idx].alarmOn;
-    saveData();
+window.toggleAlarmStatus = function(idx) {
+  if (window.masterData[idx]) {
+    window.masterData[idx].alarmOn = !window.masterData[idx].alarmOn;
+    window.saveData();
     renderCards();
-    showToast(masterData[idx].alarmOn ? 'Alarm Diaktifkan (ON)' : 'Alarm Dimatikan (OFF)', 'info');
+    window.showToast(window.masterData[idx].alarmOn ? 'Alarm Diaktifkan (ON)' : 'Alarm Dimatikan (OFF)', 'info');
   }
-}
+};
 
-function triggerDirectPhotoUpload() {
-  targetUploadCardIndex = null;
-  const input = document.getElementById('directFileInput');
-  if(input) input.click();
-}
+window.toggleFavorite = function(idx) {
+  if (window.masterData[idx]) {
+    window.masterData[idx].favorite = !window.masterData[idx].favorite;
+    window.saveData();
+    renderCards();
+    window.showToast(window.masterData[idx].favorite ? 'Ditambah ke Favorit' : 'Dihapus dari Favorit', 'info');
+  }
+};
 
-function triggerCardPhotoUpload(idx) {
-  targetUploadCardIndex = idx;
-  const input = document.getElementById('directFileInput');
-  if(input) input.click();
-}
-
-function handleDirectFileUpload(event) {
-  const file = event.target.files[0];
-  if(!file) return;
-  const reader = new FileReader();
-  reader.onload = function(evt) {
-    const base64Img = evt.target.result;
-    if(targetUploadCardIndex !== null && masterData[targetUploadCardIndex]) {
-      masterData[targetUploadCardIndex].imageUrl = base64Img;
-      saveData();
-      renderCards();
-      showToast('Foto Berhasil Diperbarui!', 'success');
+window.toggleFavoritesFilter = function() {
+  window.favoritesOnlyFilter = !window.favoritesOnlyFilter;
+  if (favToggleBtn) {
+    if (window.favoritesOnlyFilter) {
+      favToggleBtn.className = "px-4 py-3 rounded-2xl bg-yellow-400 text-black font-master font-bold text-xs transition flex items-center gap-2 shadow-lg cursor-pointer";
     } else {
-      const titleName = prompt("Masukkan Judul / Nama Foto Kendala:", "FOTO KENDALA " + (masterData.length + 1));
-      if(titleName) {
-        masterData.push({ category: activeMenu, title: titleName.toUpperCase(), imageUrl: base64Img, favorite: true });
-        saveData();
-        renderCards();
-        showToast('Foto Kendala Berhasil Diunggah!', 'success');
-      }
-    }
-  };
-  reader.readAsDataURL(file);
-  event.target.value = '';
-}
-
-function handleDragOver(e) { e.preventDefault(); }
-function handleDragLeave(e) { e.preventDefault(); }
-function handleDrop(e) {
-  e.preventDefault();
-  const files = e.dataTransfer.files;
-  if(files && files[0] && files[0].type.startsWith('image/')) processFileToModal(files[0]);
-}
-
-document.addEventListener('paste', (e) => {
-  const items = (e.clipboardData || e.originalEvent.clipboardData).items;
-  for(let item of items) {
-    if(item.type.indexOf('image') === 0) {
-      const blob = item.getAsFile();
-      if(blob) {
-        processFileToModal(blob);
-        openDataModal();
-        showToast('Foto dari Clipboard Terdeteksi!', 'success');
-      }
+      favToggleBtn.className = "px-4 py-3 rounded-2xl bg-[#080c14]/80 border border-white/10 text-gray-300 hover:text-yellow-400 hover:border-yellow-400/40 text-xs font-master font-bold transition flex items-center gap-2 cursor-pointer backdrop-blur-sm";
     }
   }
-});
+  renderCards();
+};
 
-function processFileToModal(file) {
-  const reader = new FileReader();
-  reader.onload = function(evt) {
-    const base64Img = evt.target.result;
-    const urlInput = document.getElementById('inputImgUrl');
-    if(urlInput) urlInput.value = base64Img;
-    updateModalImagePreview(base64Img);
-  };
-  reader.readAsDataURL(file);
-}
+window.resetFilters = function() {
+  window.favoritesOnlyFilter = false;
+  if (searchInput) searchInput.value = '';
+  renderCards();
+  window.showToast('Filter Direset', 'info');
+};
 
-function updateModalImagePreview(src) {
-  const container = document.getElementById('imagePreviewContainer');
-  const img = document.getElementById('formImgPreview');
-  if(container && img) {
-    if(src && src.trim() !== '') {
-      img.src = src;
-      container.classList.remove('hidden');
-    } else {
-      container.classList.add('hidden');
-    }
+window.toggleCardPassVisibility = function(idx) {
+  window.passVisibleMap[idx] = !window.passVisibleMap[idx];
+  renderCards();
+};
+
+window.togglePasaranDone = function(idx) {
+  if (window.masterData[idx]) {
+    window.masterData[idx].pasaranDone = !window.masterData[idx].pasaranDone;
+    window.saveData();
+    renderCards();
+    window.showToast(window.masterData[idx].pasaranDone ? 'Pasaran Ditandai DONE (Redup)' : 'Pasaran PENDING (Hidup Kembali)', 'info');
   }
-}
+};
 
-function openImageLightbox(src, title) {
-  currentLightboxSrc = src;
-  const img = document.getElementById('lightboxImage');
-  const cap = document.getElementById('lightboxCaption');
-  if(img) img.src = src;
-  if(cap) cap.innerText = title || "PRATINJAU GAMBAR";
-  openModal('imageLightboxModal');
-}
+window.togglePasaranVisibility = function(idx) {
+  if (window.masterData[idx]) {
+    window.masterData[idx].hiddenNum = !window.masterData[idx].hiddenNum;
+    window.saveData();
+    renderCards();
+    window.showToast(window.masterData[idx].hiddenNum ? 'Pasaran Di-Hide (Redup & Mati Hari Ini)' : 'Pasaran Ditampilkan Kembali', 'info');
+  }
+};
 
-function closeImageLightbox() {
-  closeModal('imageLightboxModal');
-  currentLightboxSrc = '';
-}
+window.deleteItem = function(idx) {
+  if (confirm('Hapus entry ini?')) {
+    window.masterData.splice(idx, 1);
+    window.saveData();
+    renderCards();
+    window.showToast('Entry Dihapus', 'info');
+  }
+};
 
-async function copyImageFromCard(src) {
+window.editItem = function(idx) {
+  openDataModal(idx);
+};
+
+window.copyToClipboard = function(text, msg = 'Disalin!') {
+  if (!text) return window.showToast('Teks kosong!', 'error');
+  navigator.clipboard.writeText(text);
+  window.showToast(msg, 'success');
+};
+
+window.copyImageFromCard = async function(src) {
   try {
-    if(src.startsWith('data:image/svg+xml')) {
+    if (src.startsWith('data:image/svg+xml')) {
       const img = new Image();
       img.crossOrigin = "Anonymous";
       img.onload = function() {
@@ -2093,146 +2174,232 @@ async function copyImageFromCard(src) {
         canvas.toBlob(async function(blob) {
           try {
             await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
-            showToast('Gambar Disalin ke Clipboard!', 'success');
+            window.showToast('Gambar Disalin ke Clipboard!', 'success');
           } catch(err) {
             navigator.clipboard.writeText(src);
-            showToast('Link Gambar Disalin!', 'success');
+            window.showToast('Link Gambar Disalin!', 'success');
           }
         });
       };
       img.src = src;
-    } else if(src.startsWith('http') || src.startsWith('data:image/png') || src.startsWith('data:image/jpeg')) {
+    } else if (src.startsWith('http') || src.startsWith('data:image/png') || src.startsWith('data:image/jpeg')) {
       const response = await fetch(src);
       const blob = await response.blob();
       await navigator.clipboard.write([new ClipboardItem({ [blob.type]: blob })]);
-      showToast('Gambar Disalin ke Clipboard!', 'success');
+      window.showToast('Gambar Disalin ke Clipboard!', 'success');
     } else {
       await navigator.clipboard.writeText(src);
-      showToast('Link Gambar Disalin!', 'success');
+      window.showToast('Link Gambar Disalin!', 'success');
     }
   } catch(e) {
     navigator.clipboard.writeText(src);
-    showToast('Link Gambar Disalin!', 'success');
+    window.showToast('Link Gambar Disalin!', 'success');
   }
-}
+};
 
-function copyLightboxImage() { if(currentLightboxSrc) copyImageFromCard(currentLightboxSrc); }
+// ==========================================
+// TRIGGER PHOTO UPLOAD
+// ==========================================
+window.triggerDirectPhotoUpload = function() {
+  window.targetUploadCardIndex = null;
+  const input = document.getElementById('directFileInput');
+  if (input) input.click();
+};
 
-document.addEventListener('keydown', (e) => {
-  if(e.key === 'Escape') {
-    closeImageLightbox(); closeDataModal(); closeMenuModal();
-    closeCommandPalette(); closePasswordGenerator(); closeImportExportModal(); closeSettingsModal();
-  }
-});
+window.triggerCardPhotoUpload = function(idx) {
+  window.targetUploadCardIndex = idx;
+  const input = document.getElementById('directFileInput');
+  if (input) input.click();
+};
 
-function copyToClipboard(text, msg = 'Disalin!') {
-  if(!text) return showToast('Teks kosong!', 'error');
-  navigator.clipboard.writeText(text);
-  showToast(msg, 'success');
-}
-
-function toggleCardPassVisibility(idx) {
-  passVisibleMap[idx] = !passVisibleMap[idx];
-  renderCards();
-}
-
-function togglePasaranDone(idx) {
-  if(masterData[idx]) {
-    masterData[idx].pasaranDone = !masterData[idx].pasaranDone;
-    saveData();
-    renderCards();
-    showToast(masterData[idx].pasaranDone ? 'Pasaran Ditandai DONE (Redup)' : 'Pasaran PENDING (Hidup Kembali)', 'info');
-  }
-}
-
-function togglePasaranVisibility(idx) {
-  if(masterData[idx]) {
-    masterData[idx].hiddenNum = !masterData[idx].hiddenNum;
-    saveData();
-    renderCards();
-    showToast(masterData[idx].hiddenNum ? 'Pasaran Di-Hide (Redup & Mati Hari Ini)' : 'Pasaran Ditampilkan Kembali', 'info');
-  }
-}
-
-function toggleFavorite(idx) {
-  if(masterData[idx]) {
-    masterData[idx].favorite = !masterData[idx].favorite;
-    saveData();
-    renderCards();
-    showToast(masterData[idx].favorite ? 'Ditambah ke Favorit' : 'Dihapus dari Favorit', 'info');
-  }
-}
-
-function toggleFavoritesFilter() {
-  favoritesOnlyFilter = !favoritesOnlyFilter;
-  const btn = document.getElementById('favToggleBtn');
-  if(btn) {
-    if(favoritesOnlyFilter) {
-      btn.className = "px-4 py-3 rounded-2xl bg-yellow-400 text-black font-master font-bold text-xs transition flex items-center gap-2 shadow-lg cursor-pointer";
+window.handleDirectFileUpload = function(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(evt) {
+    const base64Img = evt.target.result;
+    if (window.targetUploadCardIndex !== null && window.masterData[window.targetUploadCardIndex]) {
+      window.masterData[window.targetUploadCardIndex].imageUrl = base64Img;
+      window.saveData();
+      renderCards();
+      window.showToast('Foto Berhasil Diperbarui!', 'success');
     } else {
-      btn.className = "px-4 py-3 rounded-2xl bg-[#080c14] border border-white/10 text-gray-300 hover:text-yellow-400 hover:border-yellow-400/40 text-xs font-master font-bold transition flex items-center gap-2 cursor-pointer";
+      const titleName = prompt("Masukkan Judul / Nama Foto Kendala:", "FOTO KENDALA " + (window.masterData.length + 1));
+      if (titleName) {
+        window.masterData.push({ category: window.activeMenu, title: titleName.toUpperCase(), imageUrl: base64Img, favorite: true });
+        window.saveData();
+        renderCards();
+        window.showToast('Foto Kendala Berhasil Diunggah!', 'success');
+      }
     }
+  };
+  reader.readAsDataURL(file);
+  event.target.value = '';
+};
+
+// ==========================================
+// IMAGE LIGHTBOX
+// ==========================================
+window.openImageLightbox = function(src, title) {
+  window.currentLightboxSrc = src;
+  const img = document.getElementById('lightboxImage');
+  const cap = document.getElementById('lightboxCaption');
+  if (img) img.src = src;
+  if (cap) cap.innerText = title || "PRATINJAU GAMBAR";
+  openModal('imageLightboxModal');
+};
+
+window.closeImageLightbox = function() {
+  closeModal('imageLightboxModal');
+  window.currentLightboxSrc = '';
+};
+
+window.copyLightboxImage = function() {
+  if (window.currentLightboxSrc) window.copyImageFromCard(window.currentLightboxSrc);
+};
+
+// ==========================================
+// SETTINGS
+// ==========================================
+window.openSettingsModal = function() {
+  if (settingNewUser) settingNewUser.value = window.masterAuth.user;
+  if (settingNewPass) settingNewPass.value = window.masterAuth.pass;
+  if (bgFrontUrlInput) bgFrontUrlInput.value = window.customBgFront;
+  if (bgInnerUrlInput) bgInnerUrlInput.value = window.customBgInner;
+  openModal('settingsModal');
+};
+
+window.closeSettingsModal = function() { closeModal('settingsModal'); };
+
+window.saveMasterAccountSettings = function() {
+  const newUser = settingNewUser ? settingNewUser.value.trim() : '';
+  const newPass = settingNewPass ? settingNewPass.value.trim() : '';
+  if (!newUser || !newPass) {
+    return window.showToast('Username dan Password tidak boleh kosong!', 'error');
   }
-  renderCards();
-}
+  window.masterAuth.user = newUser;
+  window.masterAuth.pass = newPass;
+  window.saveData();
+  window.showToast('Username & Password Master Berhasil Diperbarui!', 'success');
+};
 
-function resetFilters() {
-  favoritesOnlyFilter = false;
-  const input = document.getElementById('searchInput');
-  if(input) input.value = '';
-  renderCards();
-  showToast('Filter Direset', 'info');
-}
-
-function handleImageFileUpload(e) {
+window.handleBgFrontFileUpload = function(e) {
   const file = e.target.files[0];
-  if(file) processFileToModal(file);
-}
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(evt) {
+    window.customBgFront = evt.target.result;
+    localStorage.setItem('v19_bg_front', window.customBgFront);
+    window.applyBackgrounds();
+    window.saveData();
+    if (bgFrontUrlInput) bgFrontUrlInput.value = window.customBgFront;
+    window.showToast('Background Depan Berhasil Diperbarui!', 'success');
+  };
+  reader.readAsDataURL(file);
+  e.target.value = '';
+};
 
-function openFolderModal() { openModal('menuModal'); }
-function closeMenuModal() { closeModal('menuModal'); }
+window.applyBgFrontFromInput = function() {
+  const url = bgFrontUrlInput ? bgFrontUrlInput.value.trim() : '';
+  if (!url) return window.showToast('Masukkan URL Gambar!', 'error');
+  window.customBgFront = url;
+  localStorage.setItem('v19_bg_front', window.customBgFront);
+  window.applyBackgrounds();
+  window.saveData();
+  window.showToast('Background Depan Berhasil Diperbarui!', 'success');
+};
 
-function addNewMenu() {
+window.resetBgFront = function() {
+  window.customBgFront = "";
+  localStorage.removeItem('v19_bg_front');
+  if (bgFrontUrlInput) bgFrontUrlInput.value = "";
+  window.applyBackgrounds();
+  window.saveData();
+  window.showToast('Background Depan Direset!', 'info');
+};
+
+window.handleBgInnerFileUpload = function(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(evt) {
+    window.customBgInner = evt.target.result;
+    localStorage.setItem('v19_bg_inner', window.customBgInner);
+    window.applyBackgrounds();
+    window.saveData();
+    if (bgInnerUrlInput) bgInnerUrlInput.value = window.customBgInner;
+    window.showToast('Background Dalam Berhasil Diperbarui!', 'success');
+  };
+  reader.readAsDataURL(file);
+  e.target.value = '';
+};
+
+window.applyBgInnerFromInput = function() {
+  const url = bgInnerUrlInput ? bgInnerUrlInput.value.trim() : '';
+  if (!url) return window.showToast('Masukkan URL Gambar!', 'error');
+  window.customBgInner = url;
+  localStorage.setItem('v19_bg_inner', window.customBgInner);
+  window.applyBackgrounds();
+  window.saveData();
+  window.showToast('Background Dalam Berhasil Diperbarui!', 'success');
+};
+
+window.resetBgInner = function() {
+  window.customBgInner = "";
+  localStorage.removeItem('v19_bg_inner');
+  if (bgInnerUrlInput) bgInnerUrlInput.value = "";
+  window.applyBackgrounds();
+  window.saveData();
+  window.showToast('Background Dalam Direset!', 'info');
+};
+
+// ==========================================
+// FOLDER MODAL
+// ==========================================
+window.openFolderModal = function() { openModal('menuModal'); };
+window.closeMenuModal = function() { closeModal('menuModal'); };
+
+window.addNewMenu = function() {
   const nameInput = document.getElementById('newMenuName');
   const typeInput = document.getElementById('newMenuType');
   const name = nameInput ? nameInput.value.trim().toUpperCase() : '';
   const type = typeInput ? typeInput.value : 'alarm';
 
-  if(!name) return alert('Masukkan nama folder!');
-  if(menus.find(m => m.name === name)) return alert('Folder ini sudah ada!');
+  if (!name) return alert('Masukkan nama folder!');
+  if (window.menus.find(m => m.name === name)) return alert('Folder ini sudah ada!');
 
   let icon = 'fa-folder';
-  if(type === 'alarm') icon = 'fa-bell';
-  if(type === 'pasaran') icon = 'fa-dice';
-  if(type === 'note') icon = 'fa-file-lines';
-  if(type === 'account') icon = 'fa-shield-halved';
-  if(type === 'image_note') icon = 'fa-images';
-  if(type === 'script_promo') icon = 'fa-code';
+  if (type === 'alarm') icon = 'fa-bell';
+  if (type === 'pasaran') icon = 'fa-dice';
+  if (type === 'note') icon = 'fa-file-lines';
+  if (type === 'account') icon = 'fa-shield-halved';
+  if (type === 'image_note') icon = 'fa-images';
+  if (type === 'script_promo') icon = 'fa-code';
 
-  menus.push({ name, type, icon, subtitle: "Centralized Command & Executive Vault Monitoring Console" });
-  saveData();
-  switchMenu(name);
+  window.menus.push({ name, type, icon, subtitle: "MR.RCT Executive Command Center" });
+  window.saveData();
+  window.switchMenu(name);
   closeMenuModal();
-  if(nameInput) nameInput.value = '';
-  showToast(`Folder ${name} Berhasil Dibuat!`, 'success');
-}
+  if (nameInput) nameInput.value = '';
+  window.showToast(`Folder ${name} Berhasil Dibuat!`, 'success');
+};
 
-function deleteMenu(name) {
-  if(confirm(`Hapus folder "${name}"?`)) {
-    menus = menus.filter(m => m.name !== name);
-    masterData = masterData.filter(d => d.category !== name);
-    saveData();
-    switchMenu(menus[0] ? menus[0].name : "ALARM CENTER");
-    showToast(`Folder Dihapus`, 'info');
+window.deleteMenu = function(name) {
+  if (confirm(`Hapus folder "${name}"?`)) {
+    window.menus = window.menus.filter(m => m.name !== name);
+    window.masterData = window.masterData.filter(d => d.category !== name);
+    window.saveData();
+    window.switchMenu(window.menus[0] ? window.menus[0].name : "ALARM CENTER");
+    window.showToast(`Folder Dihapus`, 'info');
   }
-}
+};
 
 // ==========================================
 // DAY SELECTOR
 // ==========================================
 const NAMA_HARI = ["MINGGU", "SENIN", "SELASA", "RABU", "KAMIS", "JUMAT", "SABTU"];
 
-function generateDayButtons() {
+window.generateDayButtons = function() {
   const container = document.getElementById('daySelectorContainer');
   if (!container) return;
   container.innerHTML = '';
@@ -2245,9 +2412,9 @@ function generateDayButtons() {
     btn.dataset.day = hari;
     container.appendChild(btn);
   });
-}
+};
 
-function presetDays(type) {
+window.presetDays = function(type) {
   const btns = document.querySelectorAll('.day-select-btn');
   btns.forEach(b => b.classList.remove('active'));
   btns.forEach(b => {
@@ -2256,22 +2423,22 @@ function presetDays(type) {
     if (type === 'WEEKDAYS' && !['SABTU', 'MINGGU'].includes(d)) b.classList.add('active');
     if (type === 'WEEKEND' && ['SABTU', 'MINGGU'].includes(d)) b.classList.add('active');
   });
-}
+};
 
-function getActiveDays() {
+window.getActiveDays = function() {
   const active = [];
   document.querySelectorAll('.day-select-btn.active').forEach(b => active.push(b.dataset.day));
   return active.length > 0 ? active.join(", ") : "DAILY";
-}
+};
 
 // ==========================================
 // DATA MODAL
 // ==========================================
-function openDataModal(index = null) {
+window.openDataModal = function(index = null) {
   const isEdit = index !== null;
-  const mInfo = menus.find(m => m.name === activeMenu) || { type: 'alarm' };
+  const mInfo = window.menus.find(m => m.name === window.activeMenu) || { type: 'alarm' };
   const editIdxInput = document.getElementById('editIndex');
-  if(editIdxInput) editIdxInput.value = isEdit ? index : '';
+  if (editIdxInput) editIdxInput.value = isEdit ? index : '';
 
   const alarmFields = document.getElementById('alarmFields');
   const imageFields = document.getElementById('imageFields');
@@ -2279,63 +2446,63 @@ function openDataModal(index = null) {
   const accountFields = document.getElementById('accountFields');
   const noteFields = document.getElementById('noteFields');
 
-  if(alarmFields) alarmFields.classList.toggle('hidden', mInfo.type !== 'alarm');
-  if(imageFields) imageFields.classList.toggle('hidden', mInfo.type !== 'image_note');
-  if(pasaranFields) pasaranFields.classList.toggle('hidden', mInfo.type !== 'pasaran');
-  if(accountFields) accountFields.classList.toggle('hidden', mInfo.type !== 'account');
-  if(noteFields) noteFields.classList.toggle('hidden', mInfo.type !== 'note');
+  if (alarmFields) alarmFields.classList.toggle('hidden', mInfo.type !== 'alarm');
+  if (imageFields) imageFields.classList.toggle('hidden', mInfo.type !== 'image_note');
+  if (pasaranFields) pasaranFields.classList.toggle('hidden', mInfo.type !== 'pasaran');
+  if (accountFields) accountFields.classList.toggle('hidden', mInfo.type !== 'account');
+  if (noteFields) noteFields.classList.toggle('hidden', mInfo.type !== 'note');
 
   const titleInput = document.getElementById('inputTitle');
 
-  if(mInfo.type === 'alarm') {
-    generateDayButtons();
+  if (mInfo.type === 'alarm') {
+    window.generateDayButtons();
   }
 
-  if(isEdit) {
-    const d = masterData[index];
-    if(titleInput) titleInput.value = d.title || '';
-    if(mInfo.type === 'alarm') {
+  if (isEdit) {
+    const d = window.masterData[index];
+    if (titleInput) titleInput.value = d.title || '';
+    if (mInfo.type === 'alarm') {
       const timeIn = document.getElementById('inputAlarmTime');
-      if(timeIn) timeIn.value = d.alarmTime || '00:00';
+      if (timeIn) timeIn.value = d.alarmTime || '00:00';
       const savedDays = (d.alarmDays || "").toUpperCase();
       document.querySelectorAll('.day-select-btn').forEach(b => {
-        if(savedDays.includes(b.dataset.day) || savedDays === "DAILY") b.classList.add('active');
+        if (savedDays.includes(b.dataset.day) || savedDays === "DAILY") b.classList.add('active');
       });
-    } else if(mInfo.type === 'image_note') {
+    } else if (mInfo.type === 'image_note') {
       const imgIn = document.getElementById('inputImgUrl');
-      if(imgIn) imgIn.value = d.imageUrl || '';
-      updateModalImagePreview(d.imageUrl || '');
-    } else if(mInfo.type === 'pasaran') {
+      if (imgIn) imgIn.value = d.imageUrl || '';
+      window.updateModalImagePreview(d.imageUrl || '');
+    } else if (mInfo.type === 'pasaran') {
       const closeIn = document.getElementById('inputPasaranClose');
       const resIn = document.getElementById('inputPasaranResultTime');
       const urlIn = document.getElementById('inputPasaranUrl');
-      if(closeIn) closeIn.value = d.pasaranClose || '';
-      if(resIn) resIn.value = d.pasaranResultTime || '';
-      if(urlIn) urlIn.value = d.url || '';
-    } else if(mInfo.type === 'account') {
+      if (closeIn) closeIn.value = d.pasaranClose || '';
+      if (resIn) resIn.value = d.pasaranResultTime || '';
+      if (urlIn) urlIn.value = d.url || '';
+    } else if (mInfo.type === 'account') {
       const userIn = document.getElementById('inputUser');
       const passIn = document.getElementById('inputPass');
       const urlIn = document.getElementById('inputLoginUrl');
-      if(userIn) userIn.value = d.user || '';
-      if(passIn) passIn.value = d.pass || '';
-      if(urlIn) urlIn.value = d.loginUrl || d.url || '';
-    } else if(mInfo.type === 'note') {
+      if (userIn) userIn.value = d.user || '';
+      if (passIn) passIn.value = d.pass || '';
+      if (urlIn) urlIn.value = d.loginUrl || d.url || '';
+    } else if (mInfo.type === 'note') {
       const contentIn = document.getElementById('inputContent');
-      if(contentIn) contentIn.value = d.content || '';
+      if (contentIn) contentIn.value = d.content || '';
     }
   } else {
     const form = document.getElementById('vaultForm');
-    if(form) form.reset();
-    updateModalImagePreview('');
-    if(mInfo.type === 'alarm') presetDays('DAILY');
+    if (form) form.reset();
+    window.updateModalImagePreview('');
+    if (mInfo.type === 'alarm') window.presetDays('DAILY');
   }
   openModal('dataModal');
-}
+};
 
-function closeDataModal() { closeModal('dataModal'); }
+window.closeDataModal = function() { closeModal('dataModal'); };
 
 const vaultForm = document.getElementById('vaultForm');
-if(vaultForm) {
+if (vaultForm) {
   vaultForm.onsubmit = function(e) {
     e.preventDefault();
     const editIdxInput = document.getElementById('editIndex');
@@ -2353,66 +2520,97 @@ if(vaultForm) {
     const contentIn = document.getElementById('inputContent');
 
     let obj = {
-      category: activeMenu,
+      category: window.activeMenu,
       title: titleInput ? titleInput.value.toUpperCase() : '',
       alarmTime: alarmTimeIn ? alarmTimeIn.value : '00:00',
-      alarmDays: getActiveDays(),
-      alarmOn: (editIdx !== "" && masterData[editIdx] && masterData[editIdx].alarmOn !== undefined) ? masterData[editIdx].alarmOn : true,
+      alarmDays: window.getActiveDays(),
+      alarmOn: (editIdx !== "" && window.masterData[editIdx] && window.masterData[editIdx].alarmOn !== undefined) ? window.masterData[editIdx].alarmOn : true,
       imageUrl: imgUrlIn ? imgUrlIn.value : '',
       pasaranClose: pasaranCloseIn ? pasaranCloseIn.value : '',
       pasaranResultTime: pasaranResIn ? pasaranResIn.value : '',
-      pasaranNumber: (editIdx !== "" && masterData[editIdx] && masterData[editIdx].pasaranNumber) ? masterData[editIdx].pasaranNumber : "- - - -",
+      pasaranNumber: (editIdx !== "" && window.masterData[editIdx] && window.masterData[editIdx].pasaranNumber) ? window.masterData[editIdx].pasaranNumber : "- - - -",
       url: pasaranUrlIn ? pasaranUrlIn.value : '',
-      pasaranDone: editIdx !== "" && masterData[editIdx] ? masterData[editIdx].pasaranDone : false,
+      pasaranDone: editIdx !== "" && window.masterData[editIdx] ? window.masterData[editIdx].pasaranDone : false,
       user: userIn ? userIn.value : '',
       pass: passIn ? passIn.value : '',
       loginUrl: loginUrlIn ? loginUrlIn.value : '',
       content: contentIn ? contentIn.value : '',
-      favorite: editIdx !== "" && masterData[editIdx] ? masterData[editIdx].favorite : false,
-      hiddenNum: editIdx !== "" && masterData[editIdx] ? masterData[editIdx].hiddenNum : false
+      favorite: editIdx !== "" && window.masterData[editIdx] ? window.masterData[editIdx].favorite : false,
+      hiddenNum: editIdx !== "" && window.masterData[editIdx] ? window.masterData[editIdx].hiddenNum : false
     };
 
-    if(editIdx !== "") masterData[editIdx] = obj; else masterData.push(obj);
-    saveData();
+    if (editIdx !== "") window.masterData[editIdx] = obj;
+    else window.masterData.push(obj);
+    window.saveData();
     renderCards();
     closeDataModal();
-    showToast('Entry Berhasil Disimpan!', 'success');
+    window.showToast('Entry Berhasil Disimpan!', 'success');
   };
 }
 
-function editItem(idx) { openDataModal(idx); }
-
-function deleteItem(idx) {
-  if(confirm('Hapus entry ini?')) {
-    masterData.splice(idx, 1);
-    saveData();
-    renderCards();
-    showToast('Entry Dihapus', 'info');
+window.updateModalImagePreview = function(src) {
+  const container = document.getElementById('imagePreviewContainer');
+  const img = document.getElementById('formImgPreview');
+  if (container && img) {
+    if (src && src.trim() !== '') {
+      img.src = src;
+      container.classList.remove('hidden');
+    } else {
+      container.classList.add('hidden');
+    }
   }
-}
+};
 
-function togglePassVisibility(id, btn) {
-  const input = document.getElementById(id);
-  if(!input) return;
-  if(input.type === 'password') { input.type = 'text'; if(btn.querySelector('i')) btn.querySelector('i').className = 'fas fa-eye-slash text-yellow-400'; }
-  else { input.type = 'password'; if(btn.querySelector('i')) btn.querySelector('i').className = 'fas fa-eye text-gray-400'; }
+window.handleImageFileUpload = function(e) {
+  const file = e.target.files[0];
+  if (file) processFileToModal(file);
+};
+
+window.handleDrop = function(e) {
+  e.preventDefault();
+  const files = e.dataTransfer.files;
+  if (files && files[0] && files[0].type.startsWith('image/')) processFileToModal(files[0]);
+};
+
+window.handleDragOver = function(e) { e.preventDefault(); };
+window.handleDragLeave = function(e) { e.preventDefault(); };
+
+function processFileToModal(file) {
+  const reader = new FileReader();
+  reader.onload = function(evt) {
+    const base64Img = evt.target.result;
+    const urlInput = document.getElementById('inputImgUrl');
+    if (urlInput) urlInput.value = base64Img;
+    window.updateModalImagePreview(base64Img);
+  };
+  reader.readAsDataURL(file);
 }
 
 // ==========================================
 // COMMAND PALETTE
 // ==========================================
-function openCommandPalette() {
+window.openCommandPalette = function() {
   openModal('paletteModal');
   const input = document.getElementById('paletteInput');
-  if(input) input.focus();
+  if (input) input.focus();
   filterPalette();
-}
-function closeCommandPalette() { closeModal('paletteModal'); }
+};
+
+window.closeCommandPalette = function() { closeModal('paletteModal'); };
 
 document.addEventListener('keydown', (e) => {
-  if((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
     e.preventDefault();
-    openCommandPalette();
+    window.openCommandPalette();
+  }
+  if (e.key === 'Escape') {
+    window.closeImageLightbox();
+    window.closeDataModal();
+    window.closeMenuModal();
+    window.closeCommandPalette();
+    window.closePasswordGenerator();
+    window.closeImportExportModal();
+    window.closeSettingsModal();
   }
 });
 
@@ -2420,15 +2618,15 @@ function filterPalette() {
   const input = document.getElementById('paletteInput');
   const val = input ? input.value.toLowerCase() : '';
   const container = document.getElementById('paletteResults');
-  if(!container) return;
+  if (!container) return;
   container.innerHTML = '';
 
-  menus.forEach(m => {
-    if(m.name.toLowerCase().includes(val)) {
+  window.menus.forEach(m => {
+    if (m.name.toLowerCase().includes(val)) {
       const div = document.createElement('div');
       div.className = "p-2.5 bg-[#080c14] hover:bg-yellow-400/20 hover:text-yellow-400 rounded-xl cursor-pointer flex justify-between items-center transition";
-      div.onclick = () => { switchMenu(m.name); closeCommandPalette(); };
-      div.innerHTML = `<span><i class="fas ${m.icon} mr-2 w-4 text-center"></i> Buka Folder: ${escapeHtml(m.name)}</span> <span class="text-[8px] text-gray-500 font-bold uppercase">MENU</span>`;
+      div.onclick = () => { window.switchMenu(m.name); window.closeCommandPalette(); };
+      div.innerHTML = `<span><i class="fas ${m.icon} mr-2 w-4 text-center"></i> Buka Folder: ${window.escapeHtml(m.name)}</span> <span class="text-[8px] text-gray-500 font-bold uppercase">MENU</span>`;
       container.appendChild(div);
     }
   });
@@ -2437,95 +2635,288 @@ function filterPalette() {
 // ==========================================
 // PASSWORD GENERATOR
 // ==========================================
-function openPasswordGenerator() { openModal('genModal'); generatePass(); }
-function closePasswordGenerator() { closeModal('genModal'); }
+window.openPasswordGenerator = function() { openModal('genModal'); generatePass(); };
+window.closePasswordGenerator = function() { closeModal('genModal'); };
 
 function generatePass() {
   const lenIn = document.getElementById('genLen');
   const len = lenIn ? parseInt(lenIn.value) : 16;
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*';
   let res = '';
-  for(let i = 0; i < len; i++) res += chars.charAt(Math.floor(Math.random() * chars.length));
+  for (let i = 0; i < len; i++) res += chars.charAt(Math.floor(Math.random() * chars.length));
   const out = document.getElementById('genOutput');
-  if(out) out.innerText = res;
+  if (out) out.innerText = res;
 }
 
-function copyGeneratedPass() {
+window.copyGeneratedPass = function() {
   const out = document.getElementById('genOutput');
-  if(out) { navigator.clipboard.writeText(out.innerText); showToast('Password Disalin!', 'success'); }
-}
+  if (out) { navigator.clipboard.writeText(out.innerText); window.showToast('Password Disalin!', 'success'); }
+};
 
 // ==========================================
 // BACKUP
 // ==========================================
-function openImportExportModal() { openModal('ioModal'); }
-function closeImportExportModal() { closeModal('ioModal'); }
+window.openImportExportModal = function() { openModal('ioModal'); };
+window.closeImportExportModal = function() { closeModal('ioModal'); };
 
-function exportVaultData() {
-  const backupObj = { menus, data: masterData, date: new Date().toISOString() };
+window.exportVaultData = function() {
+  const backupObj = { menus: window.menus, data: window.masterData, date: new Date().toISOString() };
   const blob = new Blob([JSON.stringify(backupObj, null, 2)], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
-  const a = document.createElement('a'); a.href = url; a.download = `vault_backup_${new Date().toISOString().slice(0,10)}.json`;
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `vault_backup_${new Date().toISOString().slice(0,10)}.json`;
   a.click();
-  showToast('Backup JSON Diunduh!', 'success');
-}
+  window.showToast('Backup JSON Diunduh!', 'success');
+};
 
-function importVaultData() {
+window.importVaultData = function() {
   const fileInput = document.getElementById('importFile');
-  if(!fileInput || !fileInput.files.length) return alert('Pilih file backup JSON!');
+  if (!fileInput || !fileInput.files.length) return alert('Pilih file backup JSON!');
   const reader = new FileReader();
   reader.onload = function(e) {
     try {
       const parsed = JSON.parse(e.target.result);
-      if(parsed.data && parsed.menus) {
-        menus = parsed.menus; masterData = parsed.data;
-        saveData(); renderSidebar(); switchMenu(menus[0].name);
+      if (parsed.data && parsed.menus) {
+        window.menus = parsed.menus;
+        window.masterData = parsed.data;
+        window.saveData();
+        renderSidebar();
+        window.switchMenu(window.menus[0].name);
         closeImportExportModal();
-        showToast('Data Berhasil Dipulihkan!', 'success');
+        window.showToast('Data Berhasil Dipulihkan!', 'success');
       }
-    } catch(err) { showToast('File JSON Tidak Valid!', 'error'); }
+    } catch (err) { window.showToast('File JSON Tidak Valid!', 'error'); }
   };
   reader.readAsText(fileInput.files[0]);
+};
+
+// ==========================================
+// TOGGLE PASS VISIBILITY
+// ==========================================
+window.togglePassVisibility = function(id, btn) {
+  const input = document.getElementById(id);
+  if (!input) return;
+  if (input.type === 'password') {
+    input.type = 'text';
+    if (btn && btn.querySelector('i')) btn.querySelector('i').className = 'fas fa-eye-slash text-yellow-400';
+  } else {
+    input.type = 'password';
+    if (btn && btn.querySelector('i')) btn.querySelector('i').className = 'fas fa-eye text-gray-400';
+  }
+};
+
+// ==========================================
+// CLOCK & TICKER
+// ==========================================
+function updateClock() {
+  const now = new Date();
+  const hours = now.getHours().toString().padStart(2, '0');
+  const mins = now.getMinutes().toString().padStart(2, '0');
+  const secs = now.getSeconds().toString().padStart(2, '0');
+
+  const timeStr = `${hours}.${mins}.${secs}`;
+  const currentHHMM = `${hours}:${mins}`;
+
+  const listHari = ["MINGGU", "SENIN", "SELASA", "RABU", "KAMIS", "JUMAT", "SABTU"];
+  const hariIni = listHari[now.getDay()];
+  const dateStr = now.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }).toUpperCase();
+
+  if (clockTime) clockTime.innerText = timeStr;
+  if (clockDate) clockDate.innerText = dateStr;
+
+  // Check alarms
+  window.masterData.forEach((item, index) => {
+    if (item.category === 'ALARM CENTER' && item.alarmOn && item.alarmTime === currentHHMM) {
+      const jadwal = (item.alarmDays || "DAILY").toUpperCase();
+      const isTodayMatch = jadwal.includes(hariIni) || jadwal.includes("DAILY");
+      if (isTodayMatch) {
+        const triggerKey = `alarm_${index}_${currentHHMM}`;
+        if (!window.triggeredAlarmsMap[triggerKey]) {
+          window.triggeredAlarmsMap[triggerKey] = true;
+          triggerBottomRightNotification(item.title, `Waktu Alarm: ${item.alarmTime} WIB (${hariIni})`, 'alarm');
+        }
+      }
+    }
+  });
+
+  // Check pasaran results
+  window.masterData.forEach((item, index) => {
+    if (item.pasaranResultTime && item.pasaranResultTime === currentHHMM && !item.pasaranDone && !item.hiddenNum) {
+      const triggerKey = `pasaran_${index}_${currentHHMM}`;
+      if (!window.triggeredAlarmsMap[triggerKey]) {
+        window.triggeredAlarmsMap[triggerKey] = true;
+        triggerBottomRightNotification(`WAKTU RESULT PASARAN! - ${item.title}`, `Pasaran ${item.title} telah memasuki jam result (${item.pasaranResultTime})`, 'pasaran');
+      }
+    }
+  });
+
+  // Update upcoming container
+  if (upcomingContainer) {
+    upcomingContainer.innerHTML = '';
+    const upcomingList = [];
+    window.masterData.forEach((item) => {
+      if (item.category === 'RESULT PASARAN' && !item.pasaranDone && !item.hiddenNum && item.pasaranResultTime) {
+        const info = window.getPasaranTimerInfo(item.pasaranResultTime, false, false);
+        if (info.isApproaching) {
+          upcomingList.push({ title: item.title, countdown: info.countdownStr });
+        }
+      }
+    });
+
+    if (upcomingList.length === 0) {
+      upcomingContainer.innerHTML = '<span class="text-[9px] text-gray-500 font-bold uppercase font-code">TIDAK ADA PASARAN DEKAT</span>';
+    } else {
+      upcomingList.forEach(u => {
+        const badge = document.createElement('span');
+        badge.className = "px-2.5 py-1 bg-red-500/20 border border-red-500/40 text-red-400 font-code font-bold text-[9px] rounded-lg animate-pulse flex items-center gap-1.5 shadow-md";
+        badge.innerHTML = `<i class="fas fa-clock text-[8px]"></i> ${window.escapeHtml(u.title)} <span class="text-white font-black">${u.countdown}</span>`;
+        upcomingContainer.appendChild(badge);
+      });
+    }
+  }
+
+  renderCards();
 }
 
 // ==========================================
-// PARTICLES
+// NOTIFICATION
+// ==========================================
+function triggerBottomRightNotification(title, subtext, type = 'alarm') {
+  // Play chime
+  try {
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(880, audioCtx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(1320, audioCtx.currentTime + 0.25);
+    gain.gain.setValueAtTime(0.4, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    osc.start();
+    osc.stop(audioCtx.currentTime + 0.5);
+  } catch(e) {}
+
+  if (!notifContainer) return;
+  const card = document.createElement('div');
+  card.className = "alarm-notification-popup bg-[#080c14] border-2 border-yellow-400 rounded-2xl p-4 text-white flex flex-col gap-2 relative z-[10000] shadow-2xl";
+  const isPasaran = type === 'pasaran';
+  const icon = isPasaran ? 'fa-bullhorn text-red-400' : 'fa-bell text-yellow-400';
+  const badgeText = isPasaran ? 'RESULT PASARAN TAHU!' : 'ALARM PENGINGAT';
+  const badgeBg = isPasaran ? 'bg-red-500/20 text-red-400 border-red-500/40' : 'bg-yellow-400/20 text-yellow-400 border-yellow-400/40';
+
+  card.innerHTML = `
+    <div class="flex items-center justify-between border-b border-white/10 pb-2">
+      <div class="flex items-center gap-2">
+        <i class="fas ${icon} text-lg animate-bounce"></i>
+        <span class="px-2.5 py-0.5 rounded-md border ${badgeBg} font-master text-[8px] font-bold tracking-[2px] uppercase">${badgeText}</span>
+      </div>
+      <button onclick="this.parentElement.parentElement.remove()" class="text-gray-400 hover:text-white p-1.5 rounded-lg hover:bg-white/10 transition cursor-pointer"><i class="fas fa-times"></i></button>
+    </div>
+    <div>
+      <h4 class="font-master font-black text-sm text-yellow-400 uppercase tracking-wider">${window.escapeHtml(title)}</h4>
+      <p class="text-xs font-code text-gray-300 mt-1">${window.escapeHtml(subtext)}</p>
+    </div>
+    <div class="pt-1 flex justify-end">
+      <button onclick="this.parentElement.parentElement.remove()" class="px-4 py-1.5 bg-yellow-400 text-black font-master font-bold text-[9px] rounded-lg uppercase hover:bg-amber-400 transition cursor-pointer shadow-md">
+        MENGERTI / TUTUP
+      </button>
+    </div>
+  `;
+  notifContainer.appendChild(card);
+  setTimeout(() => { if (card.parentNode) card.remove(); }, 12000);
+}
+
+// ==========================================
+// PARTICLES (HD)
 // ==========================================
 const canvas = document.getElementById('particleCanvas');
-if(canvas) {
+if (canvas) {
   const ctx = canvas.getContext('2d');
-  function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
-  window.addEventListener('resize', resizeCanvas); resizeCanvas();
+  function resizeCanvas() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+  window.addEventListener('resize', resizeCanvas);
+  resizeCanvas();
+  
   let particles = [];
-  for(let i = 0; i < 45; i++) {
+  const particleCount = window.innerWidth < 768 ? 30 : 60;
+  for (let i = 0; i < particleCount; i++) {
     particles.push({
-      x: Math.random() * canvas.width, y: Math.random() * canvas.height,
-      size: Math.random() * 2.5 + 0.5, speedX: Math.random() * 0.5 - 0.25, speedY: Math.random() * 0.5 - 0.25
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
+      size: Math.random() * 2.5 + 0.5,
+      speedX: (Math.random() - 0.5) * 0.3,
+      speedY: (Math.random() - 0.5) * 0.3,
+      opacity: Math.random() * 0.5 + 0.2
     });
   }
+  
   function animateParticles() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = 'rgba(250, 204, 21, 0.25)';
+    
     particles.forEach(p => {
-      p.x += p.speedX; p.y += p.speedY;
-      if(p.x < 0 || p.x > canvas.width) p.speedX *= -1;
-      if(p.y < 0 || p.y > canvas.height) p.speedY *= -1;
-      ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2); ctx.fill();
+      p.x += p.speedX;
+      p.y += p.speedY;
+      
+      if (p.x < 0 || p.x > canvas.width) p.speedX *= -1;
+      if (p.y < 0 || p.y > canvas.height) p.speedY *= -1;
+      
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(250, 204, 21, ${p.opacity})`;
+      ctx.fill();
+      
+      // Glow
+      ctx.shadowColor = 'rgba(250, 204, 21, 0.1)';
+      ctx.shadowBlur = 10;
+      ctx.fill();
+      ctx.shadowBlur = 0;
     });
+    
     requestAnimationFrame(animateParticles);
   }
   animateParticles();
 }
 
 // ==========================================
-// BOOTSTRAP
+// INITIALIZE
 // ==========================================
+// Check if user already authenticated
+const savedSession = sessionStorage.getItem('v19_session_active');
+if (savedSession === 'true' && auth.currentUser) {
+  loginScreen.style.display = 'none';
+} else if (auth.currentUser) {
+  loginScreen.style.display = 'none';
+} else {
+  loginScreen.style.display = 'flex';
+}
+
+// Set default login values
+if (loginUser) loginUser.value = "rykcocastio557@gmail.com";
+if (loginPass) loginPass.value = "";
+
+// Apply backgrounds
 applyBackgrounds();
-checkInitialLogin();
-renderSidebar();
-switchMenu(activeMenu);
+
+// Load data (Firebase or localStorage)
+if (auth.currentUser) {
+  loadFromFirebase();
+} else {
+  loadFromLocalStorage();
+}
+
+// Start clock
 setInterval(updateClock, 1000);
 updateClock();
+
+// Expose to window
+window.updateClock = updateClock;
+
+console.log('🚀 MR.RCT Executive Vault v20 loaded');
 </script>
 </body>
 </html>
