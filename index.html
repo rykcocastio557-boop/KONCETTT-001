@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="id" class="dark">
 <head>
-<script type='text/javascript' src='https://rickycharles0509-ship-it.github.io/QPySxvxmDH8EXZNLdVTITSjfsTHhna0c1WcyMfHCLn10qCNYaXh8EqSe1r2eFF9Up1f96oi3aT6KrWYLZ74WSBghXhdu9AhMCZSehKLbdAwp9BcKSkZA5Fv8CviHL-q-4q72638nQpmzgKd1SzuL-DPAtCzy1whQMh9X4avlQ64b5ZE42at_5Y7PtqkT7Jut7DH-JOPDYzoW8P9ZZ3kIpSeg5_dSFqLoJaQrZJ2Ub9cXI2fmuBBOvLuKvkLrGmiOCujtwLc1fQmQOUqjH-zhW6jb_caOLIv5wk2zHH0U0Y79aTxMBHdmwJ-tXcmvrkbkx980N8KYf-aqvv8VuVMdre3265hewOoHk9SqNyGEaA1qSb51aydOv2BkT3nujLUQVSzf6Qyi2hQSHvws9IuIBtFe618AU2imOaxbOBrzct-ANTfBO-IzELTBXUJm0S3Ww71HIGA0IkBeGXzurScqBsBpDqBSys0nEBCGzKP64exUb3hu6eTc4OxT1uilUiSkshUEKazz'></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>RICKY CHARLES WONGSO OS - EXECUTIVE VAULT v19 (LOGIN & SETTINGS SYSTEM)</title>
@@ -14,10 +13,6 @@
 
 <!-- Google Fonts -->
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500&family=JetBrains+Mono:wght@400;500;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
-
-<!-- FIREBASE SDK (COMPAT VERSION FOR DIRECT BROWSER USE) -->
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
 
 <script>
 tailwind.config = {
@@ -442,8 +437,8 @@ input[type="time"]::-webkit-calendar-picker-indicator:hover {
       </div>
       <h2 class="font-master font-black text-sm text-white tracking-wider uppercase">RICKY CHARLES WONGSO</h2>
       <div class="flex items-center justify-center gap-2 mt-1.5">
-        <span id="firebaseStatusDot" class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-        <span id="firebaseStatusText" class="text-[8px] font-master font-bold text-emerald-400 uppercase tracking-[2px]">ONLINE</span>
+        <span id="firebaseStatusDot" class="w-2 h-2 rounded-full bg-amber-500"></span>
+        <span id="firebaseStatusText" class="text-[8px] font-master font-bold text-amber-500 uppercase tracking-[2px]">LOCAL STORAGE</span>
       </div>
     </div>
   </div>
@@ -667,7 +662,7 @@ input[type="time"]::-webkit-calendar-picker-indicator:hover {
         </div>
         <div>
           <h3 class="font-master font-black text-base text-yellow-400 uppercase tracking-wider">SYSTEM SETTINGS</h3>
-          <p class="text-[8px] font-master text-gray-500 uppercase tracking-[2px]">Atur Kredensial Akses, Firebase & Background</p>
+          <p class="text-[8px] font-master text-gray-500 uppercase tracking-[2px]">Atur Kredensial Akses, Background & Data</p>
         </div>
       </div>
       <button onclick="closeSettingsModal()" class="text-gray-400 hover:text-white text-base p-1.5 rounded-lg hover:bg-white/10 transition cursor-pointer"><i class="fas fa-times"></i></button>
@@ -967,57 +962,10 @@ input[type="time"]::-webkit-calendar-picker-indicator:hover {
 <!-- ==================== JAVASCRIPT ==================== -->
 <script>
 // ==========================================
-// FIREBASE CONFIGURATION & INITIALIZATION
-// ==========================================
-const firebaseConfig = {
-  apiKey: "AIzaSyAw6BqDcXo7V0BAftW9jQbTdKZi6Lf7vGw",
-  authDomain: "rickychar-4bcd2.firebaseapp.com",
-  databaseURL: "https://rickychar-4bcd2-default-rtdb.firebaseio.com",
-  projectId: "rickychar-4bcd2",
-  storageBucket: "rickychar-4bcd2.firebasestorage.app",
-  messagingSenderId: "497316854602",
-  appId: "1:497316854602:web:609a043da60f0574cf1fb3",
-  measurementId: "G-M8PFLSWMDB"
-};
-
-let db = null;
-let isFirebaseConnected = false;
-let isSyncingFromFirebase = false;
-
-try {
-  if (!firebase.apps.length) {
-    firebase.initializeApp(firebaseConfig);
-  }
-  db = firebase.database();
-
-  const connectedRef = db.ref(".info/connected");
-  connectedRef.on("value", (snap) => {
-    const dot = document.getElementById("firebaseStatusDot");
-    const txt = document.getElementById("firebaseStatusText");
-    if (snap.val() === true) {
-      isFirebaseConnected = true;
-      if (dot) dot.className = "w-2 h-2 rounded-full bg-emerald-400 animate-pulse";
-      if (txt) {
-        txt.className = "text-[8px] font-master font-bold text-emerald-400 uppercase tracking-[2px]";
-        txt.innerText = "ONLINE";
-      }
-    } else {
-      isFirebaseConnected = false;
-      if (dot) dot.className = "w-2 h-2 rounded-full bg-amber-500 animate-pulse";
-      if (txt) {
-        txt.className = "text-[8px] font-master font-bold text-amber-500 uppercase tracking-[2px]";
-        txt.innerText = "OFFLINE";
-      }
-    }
-  });
-} catch (err) {
-  console.warn("Firebase Init Warning:", err);
-}
-
-// ==========================================
 // MASTER AUTH & BACKGROUND STATE
 // ==========================================
-let masterAuth = { user: "admin", pass: "admin" };
+// Password default: 12345
+let masterAuth = { user: "admin", pass: "12345" };
 let customBgFront = "";
 let customBgInner = "";
 
@@ -1035,7 +983,7 @@ try {
 
 function saveMasterAuth() {
   localStorage.setItem('v19_master_auth', JSON.stringify(masterAuth));
-  syncToFirebase();
+  saveData();
 }
 
 // ==========================================
@@ -1309,72 +1257,12 @@ let targetUploadCardIndex = null;
 let triggeredAlarmsMap = {};
 
 // ==========================================
-// FIREBASE SYNC
+// SAVE DATA (LOCAL STORAGE ONLY)
 // ==========================================
 function saveData() {
   localStorage.setItem('v19_menus', JSON.stringify(menus));
   localStorage.setItem('v19_data', JSON.stringify(masterData));
   localStorage.setItem('v19_active', activeMenu);
-  syncToFirebase();
-}
-
-function syncToFirebase() {
-  if (isSyncingFromFirebase || !db) return;
-  db.ref("vault_data").set({
-    menus: menus,
-    data: masterData,
-    auth: masterAuth,
-    bgFront: customBgFront,
-    bgInner: customBgInner,
-    updatedAt: new Date().toISOString()
-  }).catch((err) => console.error("Firebase Sync Write Error:", err));
-}
-
-function initFirebaseRealtimeListener() {
-  if (!db) return;
-  db.ref("vault_data").on("value", (snapshot) => {
-    if (snapshot.exists()) {
-      const val = snapshot.val();
-      isSyncingFromFirebase = true;
-
-      if (val.menus && Array.isArray(val.menus)) {
-        menus = val.menus;
-        localStorage.setItem('v19_menus', JSON.stringify(menus));
-      }
-      if (val.data && Array.isArray(val.data)) {
-        masterData = val.data;
-        localStorage.setItem('v19_data', JSON.stringify(masterData));
-      }
-      if (val.auth && val.auth.user && val.auth.pass) {
-        masterAuth = val.auth;
-        localStorage.setItem('v19_master_auth', JSON.stringify(masterAuth));
-      }
-      if (val.bgFront !== undefined) {
-        customBgFront = val.bgFront;
-        if (customBgFront) localStorage.setItem('v19_bg_front', customBgFront);
-        else localStorage.removeItem('v19_bg_front');
-      }
-      if (val.bgInner !== undefined) {
-        customBgInner = val.bgInner;
-        if (customBgInner) localStorage.setItem('v19_bg_inner', customBgInner);
-        else localStorage.removeItem('v19_bg_inner');
-      }
-
-      if (!menus.find(m => m.name === activeMenu)) {
-        activeMenu = menus[0] ? menus[0].name : "ALARM CENTER";
-      }
-
-      applyBackgrounds();
-      renderSidebar();
-      renderCards();
-
-      isSyncingFromFirebase = false;
-    } else {
-      syncToFirebase();
-    }
-  }, (err) => {
-    console.warn("Firebase Listener Error:", err);
-  });
 }
 
 // ==========================================
@@ -1450,7 +1338,7 @@ function handleBgFrontFileUpload(e) {
     customBgFront = evt.target.result;
     localStorage.setItem('v19_bg_front', customBgFront);
     applyBackgrounds();
-    syncToFirebase();
+    saveData();
     document.getElementById('bgFrontUrlInput').value = customBgFront;
     showToast('Background Depan Berhasil Diperbarui!', 'success');
   };
@@ -1464,7 +1352,7 @@ function applyBgFrontFromInput() {
   customBgFront = url;
   localStorage.setItem('v19_bg_front', customBgFront);
   applyBackgrounds();
-  syncToFirebase();
+  saveData();
   showToast('Background Depan Berhasil Diperbarui!', 'success');
 }
 
@@ -1473,7 +1361,7 @@ function resetBgFront() {
   localStorage.removeItem('v19_bg_front');
   document.getElementById('bgFrontUrlInput').value = "";
   applyBackgrounds();
-  syncToFirebase();
+  saveData();
   showToast('Background Depan Direset!', 'info');
 }
 
@@ -1485,7 +1373,7 @@ function handleBgInnerFileUpload(e) {
     customBgInner = evt.target.result;
     localStorage.setItem('v19_bg_inner', customBgInner);
     applyBackgrounds();
-    syncToFirebase();
+    saveData();
     document.getElementById('bgInnerUrlInput').value = customBgInner;
     showToast('Background Dalam Berhasil Diperbarui!', 'success');
   };
@@ -1499,7 +1387,7 @@ function applyBgInnerFromInput() {
   customBgInner = url;
   localStorage.setItem('v19_bg_inner', customBgInner);
   applyBackgrounds();
-  syncToFirebase();
+  saveData();
   showToast('Background Dalam Berhasil Diperbarui!', 'success');
 }
 
@@ -1508,7 +1396,7 @@ function resetBgInner() {
   localStorage.removeItem('v19_bg_inner');
   document.getElementById('bgInnerUrlInput').value = "";
   applyBackgrounds();
-  syncToFirebase();
+  saveData();
   showToast('Background Dalam Direset!', 'info');
 }
 
@@ -2638,7 +2526,6 @@ renderSidebar();
 switchMenu(activeMenu);
 setInterval(updateClock, 1000);
 updateClock();
-initFirebaseRealtimeListener();
 </script>
 </body>
 </html>
