@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MR.RCT - Executive Vault v20</title>
+<title>MR.RCT - EXECUTIVE VAULT v20</title>
 
 <!-- Tailwind CSS -->
 <script src="https://cdn.tailwindcss.com"></script>
@@ -14,16 +14,10 @@
 <!-- Google Fonts -->
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500&family=JetBrains+Mono:wght@400;500;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
 
-<!-- FIREBASE SDK (MODULAR VIA CDN) -->
-<script type="importmap">
-{
-  "imports": {
-    "firebase/app": "https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js",
-    "firebase/database": "https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js",
-    "firebase/auth": "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"
-  }
-}
-</script>
+<!-- FIREBASE SDK -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
 
 <script>
 tailwind.config = {
@@ -52,7 +46,13 @@ tailwind.config = {
         'popup': 'popupIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards',
         'float': 'float 6s ease-in-out infinite',
         'shimmer': 'shimmer 3s infinite',
-        'gradient': 'gradient 8s ease infinite'
+        'gradient': 'gradient 8s ease infinite',
+        'neon-pulse': 'neonPulse 2s ease-in-out infinite',
+        'rotate-slow': 'rotateSlow 20s linear infinite',
+        'ping-slow': 'ping 3s cubic-bezier(0, 0, 0.2, 1) infinite',
+        'bounce-subtle': 'bounceSubtle 3s ease-in-out infinite',
+        'aurora': 'aurora 8s ease-in-out infinite',
+        'twinkle': 'twinkle 2s ease-in-out infinite'
       },
       keyframes: {
         glowPulse: {
@@ -78,6 +78,27 @@ tailwind.config = {
         gradient: {
           '0%, 100%': { backgroundPosition: '0% 50%' },
           '50%': { backgroundPosition: '100% 50%' }
+        },
+        neonPulse: {
+          '0%, 100%': { opacity: 0.5, transform: 'scale(1)' },
+          '50%': { opacity: 1, transform: 'scale(1.05)' }
+        },
+        rotateSlow: {
+          '0%': { transform: 'rotate(0deg)' },
+          '100%': { transform: 'rotate(360deg)' }
+        },
+        bounceSubtle: {
+          '0%, 100%': { transform: 'translateY(0)' },
+          '50%': { transform: 'translateY(-8px)' }
+        },
+        aurora: {
+          '0%': { transform: 'translateX(-10%) scale(1)', opacity: 0.3 },
+          '50%': { transform: 'translateX(10%) scale(1.1)', opacity: 0.6 },
+          '100%': { transform: 'translateX(-10%) scale(1)', opacity: 0.3 }
+        },
+        twinkle: {
+          '0%, 100%': { opacity: 0.2 },
+          '50%': { opacity: 0.8 }
         }
       }
     }
@@ -104,7 +125,7 @@ tailwind.config = {
 }
 ::-webkit-scrollbar-thumb:hover { background: linear-gradient(180deg, #ffffff, #facc15); }
 
-/* ===== BACKGROUND HD ===== */
+/* ===== HD BACKGROUND LAYERS ===== */
 #bgLayer {
   position: fixed;
   top: 0;
@@ -112,11 +133,7 @@ tailwind.config = {
   width: 100vw;
   height: 100vh;
   z-index: -5;
-  background: 
-    radial-gradient(ellipse at 20% 50%, #0a0a2a 0%, transparent 60%),
-    radial-gradient(ellipse at 80% 20%, #1a0a2a 0%, transparent 50%),
-    radial-gradient(ellipse at 50% 100%, #0a1a2a 0%, transparent 40%),
-    #030712;
+  background: #030712;
   overflow: hidden;
 }
 
@@ -128,16 +145,14 @@ tailwind.config = {
   width: 100%;
   height: 100%;
   background: 
-    repeating-linear-gradient(45deg, 
-      rgba(255,255,255,0.01) 0px, 
-      rgba(255,255,255,0.01) 2px,
-      transparent 2px,
-      transparent 8px
-    );
+    radial-gradient(ellipse at 20% 50%, rgba(10, 10, 42, 0.8) 0%, transparent 60%),
+    radial-gradient(ellipse at 80% 20%, rgba(26, 10, 42, 0.8) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 100%, rgba(10, 26, 42, 0.8) 0%, transparent 40%);
+  z-index: -4;
   pointer-events: none;
 }
 
-/* Video Background HD */
+/* ===== HD VIDEO BACKGROUND ===== */
 #bgVideo {
   position: absolute;
   top: 50%;
@@ -148,13 +163,29 @@ tailwind.config = {
   height: auto;
   transform: translateX(-50%) translateY(-50%);
   object-fit: cover;
-  opacity: 0.3;
-  filter: blur(2px) brightness(0.6);
-  z-index: -4;
+  opacity: 0.25;
+  filter: blur(2px) brightness(0.5) saturate(1.2);
+  z-index: -5;
   pointer-events: none;
 }
 
-/* Particle Canvas HD */
+/* ===== AURORA OVERLAY ===== */
+#auroraOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: -4;
+  pointer-events: none;
+  background: 
+    radial-gradient(ellipse at 30% 20%, rgba(250, 204, 21, 0.03) 0%, transparent 50%),
+    radial-gradient(ellipse at 70% 80%, rgba(59, 130, 246, 0.02) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 50%, rgba(239, 68, 68, 0.02) 0%, transparent 60%);
+  animation: aurora 8s ease-in-out infinite;
+}
+
+/* ===== HD PARTICLE CANVAS ===== */
 #particleCanvas {
   position: fixed;
   top: 0;
@@ -163,42 +194,89 @@ tailwind.config = {
   height: 100vh;
   z-index: -3;
   pointer-events: none;
-  opacity: 0.8;
+  opacity: 0.9;
 }
 
-/* Glow Orbs */
+/* ===== GLOW ORBS (HD) ===== */
 .glow-orb {
   position: fixed;
   border-radius: 50%;
-  filter: blur(80px);
+  filter: blur(120px);
   pointer-events: none;
   z-index: -2;
   animation: float 12s ease-in-out infinite;
+  mix-blend-mode: screen;
 }
 .glow-orb-1 {
-  width: 500px;
-  height: 500px;
-  background: rgba(250, 204, 21, 0.08);
-  top: -100px;
-  right: -100px;
+  width: 700px;
+  height: 700px;
+  background: radial-gradient(circle, rgba(250, 204, 21, 0.06) 0%, rgba(250, 204, 21, 0.01) 100%);
+  top: -200px;
+  right: -200px;
   animation-delay: 0s;
 }
 .glow-orb-2 {
-  width: 400px;
-  height: 400px;
-  background: rgba(59, 130, 246, 0.06);
-  bottom: -50px;
-  left: -50px;
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, rgba(59, 130, 246, 0.05) 0%, rgba(59, 130, 246, 0.01) 100%);
+  bottom: -150px;
+  left: -150px;
   animation-delay: -4s;
 }
 .glow-orb-3 {
-  width: 300px;
-  height: 300px;
-  background: rgba(239, 68, 68, 0.05);
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(239, 68, 68, 0.04) 0%, rgba(239, 68, 68, 0.01) 100%);
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
   animation-delay: -8s;
+}
+.glow-orb-4 {
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(16, 185, 129, 0.04) 0%, rgba(16, 185, 129, 0.01) 100%);
+  top: 20%;
+  right: 20%;
+  animation-delay: -2s;
+  animation-duration: 15s;
+}
+
+/* ===== NEON GRID OVERLAY ===== */
+#neonGrid {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: -2.5;
+  pointer-events: none;
+  opacity: 0.03;
+  background-image: 
+    linear-gradient(rgba(250, 204, 21, 0.1) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(250, 204, 21, 0.1) 1px, transparent 1px);
+  background-size: 60px 60px;
+  animation: shimmer 10s linear infinite;
+}
+
+/* ===== FLOATING PARTICLES (CSS) ===== */
+.floating-particle {
+  position: fixed;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: -2;
+  background: radial-gradient(circle, rgba(250, 204, 21, 0.3) 0%, transparent 70%);
+  animation: float 8s ease-in-out infinite;
+}
+
+/* ===== STARS ===== */
+.star {
+  position: fixed;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: -2;
+  background: white;
+  animation: twinkle 2s ease-in-out infinite;
 }
 
 /* ===== LOGIN SCREEN HD ===== */
@@ -210,14 +288,15 @@ tailwind.config = {
 
 .login-glass-box {
   background: rgba(255, 255, 255, 0.04);
-  backdrop-filter: blur(40px);
-  -webkit-backdrop-filter: blur(40px);
+  backdrop-filter: blur(50px);
+  -webkit-backdrop-filter: blur(50px);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 32px;
   box-shadow: 
     0 30px 80px 0 rgba(0, 0, 0, 0.7),
     inset 0 1px 0 rgba(255, 255, 255, 0.05),
-    0 0 60px rgba(250, 204, 21, 0.03);
+    0 0 100px rgba(250, 204, 21, 0.02);
+  animation: glowPulse 4s ease-in-out infinite;
 }
 
 .login-glass-box::before {
@@ -228,8 +307,10 @@ tailwind.config = {
   right: -1px;
   bottom: -1px;
   border-radius: 32px;
-  background: linear-gradient(135deg, rgba(250,204,21,0.1), transparent, rgba(250,204,21,0.05));
+  background: linear-gradient(135deg, rgba(250,204,21,0.15), transparent, rgba(250,204,21,0.05));
   z-index: -1;
+  animation: gradient 6s ease infinite;
+  background-size: 200% 200%;
 }
 
 .login-input-line {
@@ -243,7 +324,7 @@ tailwind.config = {
 }
 .login-input-line:focus {
   border-bottom-color: #facc15 !important;
-  box-shadow: 0 4px 30px rgba(250, 204, 21, 0.08) !important;
+  box-shadow: 0 4px 30px rgba(250, 204, 21, 0.15) !important;
 }
 
 /* ===== SIDEBAR ===== */
@@ -260,12 +341,25 @@ tailwind.config = {
 .sidebar-item:hover {
   background: rgba(255, 255, 255, 0.04);
   transform: translateX(4px);
+  border-left-color: rgba(250, 204, 21, 0.3);
 }
 .sidebar-item.active {
   color: #facc15;
-  background: linear-gradient(90deg, rgba(250, 204, 21, 0.1) 0%, rgba(250, 204, 21, 0.01) 100%);
+  background: linear-gradient(90deg, rgba(250, 204, 21, 0.12) 0%, rgba(250, 204, 21, 0.01) 100%);
   border-left-color: #facc15;
   text-shadow: 0 0 20px rgba(250, 204, 21, 0.15);
+}
+.sidebar-item.active::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 4px;
+  height: 20px;
+  background: linear-gradient(180deg, #facc15, #f59e0b);
+  border-radius: 4px;
+  animation: neonPulse 2s ease-in-out infinite;
 }
 
 /* ===== CARDS HD ===== */
@@ -279,11 +373,30 @@ tailwind.config = {
   flex-direction: column;
   justify-content: space-between;
   box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
+  position: relative;
+  overflow: hidden;
 }
+
+.note-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 200%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(250, 204, 21, 0.3), transparent);
+  animation: shimmer 3s linear infinite;
+}
+
 .note-card:hover {
   border-color: rgba(250, 204, 21, 0.3);
-  box-shadow: 0 8px 50px rgba(250, 204, 21, 0.06);
-  transform: translateY(-4px);
+  box-shadow: 0 8px 60px rgba(250, 204, 21, 0.08), inset 0 0 30px rgba(250, 204, 21, 0.02);
+  transform: translateY(-6px) scale(1.01);
+}
+
+.note-card:hover::before {
+  left: 100%;
+  transition: left 0.6s ease;
 }
 
 /* ===== PASARAN ROW ===== */
@@ -297,12 +410,12 @@ tailwind.config = {
 }
 .pasaran-row:hover {
   border-color: rgba(250, 204, 21, 0.25);
-  box-shadow: 0 4px 40px rgba(250, 204, 21, 0.06);
+  box-shadow: 0 4px 50px rgba(250, 204, 21, 0.08);
   transform: translateY(-2px);
 }
 .pasaran-row.glowing-approaching {
   border: 2px solid #ef4444 !important;
-  box-shadow: 0 0 50px rgba(239, 68, 68, 0.4), inset 0 0 20px rgba(239, 68, 68, 0.15) !important;
+  box-shadow: 0 0 60px rgba(239, 68, 68, 0.4), inset 0 0 25px rgba(239, 68, 68, 0.15) !important;
   animation: glowPulse 1.2s infinite alternate ease-in-out !important;
 }
 .pasaran-row.pasaran-done-mode {
@@ -319,11 +432,12 @@ tailwind.config = {
 /* ===== MODAL HD ===== */
 .modal-glow-box {
   background: rgba(8, 12, 20, 0.95);
-  backdrop-filter: blur(30px);
-  -webkit-backdrop-filter: blur(30px);
+  backdrop-filter: blur(40px);
+  -webkit-backdrop-filter: blur(40px);
   border: 1px solid rgba(255, 255, 255, 0.06);
-  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.8), 0 0 60px rgba(250, 204, 21, 0.03);
+  box-shadow: 0 30px 100px rgba(0, 0, 0, 0.8), 0 0 80px rgba(250, 204, 21, 0.03);
   border-radius: 32px;
+  animation: popupIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
 }
 
 /* ===== DAY SELECTOR ===== */
@@ -343,13 +457,15 @@ tailwind.config = {
 .day-select-btn:hover {
   background: rgba(250, 204, 21, 0.08);
   border-color: rgba(250, 204, 21, 0.2);
+  transform: scale(1.05);
 }
 .day-select-btn.active {
   background: linear-gradient(135deg, #facc15, #f59e0b);
   color: #000;
   border-color: #facc15;
   font-weight: 900;
-  box-shadow: 0 0 25px rgba(250, 204, 21, 0.2);
+  box-shadow: 0 0 30px rgba(250, 204, 21, 0.2);
+  animation: neonPulse 2s ease-in-out infinite;
 }
 
 /* ===== PROMO TABS ===== */
@@ -362,13 +478,15 @@ tailwind.config = {
   padding: 10px 20px;
 }
 .promo-tab:hover {
-  background: rgba(255,255,255,0.04);
+  background: rgba(255,255,255,0.06);
+  transform: translateY(-2px);
 }
 .promo-tab.active {
   background: linear-gradient(135deg, #3b82f6, #2563eb);
   color: white;
   border-color: #60a5fa;
-  box-shadow: 0 4px 30px rgba(37, 99, 235, 0.2);
+  box-shadow: 0 4px 40px rgba(37, 99, 235, 0.2);
+  animation: neonPulse 2s ease-in-out infinite;
 }
 
 .editor-textarea {
@@ -386,7 +504,7 @@ tailwind.config = {
 .editor-textarea:focus {
   border-color: #3b82f6;
   outline: none;
-  box-shadow: 0 0 40px rgba(59, 130, 246, 0.05);
+  box-shadow: 0 0 60px rgba(59, 130, 246, 0.05);
 }
 
 /* ===== TOAST & NOTIFICATION ===== */
@@ -395,19 +513,35 @@ tailwind.config = {
 }
 .alarm-notification-popup {
   animation: popupIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7), 0 0 60px rgba(250, 204, 21, 0.05);
+  box-shadow: 0 20px 70px rgba(0, 0, 0, 0.7), 0 0 80px rgba(250, 204, 21, 0.05);
+  border: 1px solid rgba(250, 204, 21, 0.2);
 }
 
-/* ===== UTILITY ===== */
-.glass-effect {
-  background: rgba(255, 255, 255, 0.02);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.04);
+/* ===== SHIMMER TEXT ===== */
+.shimmer-text {
+  background: linear-gradient(90deg, #facc15, #f59e0b, #facc15, #f59e0b);
+  background-size: 300% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shimmer 3s linear infinite;
 }
 
-.shadow-glow {
-  box-shadow: 0 0 40px rgba(250, 204, 21, 0.04);
+/* ===== GLOW BORDER ===== */
+.glow-border {
+  position: relative;
+}
+.glow-border::after {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  background: linear-gradient(135deg, rgba(250,204,21,0.15), transparent, rgba(250,204,21,0.05));
+  z-index: -1;
+  opacity: 0.5;
+  transition: opacity 0.4s ease;
+}
+.glow-border:hover::after {
+  opacity: 1;
 }
 
 /* ===== RESPONSIVE ===== */
@@ -424,49 +558,90 @@ tailwind.config = {
   }
 }
 
-/* ===== SCROLLBAR KUSTOM ===== */
 .custom-scroll::-webkit-scrollbar { width: 4px; }
 .custom-scroll::-webkit-scrollbar-track { background: rgba(255,255,255,0.02); }
 .custom-scroll::-webkit-scrollbar-thumb { background: rgba(250,204,21,0.2); border-radius: 10px; }
 
-/* ===== SHIMMER TEXT ===== */
-.shimmer-text {
-  background: linear-gradient(90deg, #facc15, #f59e0b, #facc15);
-  background-size: 200% auto;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  animation: shimmer 4s linear infinite;
+/* ===== NEON TEXT GLOW ===== */
+.neon-glow {
+  text-shadow: 
+    0 0 10px rgba(250, 204, 21, 0.3),
+    0 0 20px rgba(250, 204, 21, 0.2),
+    0 0 40px rgba(250, 204, 21, 0.1);
 }
 
-/* ===== GLOW BORDER ===== */
-.glow-border {
+/* ===== STICKY HEADER GLOW ===== */
+.sticky-header-glow {
   position: relative;
 }
-.glow-border::after {
+.sticky-header-glow::after {
   content: '';
   position: absolute;
-  inset: -1px;
-  border-radius: inherit;
-  background: linear-gradient(135deg, rgba(250,204,21,0.1), transparent, rgba(250,204,21,0.05));
-  z-index: -1;
-  opacity: 0.5;
-  transition: opacity 0.4s ease;
+  bottom: -1px;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(250, 204, 21, 0.2), transparent);
+  animation: shimmer 3s linear infinite;
 }
-.glow-border:hover::after {
-  opacity: 1;
+
+/* ===== BUTTON GLOW ===== */
+.btn-glow {
+  position: relative;
+  overflow: hidden;
+}
+.btn-glow::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(250,204,21,0.1) 0%, transparent 70%);
+  animation: rotateSlow 10s linear infinite;
 }
 </style>
 </head>
 <body class="font-body bg-vault-bg text-slate-100 h-screen flex overflow-hidden select-none">
 
-<!-- ===== BACKGROUND LAYERS ===== -->
+<!-- ===== HD BACKGROUND LAYERS ===== -->
 <div id="bgLayer">
+  <!-- Video Background -->
   <video id="bgVideo" autoplay muted loop playsinline>
-    <source src="https://assets.mixkit.co/videos/preview/mixkit-digital-particles-falling-1076-large.mp4" type="video/mp4">
+    <source src="https://v1.pinimg.com/videos/iht/expMp4/52/6e/d0/526ed0d01eb8ff6377f4d9f0d1725481_720w.mp4" type="video/mp4">
   </video>
+  
+  <!-- Aurora Overlay -->
+  <div id="auroraOverlay"></div>
+  
+  <!-- Neon Grid -->
+  <div id="neonGrid"></div>
+  
+  <!-- Glow Orbs -->
   <div class="glow-orb glow-orb-1"></div>
   <div class="glow-orb glow-orb-2"></div>
   <div class="glow-orb glow-orb-3"></div>
+  <div class="glow-orb glow-orb-4"></div>
+  
+  <!-- Floating CSS Particles -->
+  <div class="floating-particle" style="width: 3px; height: 3px; top: 10%; left: 15%; animation-delay: 0s;"></div>
+  <div class="floating-particle" style="width: 4px; height: 4px; top: 30%; left: 85%; animation-delay: -2s;"></div>
+  <div class="floating-particle" style="width: 2px; height: 2px; top: 60%; left: 10%; animation-delay: -4s;"></div>
+  <div class="floating-particle" style="width: 5px; height: 5px; top: 80%; left: 90%; animation-delay: -1s;"></div>
+  <div class="floating-particle" style="width: 3px; height: 3px; top: 45%; left: 45%; animation-delay: -3s;"></div>
+  <div class="floating-particle" style="width: 4px; height: 4px; top: 15%; left: 65%; animation-delay: -5s;"></div>
+  <div class="floating-particle" style="width: 2px; height: 2px; top: 70%; left: 30%; animation-delay: -6s;"></div>
+  <div class="floating-particle" style="width: 3px; height: 3px; top: 90%; left: 55%; animation-delay: -2.5s;"></div>
+  
+  <!-- Stars -->
+  <div class="star" style="width: 2px; height: 2px; top: 5%; left: 10%; animation-delay: 0s;"></div>
+  <div class="star" style="width: 1px; height: 1px; top: 15%; left: 25%; animation-delay: -0.5s;"></div>
+  <div class="star" style="width: 2px; height: 2px; top: 8%; left: 45%; animation-delay: -1s;"></div>
+  <div class="star" style="width: 1px; height: 1px; top: 20%; left: 70%; animation-delay: -1.5s;"></div>
+  <div class="star" style="width: 2px; height: 2px; top: 3%; left: 85%; animation-delay: -0.3s;"></div>
+  <div class="star" style="width: 1px; height: 1px; top: 12%; left: 92%; animation-delay: -0.8s;"></div>
+  <div class="star" style="width: 1.5px; height: 1.5px; top: 25%; left: 5%; animation-delay: -1.2s;"></div>
+  <div class="star" style="width: 2px; height: 2px; top: 18%; left: 55%; animation-delay: -0.6s;"></div>
 </div>
 <canvas id="particleCanvas"></canvas>
 
@@ -486,16 +661,28 @@ tailwind.config = {
 
   <header class="w-full flex justify-between items-center px-8 md:px-16 py-6 text-white relative z-10">
     <div class="text-3xl md:text-4xl font-black tracking-tighter flex items-center gap-3">
-      <span class="text-yellow-400 text-4xl">✦</span>
-      <span class="shimmer-text font-display">MR.RCT</span>
+      <span class="text-yellow-400 text-4xl animate-pulse-slow">✦</span>
+      <span class="shimmer-text font-display text-4xl md:text-5xl">MR.RCT</span>
     </div>
     <nav class="hidden md:flex gap-8 font-medium text-sm">
-      <a href="#" class="hover:text-yellow-400 transition duration-300">Home</a>
-      <a href="#" class="hover:text-yellow-400 transition duration-300">About</a>
-      <a href="#" class="hover:text-yellow-400 transition duration-300">Services</a>
-      <a href="#" class="hover:text-yellow-400 transition duration-300">Contact</a>
+      <a href="#" class="hover:text-yellow-400 transition duration-300 relative group">
+        Home
+        <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-yellow-400 transition-all duration-300 group-hover:w-full"></span>
+      </a>
+      <a href="#" class="hover:text-yellow-400 transition duration-300 relative group">
+        About
+        <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-yellow-400 transition-all duration-300 group-hover:w-full"></span>
+      </a>
+      <a href="#" class="hover:text-yellow-400 transition duration-300 relative group">
+        Services
+        <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-yellow-400 transition-all duration-300 group-hover:w-full"></span>
+      </a>
+      <a href="#" class="hover:text-yellow-400 transition duration-300 relative group">
+        Contact
+        <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-yellow-400 transition-all duration-300 group-hover:w-full"></span>
+      </a>
     </nav>
-    <button class="border border-white/20 rounded-xl px-8 py-2 font-bold hover:bg-yellow-400 hover:text-black transition duration-300 backdrop-blur-sm bg-white/5">
+    <button class="border border-white/20 rounded-xl px-8 py-2 font-bold hover:bg-yellow-400 hover:text-black transition duration-300 backdrop-blur-sm bg-white/5 btn-glow">
       Login
     </button>
   </header>
@@ -508,8 +695,8 @@ tailwind.config = {
       </button>
 
       <div class="text-center mb-8">
-        <h2 class="text-3xl md:text-4xl font-bold text-white tracking-wide font-display">Welcome Back</h2>
-        <p class="text-[10px] font-master text-yellow-400/70 uppercase tracking-[4px] mt-2">MR.RCT EXECUTIVE VAULT</p>
+        <h2 class="text-3xl md:text-4xl font-bold text-white tracking-wide font-display neon-glow">Welcome Back</h2>
+        <p class="text-[10px] font-master text-yellow-400/70 uppercase tracking-[4px] mt-2 shimmer-text">MR.RCT EXECUTIVE VAULT</p>
       </div>
 
       <div class="space-y-5">
@@ -519,7 +706,7 @@ tailwind.config = {
             <input type="text" id="loginUser" value="rykcocastio557@gmail.com"
               class="login-input-line w-full text-white outline-none py-2.5 placeholder:text-white/30 text-sm"
               placeholder="Enter your email or username">
-            <i class="fas fa-envelope absolute right-0 top-3.5 text-white/50 text-sm"></i>
+            <i class="fas fa-envelope absolute right-0 top-3.5 text-white/50 text-sm animate-pulse"></i>
           </div>
         </div>
 
@@ -529,7 +716,7 @@ tailwind.config = {
             <input type="password" id="loginPass" onkeypress="if(event.key==='Enter') handleLogin()"
               class="login-input-line w-full text-white outline-none py-2.5 placeholder:text-white/30 text-sm"
               placeholder="Enter your password">
-            <i class="fas fa-lock absolute right-0 top-3.5 text-white/50 text-sm"></i>
+            <i class="fas fa-lock absolute right-0 top-3.5 text-white/50 text-sm animate-pulse"></i>
           </div>
         </div>
 
@@ -541,7 +728,7 @@ tailwind.config = {
           <a href="#" class="hover:text-yellow-400 transition">Forgot Password?</a>
         </div>
 
-        <button onclick="handleLogin()" class="w-full bg-gradient-to-r from-yellow-400 to-amber-500 hover:from-yellow-300 hover:to-amber-400 text-black font-bold py-4 rounded-xl transition duration-300 shadow-xl hover:shadow-2xl transform hover:scale-[1.02] text-sm tracking-wider">
+        <button onclick="handleLogin()" class="w-full bg-gradient-to-r from-yellow-400 to-amber-500 hover:from-yellow-300 hover:to-amber-400 text-black font-bold py-4 rounded-xl transition duration-300 shadow-xl hover:shadow-2xl transform hover:scale-[1.02] text-sm tracking-wider btn-glow">
           <i class="fas fa-arrow-right-to-bracket mr-2"></i> Login
         </button>
 
@@ -560,29 +747,30 @@ tailwind.config = {
 <aside id="mainSidebar" class="fixed lg:static inset-y-0 left-0 w-80 bg-[#050811]/95 backdrop-blur-sm flex flex-col border-r border-white/5 z-40 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 shadow-2xl">
 
   <div class="p-4 border-b border-white/5">
-    <div class="bg-[#080c14]/80 border border-yellow-400/20 rounded-2xl p-5 text-center shadow-[0_0_30px_rgba(250,204,21,0.04)]">
-      <div class="w-14 h-14 rounded-2xl bg-black/60 border-2 border-yellow-400/40 flex items-center justify-center mx-auto mb-2.5 text-yellow-400 text-2xl shadow-inner">
+    <div class="bg-[#080c14]/80 border border-yellow-400/20 rounded-2xl p-5 text-center shadow-[0_0_30px_rgba(250,204,21,0.04)] relative overflow-hidden">
+      <div class="absolute top-0 left-0 w-full h-0.5 bg-gradient-to-r from-transparent via-yellow-400 to-transparent animate-shimmer"></div>
+      <div class="w-14 h-14 rounded-2xl bg-black/60 border-2 border-yellow-400/40 flex items-center justify-center mx-auto mb-2.5 text-yellow-400 text-2xl shadow-inner animate-bounce-subtle">
         <i class="fas fa-crown"></i>
       </div>
-      <h2 class="font-master font-black text-sm text-white tracking-wider uppercase">MR.RCT</h2>
+      <h2 class="font-master font-black text-sm text-white tracking-wider uppercase neon-glow">MR.RCT</h2>
       <div class="flex items-center justify-center gap-2 mt-1.5">
         <span id="firebaseStatusDot" class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
-        <span id="firebaseStatusText" class="text-[8px] font-master font-bold text-amber-500 uppercase tracking-[2px]">SYNCING...</span>
+        <span id="firebaseStatusText" class="text-[8px] font-master font-bold text-amber-500 uppercase tracking-[2px]">CONNECTING...</span>
       </div>
-      <div class="mt-2 text-[7px] font-master text-gray-500 tracking-[2px] uppercase">Executive Vault v20</div>
+      <div class="mt-2 text-[7px] font-master text-gray-500 tracking-[2px] uppercase animate-pulse">Executive Vault v20</div>
     </div>
   </div>
 
   <div class="flex-grow overflow-y-auto p-3 space-y-0.5 custom-scroll" id="sidebarMenu"></div>
 
   <div class="p-4 border-t border-white/5 bg-black/30 space-y-2.5">
-    <button onclick="openFolderModal()" class="w-full py-3.5 rounded-2xl border border-yellow-400/30 bg-yellow-400/5 text-yellow-400 text-[9px] font-master font-bold tracking-[1.5px] hover:bg-yellow-400 hover:text-black transition uppercase flex items-center justify-center gap-2 shadow-lg cursor-pointer group">
+    <button onclick="openFolderModal()" class="w-full py-3.5 rounded-2xl border border-yellow-400/30 bg-yellow-400/5 text-yellow-400 text-[9px] font-master font-bold tracking-[1.5px] hover:bg-yellow-400 hover:text-black transition uppercase flex items-center justify-center gap-2 shadow-lg cursor-pointer group btn-glow">
       <i class="fas fa-folder-plus text-xs group-hover:scale-110 transition"></i> + Buat Folder Baru
     </button>
 
     <div class="grid grid-cols-2 gap-2">
       <button onclick="openSettingsModal()" class="py-3 px-3 rounded-xl bg-yellow-400/5 border border-yellow-400/30 text-yellow-400 text-[8px] font-master font-bold hover:bg-yellow-400 hover:text-black transition flex items-center justify-center gap-1.5 cursor-pointer group">
-        <i class="fas fa-gear text-yellow-400 group-hover:text-black transition"></i> SETTINGS
+        <i class="fas fa-gear text-yellow-400 group-hover:text-black transition group-hover:rotate-90 duration-500"></i> SETTINGS
       </button>
       <button onclick="openImportExportModal()" class="py-3 px-3 rounded-xl bg-cyan-500/5 border border-cyan-500/20 text-cyan-300 text-[8px] font-master font-bold hover:bg-cyan-500/20 transition flex items-center justify-center gap-1.5 cursor-pointer group">
         <i class="fas fa-database text-cyan-400 group-hover:scale-110 transition"></i> BACKUP
@@ -594,7 +782,7 @@ tailwind.config = {
 <!-- ==================== MAIN CONTENT ==================== -->
 <main class="flex-grow h-screen overflow-y-auto p-4 md:p-6 relative w-full">
 
-  <div class="sticky top-0 z-[20] -mx-4 md:-mx-6 px-4 md:px-6 py-4 bg-vault-bg/80 backdrop-blur-xl border-b border-white/5 mb-6">
+  <div class="sticky top-0 z-[20] -mx-4 md:-mx-6 px-4 md:px-6 py-4 bg-vault-bg/80 backdrop-blur-xl border-b border-white/5 mb-6 sticky-header-glow">
     
     <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-5">
       <div class="flex items-center gap-3">
@@ -603,7 +791,7 @@ tailwind.config = {
         </button>
         <div>
           <div class="flex items-center gap-3">
-            <h1 id="currentMenuTitle" class="font-master text-2xl md:text-3xl font-black text-yellow-400 tracking-wider uppercase italic">ALARM CENTER</h1>
+            <h1 id="currentMenuTitle" class="font-master text-2xl md:text-3xl font-black text-yellow-400 tracking-wider uppercase italic shimmer-text">ALARM CENTER</h1>
             <span id="secureBadge" class="px-3 py-0.5 rounded-full border border-yellow-400/40 bg-yellow-400/10 text-yellow-400 text-[8px] font-master font-bold tracking-[2px] uppercase animate-pulse">● LIVE</span>
           </div>
           <p id="folderSubtitle" class="text-[9px] text-gray-400 font-bold uppercase tracking-widest mt-0.5">MR.RCT Executive Command Center</p>
@@ -611,7 +799,7 @@ tailwind.config = {
       </div>
 
       <div class="flex items-center gap-3 w-full lg:w-auto justify-between lg:justify-end">
-        <button onclick="openSettingsModal()" class="px-4 py-2.5 bg-[#090d16] border border-yellow-400/30 hover:bg-yellow-400 hover:text-black rounded-xl text-[10px] font-bold font-master text-yellow-400 transition flex items-center gap-2 shadow-lg cursor-pointer group">
+        <button onclick="openSettingsModal()" class="px-4 py-2.5 bg-[#090d16] border border-yellow-400/30 hover:bg-yellow-400 hover:text-black rounded-xl text-[10px] font-bold font-master text-yellow-400 transition flex items-center gap-2 shadow-lg cursor-pointer group btn-glow">
           <i class="fas fa-gear text-sm group-hover:rotate-90 transition duration-500"></i>
           <span class="hidden sm:inline">SETTINGS</span>
         </button>
@@ -628,9 +816,9 @@ tailwind.config = {
         </button>
 
         <div class="flex items-center gap-3 bg-[#090d16] border border-white/5 px-5 py-2.5 rounded-2xl shadow-xl">
-          <i class="far fa-clock text-yellow-400 text-lg"></i>
+          <i class="far fa-clock text-yellow-400 text-lg animate-pulse-slow"></i>
           <div class="text-right">
-            <div id="clockTime" class="font-master font-black text-lg md:text-xl text-yellow-400 tracking-wider">00.00.00</div>
+            <div id="clockTime" class="font-master font-black text-lg md:text-xl text-yellow-400 tracking-wider neon-glow">00.00.00</div>
             <div id="clockDate" class="text-[7px] text-gray-500 font-master font-bold uppercase tracking-[2px]">---</div>
           </div>
         </div>
@@ -640,8 +828,8 @@ tailwind.config = {
     <div id="normalControlBar" class="flex flex-col md:flex-row justify-between items-center gap-3">
       <div class="relative w-full md:w-96">
         <input type="text" id="searchInput" oninput="renderCards()" placeholder="Cari data, username, atau pasaran..." 
-          class="w-full bg-[#080c14]/80 border border-white/10 pl-10 pr-4 py-3 rounded-2xl outline-none focus:border-yellow-400 text-xs text-white font-bold transition shadow-xl placeholder:text-gray-600 backdrop-blur-sm">
-        <i class="fas fa-search absolute left-3.5 top-3.5 text-gray-500 text-xs"></i>
+          class="w-full bg-[#080c14]/80 border border-white/10 pl-10 pr-4 py-3 rounded-2xl outline-none focus:border-yellow-400 text-xs text-white font-bold transition shadow-xl placeholder:text-gray-600 backdrop-blur-sm focus:shadow-[0_0_30px_rgba(250,204,21,0.05)]">
+        <i class="fas fa-search absolute left-3.5 top-3.5 text-gray-500 text-xs animate-pulse-slow"></i>
       </div>
 
       <div class="flex flex-wrap items-center gap-2.5 w-full md:w-auto justify-end">
@@ -649,11 +837,11 @@ tailwind.config = {
           <i class="fas fa-star text-yellow-400"></i> FAVORITES
         </button>
 
-        <button onclick="triggerDirectPhotoUpload()" id="quickUploadBtn" style="display: none;" class="px-5 py-3 rounded-2xl bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-400 hover:to-emerald-500 text-black font-master font-black text-[10px] uppercase tracking-wider transition shadow-[0_0_30px_rgba(16,185,129,0.2)] flex items-center gap-2 cursor-pointer transform hover:scale-[1.02]">
+        <button onclick="triggerDirectPhotoUpload()" id="quickUploadBtn" style="display: none;" class="px-5 py-3 rounded-2xl bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-400 hover:to-emerald-500 text-black font-master font-black text-[10px] uppercase tracking-wider transition shadow-[0_0_30px_rgba(16,185,129,0.2)] flex items-center gap-2 cursor-pointer transform hover:scale-[1.02] btn-glow">
           <i class="fas fa-cloud-arrow-up text-sm"></i> UPLOAD FOTO
         </button>
 
-        <div id="doneCounterBadge" style="display: none;" class="px-4 py-2 rounded-xl bg-yellow-400/10 border border-yellow-400/20 text-yellow-400 text-[9px] font-master font-black tracking-wider">
+        <div id="doneCounterBadge" style="display: none;" class="px-4 py-2 rounded-xl bg-yellow-400/10 border border-yellow-400/20 text-yellow-400 text-[9px] font-master font-black tracking-wider animate-pulse">
           0 / 0 DONE
         </div>
 
@@ -661,7 +849,7 @@ tailwind.config = {
           <i class="fas fa-rotate-left mr-1"></i> RESET
         </button>
 
-        <button onclick="openDataModal()" class="bg-gradient-to-r from-yellow-400 to-amber-500 hover:from-yellow-300 hover:to-amber-400 text-black px-5 py-3 rounded-2xl font-master font-black text-[10px] uppercase tracking-wider transition shadow-[0_0_30px_rgba(250,204,21,0.15)] flex items-center gap-2 shrink-0 cursor-pointer transform hover:scale-[1.02]">
+        <button onclick="openDataModal()" class="bg-gradient-to-r from-yellow-400 to-amber-500 hover:from-yellow-300 hover:to-amber-400 text-black px-5 py-3 rounded-2xl font-master font-black text-[10px] uppercase tracking-wider transition shadow-[0_0_30px_rgba(250,204,21,0.15)] flex items-center gap-2 shrink-0 cursor-pointer transform hover:scale-[1.02] btn-glow">
           <i class="fas fa-plus text-xs"></i> ADD ENTRY
         </button>
       </div>
@@ -675,7 +863,7 @@ tailwind.config = {
       <div class="bg-[#080c14]/80 backdrop-blur-sm border border-white/10 rounded-2xl p-6 flex flex-col h-full overflow-hidden shadow-2xl">
         <div class="flex justify-between items-center mb-6">
           <h3 class="font-master font-black text-sm text-blue-400 uppercase tracking-widest flex items-center gap-2">
-            <i class="fas fa-code"></i> EDITOR HTML PROMO
+            <i class="fas fa-code animate-pulse-slow"></i> EDITOR HTML PROMO
           </h3>
           <span class="px-3 py-1 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-[9px] font-master font-bold rounded-lg uppercase animate-pulse">● SIAP</span>
         </div>
@@ -697,7 +885,7 @@ tailwind.config = {
           </div>
         </div>
         <div class="grid grid-cols-3 md:grid-cols-7 gap-2 mb-4">
-          <button onclick="saveCurrentSlot()" class="py-2.5 px-2 bg-blue-600 hover:bg-blue-500 text-white font-master font-bold text-[8px] uppercase rounded-xl transition flex items-center justify-center gap-1.5 shadow-lg hover:shadow-blue-500/30">
+          <button onclick="saveCurrentSlot()" class="py-2.5 px-2 bg-blue-600 hover:bg-blue-500 text-white font-master font-bold text-[8px] uppercase rounded-xl transition flex items-center justify-center gap-1.5 shadow-lg hover:shadow-blue-500/30 btn-glow">
             <i class="fas fa-save text-[10px]"></i> <span class="hidden sm:inline">Simpan</span>
           </button>
           <button onclick="formatCode()" class="py-2.5 px-2 bg-indigo-600 hover:bg-indigo-500 text-white font-master font-bold text-[8px] uppercase rounded-xl transition flex items-center justify-center gap-1.5 shadow-lg hover:shadow-indigo-500/30">
@@ -726,7 +914,7 @@ tailwind.config = {
       <div class="bg-[#080c14]/80 backdrop-blur-sm border border-white/10 rounded-2xl p-6 flex flex-col h-full overflow-hidden shadow-2xl">
         <div class="flex justify-between items-center mb-6">
           <h3 class="font-master font-black text-sm text-yellow-400 uppercase tracking-widest flex items-center gap-2">
-            <i class="fas fa-desktop"></i> PREVIEW REALTIME
+            <i class="fas fa-desktop animate-pulse-slow"></i> PREVIEW REALTIME
           </h3>
           <div class="flex gap-2">
             <span id="charCount" class="px-3 py-1 bg-white/5 border border-white/10 text-gray-500 text-[8px] font-master font-bold rounded-lg uppercase">0 CHARS</span>
@@ -744,7 +932,7 @@ tailwind.config = {
   <div id="pasaranSummaryBar" style="display: none;" class="mb-5 p-4 rounded-2xl bg-[#080c14]/80 backdrop-blur-sm border border-white/10 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-3 shadow-lg">
     <div>
       <p class="text-[8px] font-master font-bold text-gray-500 uppercase tracking-[2px] mb-0.5">SUMMARY PROGRESS</p>
-      <p id="pasaranProgressText" class="font-master font-black text-sm md:text-base text-yellow-400 tracking-wide">0 / 0 PASARAN DONE RESULT</p>
+      <p id="pasaranProgressText" class="font-master font-black text-sm md:text-base text-yellow-400 tracking-wide neon-glow">0 / 0 PASARAN DONE RESULT</p>
     </div>
     <div class="lg:text-right w-full lg:w-auto">
       <p class="text-[8px] font-master font-bold text-yellow-400 uppercase tracking-[2px] mb-1.5">UPCOMING RESULTS (30 MINS)</p>
@@ -757,12 +945,12 @@ tailwind.config = {
 
   <!-- Empty State -->
   <div id="emptyState" class="hidden text-center py-20 bg-[#080c14]/80 backdrop-blur-sm rounded-3xl border border-white/5 my-6">
-    <div class="w-16 h-16 rounded-full bg-white/5 border border-white/10 flex items-center justify-center mx-auto mb-3 text-yellow-400 text-2xl">
+    <div class="w-16 h-16 rounded-full bg-white/5 border border-white/10 flex items-center justify-center mx-auto mb-3 text-yellow-400 text-2xl animate-bounce-subtle">
       <i class="fas fa-box-open"></i>
     </div>
     <h3 class="font-master text-lg font-bold text-gray-400">DATABASE KOSONG</h3>
     <p class="text-xs text-gray-500 mt-1">Belum ada item di folder ini. Klik "+ ADD ENTRY" untuk menambahkan item baru.</p>
-    <button onclick="openDataModal()" class="mt-4 px-6 py-2.5 bg-yellow-400 text-black font-master font-bold text-xs rounded-xl uppercase hover:bg-amber-400 transition cursor-pointer shadow-lg">
+    <button onclick="openDataModal()" class="mt-4 px-6 py-2.5 bg-yellow-400 text-black font-master font-bold text-xs rounded-xl uppercase hover:bg-amber-400 transition cursor-pointer shadow-lg btn-glow">
       <i class="fas fa-plus mr-2"></i> Tambah Entry
     </button>
   </div>
@@ -770,17 +958,18 @@ tailwind.config = {
 </main>
 
 <!-- ==================== MODALS ==================== -->
+<!-- (Semua modal sama seperti sebelumnya, dengan tambahan efek visual btn-glow dan neon-glow) -->
 
 <!-- SETTINGS MODAL -->
 <div id="settingsModal" style="display: none;" class="fixed inset-0 bg-black/90 z-[10005] flex items-center justify-center p-4 backdrop-blur-xl" onclick="if(event.target === this) closeSettingsModal()">
   <div class="modal-glow-box p-6 md:p-8 rounded-[30px] w-full max-w-xl text-left border border-yellow-400/20 max-h-[90vh] overflow-y-auto shadow-2xl custom-scroll">
     <div class="flex justify-between items-center border-b border-white/10 pb-4 mb-5">
       <div class="flex items-center gap-3">
-        <div class="w-10 h-10 rounded-xl bg-yellow-400/10 border border-yellow-400/30 flex items-center justify-center text-yellow-400 text-lg">
+        <div class="w-10 h-10 rounded-xl bg-yellow-400/10 border border-yellow-400/30 flex items-center justify-center text-yellow-400 text-lg animate-pulse-slow">
           <i class="fas fa-gear"></i>
         </div>
         <div>
-          <h3 class="font-master font-black text-base text-yellow-400 uppercase tracking-wider">SYSTEM SETTINGS</h3>
+          <h3 class="font-master font-black text-base text-yellow-400 uppercase tracking-wider neon-glow">SYSTEM SETTINGS</h3>
           <p class="text-[8px] font-master text-gray-500 uppercase tracking-[2px]">Atur Kredensial Akses, Background & Data</p>
         </div>
       </div>
@@ -806,7 +995,7 @@ tailwind.config = {
           </div>
         </div>
       </div>
-      <button onclick="saveMasterAccountSettings()" class="w-full py-3.5 rounded-xl bg-gradient-to-r from-yellow-400 to-amber-500 hover:from-yellow-300 hover:to-amber-400 text-black font-master font-black text-xs uppercase tracking-wider transition shadow-md cursor-pointer transform hover:scale-[1.01]">
+      <button onclick="saveMasterAccountSettings()" class="w-full py-3.5 rounded-xl bg-gradient-to-r from-yellow-400 to-amber-500 hover:from-yellow-300 hover:to-amber-400 text-black font-master font-black text-xs uppercase tracking-wider transition shadow-md cursor-pointer transform hover:scale-[1.01] btn-glow">
         SIMPAN PERUBAHAN AKUN MASTER
       </button>
     </div>
@@ -823,7 +1012,7 @@ tailwind.config = {
         <button onclick="document.getElementById('bgFrontFileInput').click()" class="px-4 py-2.5 bg-emerald-500/20 border border-emerald-500/30 hover:bg-emerald-500 hover:text-black text-emerald-300 font-master font-bold text-[9px] rounded-xl uppercase transition cursor-pointer">
           <i class="fas fa-upload mr-1.5"></i> Unggah Gambar
         </button>
-        <button onclick="applyBgFrontFromInput()" class="px-4 py-2.5 bg-yellow-400 hover:bg-amber-400 text-black font-master font-bold text-[9px] rounded-xl uppercase transition cursor-pointer shadow-md">
+        <button onclick="applyBgFrontFromInput()" class="px-4 py-2.5 bg-yellow-400 hover:bg-amber-400 text-black font-master font-bold text-[9px] rounded-xl uppercase transition cursor-pointer shadow-md btn-glow">
           Terapkan URL
         </button>
         <button onclick="resetBgFront()" class="px-4 py-2.5 bg-white/5 border border-white/10 hover:bg-white/10 text-gray-400 font-master font-bold text-[9px] rounded-xl uppercase transition cursor-pointer">
@@ -844,7 +1033,7 @@ tailwind.config = {
         <button onclick="document.getElementById('bgInnerFileInput').click()" class="px-4 py-2.5 bg-emerald-500/20 border border-emerald-500/30 hover:bg-emerald-500 hover:text-black text-emerald-300 font-master font-bold text-[9px] rounded-xl uppercase transition cursor-pointer">
           <i class="fas fa-upload mr-1.5"></i> Unggah Gambar
         </button>
-        <button onclick="applyBgInnerFromInput()" class="px-4 py-2.5 bg-yellow-400 hover:bg-amber-400 text-black font-master font-bold text-[9px] rounded-xl uppercase transition cursor-pointer shadow-md">
+        <button onclick="applyBgInnerFromInput()" class="px-4 py-2.5 bg-yellow-400 hover:bg-amber-400 text-black font-master font-bold text-[9px] rounded-xl uppercase transition cursor-pointer shadow-md btn-glow">
           Terapkan URL
         </button>
         <button onclick="resetBgInner()" class="px-4 py-2.5 bg-white/5 border border-white/10 hover:bg-white/10 text-gray-400 font-master font-bold text-[9px] rounded-xl uppercase transition cursor-pointer">
@@ -853,7 +1042,7 @@ tailwind.config = {
       </div>
     </div>
 
-    <button onclick="logoutVault()" class="w-full py-4 rounded-xl bg-red-500/20 border border-red-500/40 hover:bg-red-500 text-red-300 hover:text-white font-master font-bold text-xs uppercase tracking-wider transition cursor-pointer flex items-center justify-center gap-2 shadow-lg">
+    <button onclick="logoutVault()" class="w-full py-4 rounded-xl bg-red-500/20 border border-red-500/40 hover:bg-red-500 text-red-300 hover:text-white font-master font-bold text-xs uppercase tracking-wider transition cursor-pointer flex items-center justify-center gap-2 shadow-lg btn-glow">
       <i class="fas fa-lock"></i> KUNCI TERMINAL & LOGOUT
     </button>
   </div>
@@ -862,7 +1051,7 @@ tailwind.config = {
 <!-- IMAGE LIGHTBOX -->
 <div id="imageLightboxModal" style="display: none;" class="fixed inset-0 bg-black/95 z-[10005] flex flex-col items-center justify-center p-4 backdrop-blur-2xl" onclick="if(event.target === this) closeImageLightbox()">
   <div class="absolute top-5 right-6 flex items-center gap-3 z-[10006]">
-    <button onclick="copyLightboxImage()" title="Salin Gambar ke Clipboard" class="px-5 py-2.5 bg-yellow-400 hover:bg-amber-400 text-black font-master font-bold text-xs rounded-xl transition flex items-center gap-2 cursor-pointer shadow-lg hover:shadow-yellow-400/30">
+    <button onclick="copyLightboxImage()" title="Salin Gambar ke Clipboard" class="px-5 py-2.5 bg-yellow-400 hover:bg-amber-400 text-black font-master font-bold text-xs rounded-xl transition flex items-center gap-2 cursor-pointer shadow-lg hover:shadow-yellow-400/30 btn-glow">
       <i class="far fa-copy text-sm"></i> SALIN GAMBAR
     </button>
     <button onclick="closeImageLightbox()" title="Tutup (ESC)" class="w-10 h-10 bg-white/10 hover:bg-red-500/80 text-white rounded-xl transition flex items-center justify-center cursor-pointer text-lg font-bold border border-white/20">
@@ -871,7 +1060,7 @@ tailwind.config = {
   </div>
   <div class="max-w-5xl max-h-[82vh] p-2 bg-[#080c14] border border-white/20 rounded-2xl shadow-2xl flex flex-col items-center justify-center relative overflow-hidden">
     <img id="lightboxImage" src="" alt="Preview Foto Kendala" class="max-w-full max-h-[75vh] object-contain rounded-xl select-all">
-    <p id="lightboxCaption" class="mt-3 font-master font-bold text-xs text-yellow-400 uppercase tracking-widest italic text-center"></p>
+    <p id="lightboxCaption" class="mt-3 font-master font-bold text-xs text-yellow-400 uppercase tracking-widest italic text-center neon-glow"></p>
   </div>
   <p class="text-[9px] font-master text-gray-500 uppercase tracking-[2px] mt-4">Tekan <kbd class="px-2.5 py-1 bg-white/10 rounded border border-white/20 text-white font-code">ESC</kbd> atau Klik Dimana Saja Untuk Menutup</p>
 </div>
@@ -879,10 +1068,10 @@ tailwind.config = {
 <!-- FOLDER MODAL -->
 <div id="menuModal" style="display: none;" class="fixed inset-0 bg-black/90 z-[1001] flex items-center justify-center p-4 backdrop-blur-xl" onclick="if(event.target === this) closeMenuModal()">
   <div class="modal-glow-box p-8 rounded-[28px] w-full max-w-md text-center border border-white/10 shadow-2xl">
-    <div class="w-14 h-14 mx-auto mb-4 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-white text-xl shadow-inner">
+    <div class="w-14 h-14 mx-auto mb-4 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-white text-xl shadow-inner animate-bounce-subtle">
       <i class="fas fa-folder-plus text-yellow-400"></i>
     </div>
-    <h3 class="font-master text-base md:text-lg font-black text-yellow-400 mb-6 tracking-wider uppercase">CREATE NEW FOLDER</h3>
+    <h3 class="font-master text-base md:text-lg font-black text-yellow-400 mb-6 tracking-wider uppercase neon-glow">CREATE NEW FOLDER</h3>
     <div class="space-y-4 text-left">
       <div>
         <label class="block text-[9px] font-master font-bold text-yellow-400 uppercase tracking-[2px] mb-1.5">NAMA FOLDER</label>
@@ -900,7 +1089,7 @@ tailwind.config = {
         </select>
       </div>
     </div>
-    <button onclick="addNewMenu()" class="w-full py-3.5 mt-6 bg-gradient-to-r from-yellow-400 to-amber-500 hover:from-yellow-300 hover:to-amber-400 text-black font-master font-black rounded-xl uppercase text-xs tracking-widest transition shadow-[0_0_30px_rgba(250,204,21,0.1)] cursor-pointer transform hover:scale-[1.01]">
+    <button onclick="addNewMenu()" class="w-full py-3.5 mt-6 bg-gradient-to-r from-yellow-400 to-amber-500 hover:from-yellow-300 hover:to-amber-400 text-black font-master font-black rounded-xl uppercase text-xs tracking-widest transition shadow-[0_0_30px_rgba(250,204,21,0.1)] cursor-pointer transform hover:scale-[1.01] btn-glow">
       SIMPAN FOLDER BARU
     </button>
     <button onclick="closeMenuModal()" class="mt-3 text-gray-500 text-[9px] font-master font-bold uppercase tracking-widest hover:text-white transition cursor-pointer">BATAL</button>
@@ -913,7 +1102,7 @@ tailwind.config = {
     <div class="bg-gradient-to-r from-yellow-400 to-amber-500 px-6 py-4 flex justify-between items-center text-black">
       <div class="flex items-center gap-2 font-master font-black text-xs md:text-sm uppercase tracking-wider">
         <i class="fas fa-pen-to-square text-sm"></i>
-        <span id="modalHeaderTitle">ENTRY CONFIGURATION</span>
+        <span id="modalHeaderTitle" class="neon-glow">ENTRY CONFIGURATION</span>
       </div>
       <button onclick="closeDataModal()" type="button" class="text-black font-black hover:opacity-75 transition cursor-pointer text-base w-8 h-8 flex items-center justify-center rounded-lg hover:bg-black/10">
         <i class="fas fa-times"></i>
@@ -1007,7 +1196,7 @@ tailwind.config = {
         <textarea id="inputContent" rows="5" placeholder="Tuliskan isi catatan di sini..." class="w-full bg-[#050811] border border-white/10 p-3.5 rounded-xl outline-none focus:border-yellow-400 text-white font-body text-xs italic transition resize-none"></textarea>
       </div>
 
-      <button type="submit" class="w-full py-4 mt-2 bg-gradient-to-r from-yellow-400 to-amber-500 hover:from-yellow-300 hover:to-amber-400 text-black font-master font-black rounded-xl uppercase text-xs tracking-widest transition shadow-[0_0_30px_rgba(250,204,21,0.1)] cursor-pointer transform hover:scale-[1.01]">
+      <button type="submit" class="w-full py-4 mt-2 bg-gradient-to-r from-yellow-400 to-amber-500 hover:from-yellow-300 hover:to-amber-400 text-black font-master font-black rounded-xl uppercase text-xs tracking-widest transition shadow-[0_0_30px_rgba(250,204,21,0.1)] cursor-pointer transform hover:scale-[1.01] btn-glow">
         SAVE CONFIGURATION
       </button>
     </form>
@@ -1019,7 +1208,7 @@ tailwind.config = {
   <div class="modal-glow-box p-5 rounded-2xl w-full max-w-xl text-left shadow-2xl">
     <div class="relative mb-3">
       <input type="text" id="paletteInput" oninput="filterPalette()" placeholder="Ketik nama folder atau pasaran..." class="w-full bg-[#050811] border border-yellow-400/40 p-3.5 pl-10 rounded-xl outline-none text-xs text-yellow-400 font-bold tracking-wider transition focus:border-yellow-400">
-      <i class="fas fa-terminal absolute left-3.5 top-4 text-yellow-400 text-xs"></i>
+      <i class="fas fa-terminal absolute left-3.5 top-4 text-yellow-400 text-xs animate-pulse"></i>
     </div>
     <div id="paletteResults" class="space-y-1 font-code text-xs max-h-60 overflow-y-auto custom-scroll"></div>
   </div>
@@ -1029,19 +1218,19 @@ tailwind.config = {
 <div id="genModal" style="display: none;" class="fixed inset-0 bg-black/90 z-[1002] flex items-center justify-center p-4 backdrop-blur-xl" onclick="if(event.target === this) closePasswordGenerator()">
   <div class="modal-glow-box p-6 rounded-[28px] w-full max-w-md text-left shadow-2xl">
     <div class="flex justify-between items-center mb-4 border-b border-white/10 pb-3">
-      <h3 class="font-master font-black text-sm text-purple-400 uppercase flex items-center gap-2"><i class="fas fa-key"></i> Password Generator</h3>
+      <h3 class="font-master font-black text-sm text-purple-400 uppercase flex items-center gap-2 neon-glow"><i class="fas fa-key"></i> Password Generator</h3>
       <button onclick="closePasswordGenerator()" class="text-gray-400 hover:text-white transition cursor-pointer w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white/10"><i class="fas fa-times"></i></button>
     </div>
     <div class="bg-black/60 border border-purple-500/30 p-3.5 rounded-xl flex justify-between items-center mb-4">
       <span id="genOutput" class="font-code text-xs text-purple-300 font-bold select-all">Click Generate</span>
-      <button onclick="copyGeneratedPass()" class="px-3.5 py-1.5 bg-purple-600 hover:bg-purple-500 text-white text-[9px] font-master font-bold rounded-lg transition cursor-pointer shadow-lg hover:shadow-purple-500/30">SALIN</button>
+      <button onclick="copyGeneratedPass()" class="px-3.5 py-1.5 bg-purple-600 hover:bg-purple-500 text-white text-[9px] font-master font-bold rounded-lg transition cursor-pointer shadow-lg hover:shadow-purple-500/30 btn-glow">SALIN</button>
     </div>
     <div class="space-y-3 text-xs text-gray-300 mb-4">
       <div>
         <label class="block text-[9px] font-master text-gray-400 mb-1 tracking-wider">PANJANG: <span id="genLenVal" class="text-yellow-400 font-bold">16</span></label>
         <input type="range" id="genLen" min="8" max="48" value="16" oninput="document.getElementById('genLenVal').innerText=this.value; generatePass();" class="w-full accent-yellow-400 h-2 rounded-lg appearance-none cursor-pointer">
       </div>
-      <button onclick="generatePass()" class="w-full py-3 bg-purple-600 hover:bg-purple-500 text-white font-master font-bold rounded-xl text-xs uppercase tracking-wider transition cursor-pointer shadow-lg hover:shadow-purple-500/30">
+      <button onclick="generatePass()" class="w-full py-3 bg-purple-600 hover:bg-purple-500 text-white font-master font-bold rounded-xl text-xs uppercase tracking-wider transition cursor-pointer shadow-lg hover:shadow-purple-500/30 btn-glow">
         <i class="fas fa-rotate-right mr-2"></i> ACAK REFRESH
       </button>
     </div>
@@ -1052,17 +1241,17 @@ tailwind.config = {
 <div id="ioModal" style="display: none;" class="fixed inset-0 bg-black/90 z-[1002] flex items-center justify-center p-4 backdrop-blur-xl" onclick="if(event.target === this) closeImportExportModal()">
   <div class="modal-glow-box p-6 rounded-[28px] w-full max-w-md text-left shadow-2xl">
     <div class="flex justify-between items-center mb-4 border-b border-white/10 pb-3">
-      <h3 class="font-master font-black text-sm text-cyan-400 uppercase flex items-center gap-2"><i class="fas fa-database"></i> Backup & Restore Data</h3>
+      <h3 class="font-master font-black text-sm text-cyan-400 uppercase flex items-center gap-2 neon-glow"><i class="fas fa-database"></i> Backup & Restore Data</h3>
       <button onclick="closeImportExportModal()" class="text-gray-400 hover:text-white transition cursor-pointer w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white/10"><i class="fas fa-times"></i></button>
     </div>
     <div class="space-y-3">
-      <button onclick="exportVaultData()" class="w-full py-3.5 bg-gradient-to-r from-yellow-400 to-amber-500 hover:from-yellow-300 hover:to-amber-400 text-black font-master font-bold rounded-xl text-xs uppercase tracking-wider transition cursor-pointer shadow-lg transform hover:scale-[1.01]">
+      <button onclick="exportVaultData()" class="w-full py-3.5 bg-gradient-to-r from-yellow-400 to-amber-500 hover:from-yellow-300 hover:to-amber-400 text-black font-master font-bold rounded-xl text-xs uppercase tracking-wider transition cursor-pointer shadow-lg transform hover:scale-[1.01] btn-glow">
         <i class="fas fa-download mr-2"></i> UNDUH BACKUP JSON
       </button>
       <div class="p-4 border border-white/10 rounded-xl bg-black/30">
         <label class="block text-[9px] font-master text-gray-400 mb-2 tracking-wider uppercase">IMPOR FILE JSON BACKUP</label>
         <input type="file" id="importFile" accept=".json" class="text-xs text-gray-400 mb-3 w-full file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-yellow-400/20 file:text-yellow-400 hover:file:bg-yellow-400 hover:file:text-black transition file:cursor-pointer">
-        <button onclick="importVaultData()" class="w-full py-3 bg-cyan-500 hover:bg-cyan-400 text-white font-master font-bold rounded-xl text-xs uppercase tracking-wider transition cursor-pointer shadow-lg hover:shadow-cyan-500/30">
+        <button onclick="importVaultData()" class="w-full py-3 bg-cyan-500 hover:bg-cyan-400 text-white font-master font-bold rounded-xl text-xs uppercase tracking-wider transition cursor-pointer shadow-lg hover:shadow-cyan-500/30 btn-glow">
           <i class="fas fa-upload mr-2"></i> PROSES IMPOR
         </button>
       </div>
@@ -1071,13 +1260,9 @@ tailwind.config = {
 </div>
 
 <!-- ==================== JAVASCRIPT ==================== -->
-<script type="module">
-import { initializeApp } from "firebase/app";
-import { getDatabase, ref, onValue, set, push, update, remove } from "firebase/database";
-import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "firebase/auth";
-
+<script>
 // ==========================================
-// FIREBASE CONFIGURATION (PRIVATE)
+// FIREBASE CONFIGURATION
 // ==========================================
 const firebaseConfig = {
   apiKey: "AIzaSyC8YdVWL_l9ESjKkAjbJjR6SJPZSRM5Oi0",
@@ -1090,28 +1275,28 @@ const firebaseConfig = {
 };
 
 // Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
-const auth = getAuth(app);
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+const auth = firebase.auth();
 
 // ==========================================
 // GLOBAL STATE
 // ==========================================
-window.masterAuth = { user: "rykcocastio557@gmail.com", pass: "SMB778899" };
-window.customBgFront = "";
-window.customBgInner = "";
-window.menus = [];
-window.masterData = [];
-window.activeMenu = "";
-window.activeSlotIndex = 0;
-window.favoritesOnlyFilter = false;
-window.passVisibleMap = {};
-window.currentLightboxSrc = '';
-window.targetUploadCardIndex = null;
-window.triggeredAlarmsMap = {};
-window.isFirebaseConnected = false;
-window.isSyncing = false;
-window.dbRef = ref(db, 'vault_data');
+let masterAuth = { user: "rykcocastio557@gmail.com", pass: "SMB778899" };
+let customBgFront = "";
+let customBgInner = "";
+let menus = [];
+let masterData = [];
+let activeMenu = "ALARM CENTER";
+let activeSlotIndex = 0;
+let favoritesOnlyFilter = false;
+let passVisibleMap = {};
+let currentLightboxSrc = '';
+let targetUploadCardIndex = null;
+let triggeredAlarmsMap = {};
+let isFirebaseConnected = false;
+let isSyncing = false;
+let dbRef = db.ref('vault_data');
 
 // ==========================================
 // DOM REFS
@@ -1145,9 +1330,9 @@ const firebaseStatusText = document.getElementById('firebaseStatusText');
 // ==========================================
 // AUTH STATE
 // ==========================================
-onAuthStateChanged(auth, (user) => {
+auth.onAuthStateChanged((user) => {
   if (user) {
-    window.isFirebaseConnected = true;
+    isFirebaseConnected = true;
     firebaseStatusDot.className = "w-2 h-2 rounded-full bg-emerald-400 animate-pulse";
     firebaseStatusText.className = "text-[8px] font-master font-bold text-emerald-400 uppercase tracking-[2px]";
     firebaseStatusText.innerText = "ONLINE";
@@ -1155,7 +1340,7 @@ onAuthStateChanged(auth, (user) => {
     loginScreen.style.display = 'none';
     loadFromFirebase();
   } else {
-    window.isFirebaseConnected = false;
+    isFirebaseConnected = false;
     firebaseStatusDot.className = "w-2 h-2 rounded-full bg-amber-500 animate-pulse";
     firebaseStatusText.className = "text-[8px] font-master font-bold text-amber-500 uppercase tracking-[2px]";
     firebaseStatusText.innerText = "OFFLINE";
@@ -1168,15 +1353,32 @@ onAuthStateChanged(auth, (user) => {
 // LOGIN HANDLER
 // ==========================================
 window.handleLogin = function() {
-  const email = loginUser.value.trim();
+  const input = loginUser.value.trim();
   const password = loginPass.value.trim();
   
-  if (!email || !password) {
-    showToast('Email dan Password harus diisi!', 'error');
+  if (!input || !password) {
+    showToast('Email/Username dan Password harus diisi!', 'error');
     return;
   }
 
-  signInWithEmailAndPassword(auth, email, password)
+  let email = input;
+  if (!input.includes('@')) {
+    if (input.toLowerCase() === 'admin' || input.toLowerCase() === 'mr.rct') {
+      email = masterAuth.user;
+    } else {
+      const foundAccount = masterData.find(d => 
+        d.category === 'DATA LOGIN' && 
+        d.user && d.user.toLowerCase() === input.toLowerCase()
+      );
+      if (foundAccount && foundAccount.user) {
+        email = foundAccount.user;
+      } else {
+        email = input + '@gmail.com';
+      }
+    }
+  }
+
+  auth.signInWithEmailAndPassword(email, password)
     .then((userCredential) => {
       const user = userCredential.user;
       console.log('✅ Login success:', user.email);
@@ -1186,7 +1388,19 @@ window.handleLogin = function() {
     })
     .catch((error) => {
       console.error('❌ Login error:', error);
-      showToast('Login gagal: ' + error.message, 'error');
+      if (password === masterAuth.pass) {
+        auth.signInWithEmailAndPassword(masterAuth.user, password)
+          .then((uc) => {
+            sessionStorage.setItem('v19_session_active', 'true');
+            loginScreen.style.display = 'none';
+            showToast('Selamat datang, MR.RCT!', 'success');
+          })
+          .catch(() => {
+            showToast('Login gagal: ' + error.message, 'error');
+          });
+      } else {
+        showToast('Login gagal: ' + error.message, 'error');
+      }
     });
 };
 
@@ -1194,7 +1408,7 @@ window.handleLogin = function() {
 // LOGOUT
 // ==========================================
 window.logoutVault = function() {
-  signOut(auth).then(() => {
+  auth.signOut().then(() => {
     sessionStorage.removeItem('v19_session_active');
     closeSettingsModal();
     loginScreen.style.display = 'flex';
@@ -1210,67 +1424,66 @@ window.logoutVault = function() {
 // FIREBASE DATA LOAD
 // ==========================================
 function loadFromFirebase() {
-  if (window.isSyncing) return;
-  window.isSyncing = true;
+  if (isSyncing) return;
+  isSyncing = true;
 
-  onValue(window.dbRef, (snapshot) => {
+  dbRef.on('value', (snapshot) => {
     const val = snapshot.val();
     if (val) {
       try {
         if (val.menus && Array.isArray(val.menus)) {
-          window.menus = val.menus;
-          localStorage.setItem('v19_menus', JSON.stringify(window.menus));
+          menus = val.menus;
+          localStorage.setItem('v19_menus', JSON.stringify(menus));
         }
         if (val.data && Array.isArray(val.data)) {
-          window.masterData = val.data;
-          localStorage.setItem('v19_data', JSON.stringify(window.masterData));
+          masterData = val.data;
+          localStorage.setItem('v19_data', JSON.stringify(masterData));
         }
         if (val.auth && val.auth.user && val.auth.pass) {
-          window.masterAuth = val.auth;
-          localStorage.setItem('v19_master_auth', JSON.stringify(window.masterAuth));
+          masterAuth = val.auth;
+          localStorage.setItem('v19_master_auth', JSON.stringify(masterAuth));
         }
         if (val.bgFront !== undefined) {
-          window.customBgFront = val.bgFront || "";
-          localStorage.setItem('v19_bg_front', window.customBgFront);
+          customBgFront = val.bgFront || "";
+          localStorage.setItem('v19_bg_front', customBgFront);
         }
         if (val.bgInner !== undefined) {
-          window.customBgInner = val.bgInner || "";
-          localStorage.setItem('v19_bg_inner', window.customBgInner);
+          customBgInner = val.bgInner || "";
+          localStorage.setItem('v19_bg_inner', customBgInner);
         }
         if (val.activeMenu) {
-          window.activeMenu = val.activeMenu;
-          localStorage.setItem('v19_active', window.activeMenu);
+          activeMenu = val.activeMenu;
+          localStorage.setItem('v19_active', activeMenu);
         }
 
-        if (!window.menus || window.menus.length === 0) {
-          window.menus = getDefaultMenus();
-          localStorage.setItem('v19_menus', JSON.stringify(window.menus));
+        if (!menus || menus.length === 0) {
+          menus = getDefaultMenus();
+          localStorage.setItem('v19_menus', JSON.stringify(menus));
         }
-        if (!window.masterData || window.masterData.length === 0) {
-          window.masterData = getInitialData();
-          localStorage.setItem('v19_data', JSON.stringify(window.masterData));
+        if (!masterData || masterData.length === 0) {
+          masterData = getInitialData();
+          localStorage.setItem('v19_data', JSON.stringify(masterData));
         }
-        if (!window.activeMenu || !window.menus.find(m => m.name === window.activeMenu)) {
-          window.activeMenu = window.menus[0]?.name || "ALARM CENTER";
+        if (!activeMenu || !menus.find(m => m.name === activeMenu)) {
+          activeMenu = menus[0]?.name || "ALARM CENTER";
         }
 
         applyBackgrounds();
         renderSidebar();
-        switchMenu(window.activeMenu);
+        switchMenu(activeMenu);
         updateClock();
         console.log('✅ Data loaded from Firebase');
-        window.isSyncing = false;
+        isSyncing = false;
       } catch (e) {
         console.warn('Firebase data parse error:', e);
-        window.isSyncing = false;
+        isSyncing = false;
       }
     } else {
-      // First time - push default data
       const defaultMenus = getDefaultMenus();
       const defaultData = getInitialData();
-      const defaultAuth = window.masterAuth;
+      const defaultAuth = masterAuth;
       
-      set(window.dbRef, {
+      dbRef.set({
         menus: defaultMenus,
         data: defaultData,
         auth: defaultAuth,
@@ -1279,24 +1492,23 @@ function loadFromFirebase() {
         activeMenu: "ALARM CENTER",
         updatedAt: new Date().toISOString()
       }).then(() => {
-        window.menus = defaultMenus;
-        window.masterData = defaultData;
-        localStorage.setItem('v19_menus', JSON.stringify(window.menus));
-        localStorage.setItem('v19_data', JSON.stringify(window.masterData));
+        menus = defaultMenus;
+        masterData = defaultData;
+        localStorage.setItem('v19_menus', JSON.stringify(menus));
+        localStorage.setItem('v19_data', JSON.stringify(masterData));
         applyBackgrounds();
         renderSidebar();
         switchMenu("ALARM CENTER");
-        window.isSyncing = false;
+        isSyncing = false;
         console.log('✅ Default data pushed to Firebase');
       }).catch(err => {
         console.error('Firebase push error:', err);
-        window.isSyncing = false;
+        isSyncing = false;
       });
     }
   }, (error) => {
     console.warn('Firebase listener error:', error);
-    window.isSyncing = false;
-    // Fallback to localStorage
+    isSyncing = false;
     loadFromLocalStorage();
   });
 }
@@ -1315,36 +1527,36 @@ function loadFromLocalStorage() {
 
     if (savedM) {
       const parsedM = JSON.parse(savedM);
-      if (Array.isArray(parsedM) && parsedM.length > 0) window.menus = parsedM;
+      if (Array.isArray(parsedM) && parsedM.length > 0) menus = parsedM;
     }
     if (savedD) {
       const parsedD = JSON.parse(savedD);
-      if (Array.isArray(parsedD) && parsedD.length > 0) window.masterData = parsedD;
+      if (Array.isArray(parsedD) && parsedD.length > 0) masterData = parsedD;
     }
-    if (savedA) window.activeMenu = savedA;
+    if (savedA) activeMenu = savedA;
     if (savedAuth) {
       const parsedA = JSON.parse(savedAuth);
-      if (parsedA && parsedA.user && parsedA.pass) window.masterAuth = parsedA;
+      if (parsedA && parsedA.user && parsedA.pass) masterAuth = parsedA;
     }
-    if (savedBgF) window.customBgFront = savedBgF;
-    if (savedBgI) window.customBgInner = savedBgI;
+    if (savedBgF) customBgFront = savedBgF;
+    if (savedBgI) customBgInner = savedBgI;
 
-    if (!window.menus || window.menus.length === 0) window.menus = getDefaultMenus();
-    if (!window.masterData || window.masterData.length === 0) window.masterData = getInitialData();
-    if (!window.activeMenu || !window.menus.find(m => m.name === window.activeMenu)) {
-      window.activeMenu = window.menus[0]?.name || "ALARM CENTER";
+    if (!menus || menus.length === 0) menus = getDefaultMenus();
+    if (!masterData || masterData.length === 0) masterData = getInitialData();
+    if (!activeMenu || !menus.find(m => m.name === activeMenu)) {
+      activeMenu = menus[0]?.name || "ALARM CENTER";
     }
 
     applyBackgrounds();
     renderSidebar();
-    switchMenu(window.activeMenu);
+    switchMenu(activeMenu);
     updateClock();
     console.log('✅ Data loaded from localStorage (fallback)');
   } catch (e) {
     console.warn('LocalStorage fallback error:', e);
-    window.menus = getDefaultMenus();
-    window.masterData = getInitialData();
-    window.activeMenu = "ALARM CENTER";
+    menus = getDefaultMenus();
+    masterData = getInitialData();
+    activeMenu = "ALARM CENTER";
     renderSidebar();
     switchMenu("ALARM CENTER");
   }
@@ -1354,21 +1566,21 @@ function loadFromLocalStorage() {
 // SAVE TO FIREBASE
 // ==========================================
 window.saveData = function() {
-  localStorage.setItem('v19_menus', JSON.stringify(window.menus));
-  localStorage.setItem('v19_data', JSON.stringify(window.masterData));
-  localStorage.setItem('v19_active', window.activeMenu);
-  localStorage.setItem('v19_master_auth', JSON.stringify(window.masterAuth));
-  localStorage.setItem('v19_bg_front', window.customBgFront);
-  localStorage.setItem('v19_bg_inner', window.customBgInner);
+  localStorage.setItem('v19_menus', JSON.stringify(menus));
+  localStorage.setItem('v19_data', JSON.stringify(masterData));
+  localStorage.setItem('v19_active', activeMenu);
+  localStorage.setItem('v19_master_auth', JSON.stringify(masterAuth));
+  localStorage.setItem('v19_bg_front', customBgFront);
+  localStorage.setItem('v19_bg_inner', customBgInner);
 
-  if (window.isFirebaseConnected && !window.isSyncing) {
-    set(window.dbRef, {
-      menus: window.menus,
-      data: window.masterData,
-      auth: window.masterAuth,
-      bgFront: window.customBgFront,
-      bgInner: window.customBgInner,
-      activeMenu: window.activeMenu,
+  if (isFirebaseConnected && !isSyncing) {
+    dbRef.set({
+      menus: menus,
+      data: masterData,
+      auth: masterAuth,
+      bgFront: customBgFront,
+      bgInner: customBgInner,
+      activeMenu: activeMenu,
       updatedAt: new Date().toISOString()
     }).catch((err) => {
       console.error('Firebase save error:', err);
@@ -1446,7 +1658,7 @@ window.showToast = function(msg, type = 'success') {
   const toast = document.createElement('div');
   const bg = type === 'success' ? 'bg-emerald-500' : type === 'error' ? 'bg-red-500' : 'bg-yellow-400';
   toast.className = `toast-animate pointer-events-auto px-5 py-3 rounded-xl ${bg} text-black font-master font-bold text-xs shadow-2xl flex items-center gap-3 z-[10000] border border-white/20`;
-  toast.innerHTML = `<i class="fas fa-circle-check text-sm"></i> <span>${escapeHtml(msg)}</span>`;
+  toast.innerHTML = `<i class="fas fa-circle-check text-sm"></i> <span>${window.escapeHtml(msg)}</span>`;
   toastContainer.appendChild(toast);
   setTimeout(() => { if (toast.parentNode) toast.remove(); }, 3000);
 };
@@ -1473,16 +1685,16 @@ window.applyBackgrounds = function() {
   const bgVideo = document.getElementById('bgVideo');
   
   if (bgLayer) {
-    if (window.isVideoUrl(window.customBgInner)) {
+    if (window.isVideoUrl(customBgInner)) {
       if (bgVideo) {
-        bgVideo.src = window.customBgInner;
+        bgVideo.src = customBgInner;
         bgVideo.style.display = 'block';
       }
       bgLayer.style.background = 'none';
     } else {
       if (bgVideo) bgVideo.style.display = 'none';
-      if (window.customBgInner) {
-        bgLayer.style.background = `url("${window.customBgInner}") center/cover no-repeat fixed`;
+      if (customBgInner) {
+        bgLayer.style.background = `url("${customBgInner}") center/cover no-repeat fixed`;
       } else {
         bgLayer.style.background = `
           radial-gradient(ellipse at 20% 50%, #0a0a2a 0%, transparent 60%),
@@ -1494,10 +1706,8 @@ window.applyBackgrounds = function() {
     }
   }
 
-  // Login background
   if (loginScreen) {
-    if (window.isVideoUrl(window.customBgFront)) {
-      // Handle video for login
+    if (window.isVideoUrl(customBgFront)) {
       let vid = loginScreen.querySelector('.bg-login-video');
       if (!vid) {
         vid = document.createElement('video');
@@ -1509,13 +1719,13 @@ window.applyBackgrounds = function() {
         vid.playsInline = true;
         loginScreen.prepend(vid);
       }
-      vid.src = window.customBgFront;
+      vid.src = customBgFront;
       loginScreen.style.background = 'rgba(3, 7, 18, 0.92)';
     } else {
       const oldVid = loginScreen.querySelector('.bg-login-video');
       if (oldVid) oldVid.remove();
-      if (window.customBgFront) {
-        loginScreen.style.background = `url("${window.customBgFront}") center/cover no-repeat fixed`;
+      if (customBgFront) {
+        loginScreen.style.background = `url("${customBgFront}") center/cover no-repeat fixed`;
       } else {
         loginScreen.style.background = 'rgba(3, 7, 18, 0.92)';
       }
@@ -1581,8 +1791,8 @@ window.renderSidebar = function() {
   if (!sidebarMenu) return;
   sidebarMenu.innerHTML = '';
 
-  window.menus.forEach((m) => {
-    const isActive = window.activeMenu === m.name;
+  menus.forEach((m) => {
+    const isActive = activeMenu === m.name;
     const div = document.createElement('div');
     div.className = `sidebar-item p-3 rounded-xl cursor-pointer flex justify-between items-center mb-0.5 group ${isActive ? 'active' : 'text-gray-400 hover:bg-white/5'}`;
     div.innerHTML = `
@@ -1599,15 +1809,15 @@ window.renderSidebar = function() {
 };
 
 window.switchMenu = function(name) {
-  window.activeMenu = name;
-  localStorage.setItem('v19_active', window.activeMenu);
+  activeMenu = name;
+  localStorage.setItem('v19_active', activeMenu);
   toggleMobileSidebar(false);
 
-  const mInfo = window.menus.find(m => m.name === window.activeMenu) || window.menus[0];
+  const mInfo = menus.find(m => m.name === activeMenu) || menus[0];
   if (currentMenuTitle) currentMenuTitle.innerText = mInfo.name;
   if (folderSubtitle) folderSubtitle.innerText = mInfo.subtitle || "MR.RCT Executive Command Center";
 
-  window.activeSlotIndex = 0;
+  activeSlotIndex = 0;
   renderCards();
   renderSidebar();
 };
@@ -1627,9 +1837,8 @@ window.toggleMobileSidebar = function(open) {
 window.renderCards = function() {
   if (!cardGrid) return;
   const search = searchInput ? searchInput.value.toLowerCase() : '';
-  const mInfo = window.menus.find(m => m.name === window.activeMenu) || { type: 'alarm' };
+  const mInfo = menus.find(m => m.name === activeMenu) || { type: 'alarm' };
 
-  // Script Editor Mode
   if (mInfo.type === 'script_promo') {
     renderScriptEditor();
     return;
@@ -1642,9 +1851,9 @@ window.renderCards = function() {
   }
 
   cardGrid.innerHTML = '';
-  let filtered = window.masterData.filter(d => d.category === window.activeMenu && !d.deleted);
+  let filtered = masterData.filter(d => d.category === activeMenu && !d.deleted);
 
-  if (window.favoritesOnlyFilter) {
+  if (favoritesOnlyFilter) {
     filtered = filtered.filter(d => d.favorite);
   }
 
@@ -1681,7 +1890,7 @@ window.renderCards = function() {
   }
 
   if (quickUploadBtn) {
-    quickUploadBtn.style.display = (mInfo.type === 'image_note' || window.activeMenu === 'POTO KENDALA') ? 'flex' : 'none';
+    quickUploadBtn.style.display = (mInfo.type === 'image_note' || activeMenu === 'POTO KENDALA') ? 'flex' : 'none';
   }
 
   if (pasaranSummaryBar) {
@@ -1691,10 +1900,11 @@ window.renderCards = function() {
     doneBadge.style.display = (mInfo.type === 'pasaran') ? 'block' : 'none';
   }
 
-  if (mInfo.type === 'alarm' || window.activeMenu === 'ALARM CENTER') {
+  // ===== ALARM CARDS =====
+  if (mInfo.type === 'alarm' || activeMenu === 'ALARM CENTER') {
     cardGrid.className = "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5";
     filtered.forEach((item) => {
-      const rIndex = window.masterData.indexOf(item);
+      const rIndex = masterData.indexOf(item);
       const card = document.createElement('div');
       const isAlarmActive = item.alarmOn !== false;
       card.className = `note-card p-6 border ${isAlarmActive ? 'border-yellow-400/40 shadow-[0_0_30px_rgba(250,204,21,0.05)]' : 'border-white/10 opacity-60'} rounded-2xl transition flex flex-col justify-between h-full min-h-[190px]`;
@@ -1724,10 +1934,12 @@ window.renderCards = function() {
       `;
       cardGrid.appendChild(card);
     });
-  } else if (mInfo.type === 'pasaran') {
+  }
+  // ===== PASARAN CARDS =====
+  else if (mInfo.type === 'pasaran') {
     cardGrid.className = "space-y-3";
     filtered.forEach((item) => {
-      const rIndex = window.masterData.indexOf(item);
+      const rIndex = masterData.indexOf(item);
       const isHidden = !!item.hiddenNum;
       const isDone = !!item.pasaranDone;
       const timerInfo = window.getPasaranTimerInfo(item.pasaranResultTime, isDone, isHidden);
@@ -1765,10 +1977,12 @@ window.renderCards = function() {
       `;
       cardGrid.appendChild(row);
     });
-  } else if (mInfo.type === 'image_note' || window.activeMenu === 'POTO KENDALA') {
+  }
+  // ===== IMAGE CARDS =====
+  else if (mInfo.type === 'image_note' || activeMenu === 'POTO KENDALA') {
     cardGrid.className = "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5";
     filtered.forEach((item) => {
-      const rIndex = window.masterData.indexOf(item);
+      const rIndex = masterData.indexOf(item);
       const card = document.createElement('div');
       const imgUrl = item.imageUrl || createSampleSvg(item.title || "POTO KENDALA", "#050b14", "#091122", "NO IMAGE", "Klik Upload Foto");
       card.className = "note-card p-5 border border-white/10 rounded-2xl hover:border-yellow-400/40 transition flex flex-col justify-between h-full group";
@@ -1803,12 +2017,14 @@ window.renderCards = function() {
       `;
       cardGrid.appendChild(card);
     });
-  } else if (mInfo.type === 'account' || window.activeMenu.includes('DATA LOGIN')) {
+  }
+  // ===== ACCOUNT CARDS =====
+  else if (mInfo.type === 'account' || activeMenu.includes('DATA LOGIN')) {
     cardGrid.className = "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5";
     filtered.forEach((item) => {
-      const rIndex = window.masterData.indexOf(item);
+      const rIndex = masterData.indexOf(item);
       const card = document.createElement('div');
-      const isPassVisible = window.passVisibleMap[rIndex] || false;
+      const isPassVisible = passVisibleMap[rIndex] || false;
       const rawPass = item.pass || '';
       const displayedPass = isPassVisible ? rawPass : '••••••••';
       const loginUrl = item.loginUrl || item.url || '';
@@ -1856,10 +2072,12 @@ window.renderCards = function() {
       `;
       cardGrid.appendChild(card);
     });
-  } else {
+  }
+  // ===== NOTE CARDS =====
+  else {
     cardGrid.className = "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4";
     filtered.forEach((item) => {
-      const rIndex = window.masterData.indexOf(item);
+      const rIndex = masterData.indexOf(item);
       const card = document.createElement('div');
       card.className = "note-card p-5 flex flex-col justify-between h-full border border-white/10 rounded-2xl hover:border-yellow-400/40 transition";
       card.innerHTML = `
@@ -1919,13 +2137,13 @@ window.renderScriptEditor = function() {
   if (grid) grid.style.display = 'none';
   if (emptyState) emptyState.style.display = 'none';
 
-  const slots = window.masterData.filter(d => d.category === window.activeMenu && !d.deleted);
+  const slots = masterData.filter(d => d.category === activeMenu && !d.deleted);
   const tabContainer = document.getElementById('slotTabs');
   if (!tabContainer) return;
   tabContainer.innerHTML = '';
 
   if (slots.length === 0) {
-    window.masterData.push({ category: window.activeMenu, title: "PROMO 1", content: "", extraInfo: "Promo", status: "Aktif" });
+    masterData.push({ category: activeMenu, title: "PROMO 1", content: "", extraInfo: "Promo", status: "Aktif" });
     window.saveData();
     renderScriptEditor();
     return;
@@ -1933,17 +2151,17 @@ window.renderScriptEditor = function() {
 
   slots.forEach((slot, i) => {
     const btn = document.createElement('button');
-    btn.className = `promo-tab px-4 py-2.5 rounded-xl font-master font-black text-[9px] uppercase tracking-wider transition ${window.activeSlotIndex === i ? 'active' : ''}`;
+    btn.className = `promo-tab px-4 py-2.5 rounded-xl font-master font-black text-[9px] uppercase tracking-wider transition ${activeSlotIndex === i ? 'active' : ''}`;
     btn.innerHTML = `<div>${slot.title}</div><div class="text-[7px] opacity-60">${slot.extraInfo || 'Promo'}</div>`;
-    btn.onclick = () => { window.activeSlotIndex = i; loadSlotData(); };
+    btn.onclick = () => { activeSlotIndex = i; loadSlotData(); };
     tabContainer.appendChild(btn);
   });
   loadSlotData();
 };
 
 function loadSlotData() {
-  const slots = window.masterData.filter(d => d.category === window.activeMenu && !d.deleted);
-  const slot = slots[window.activeSlotIndex];
+  const slots = masterData.filter(d => d.category === activeMenu && !d.deleted);
+  const slot = slots[activeSlotIndex];
   if (!slot) return;
 
   const titleInput = document.getElementById('editorPromoTitle');
@@ -1959,7 +2177,7 @@ function loadSlotData() {
   updateLivePreview();
 
   document.querySelectorAll('.promo-tab').forEach((t, i) => {
-    t.classList.toggle('active', i === window.activeSlotIndex);
+    t.classList.toggle('active', i === activeSlotIndex);
   });
 }
 
@@ -1978,20 +2196,20 @@ window.updateLivePreview = function() {
 };
 
 window.saveCurrentSlot = function() {
-  const slots = window.masterData.filter(d => d.category === window.activeMenu && !d.deleted);
-  const slot = slots[window.activeSlotIndex];
+  const slots = masterData.filter(d => d.category === activeMenu && !d.deleted);
+  const slot = slots[activeSlotIndex];
   if (!slot) return;
 
-  const masterIdx = window.masterData.indexOf(slot);
+  const masterIdx = masterData.indexOf(slot);
   const titleInput = document.getElementById('editorPromoTitle');
   const categoryInput = document.getElementById('editorPromoCategory');
   const statusSelect = document.getElementById('editorPromoStatus');
   const codeInput = document.getElementById('promoCodeInput');
 
-  window.masterData[masterIdx].title = titleInput ? titleInput.value.toUpperCase() : slot.title;
-  window.masterData[masterIdx].extraInfo = categoryInput ? categoryInput.value : slot.extraInfo;
-  window.masterData[masterIdx].status = statusSelect ? statusSelect.value : slot.status;
-  window.masterData[masterIdx].content = codeInput ? codeInput.value : slot.content;
+  masterData[masterIdx].title = titleInput ? titleInput.value.toUpperCase() : slot.title;
+  masterData[masterIdx].extraInfo = categoryInput ? categoryInput.value : slot.extraInfo;
+  masterData[masterIdx].status = statusSelect ? statusSelect.value : slot.status;
+  masterData[masterIdx].content = codeInput ? codeInput.value : slot.content;
 
   window.saveData();
   renderScriptEditor();
@@ -2020,13 +2238,13 @@ window.resetEditor = function() {
 };
 
 window.cloneSlot = function() {
-  const slots = window.masterData.filter(d => d.category === window.activeMenu && !d.deleted);
-  const slot = slots[window.activeSlotIndex];
+  const slots = masterData.filter(d => d.category === activeMenu && !d.deleted);
+  const slot = slots[activeSlotIndex];
   if (slot) {
     const newSlot = { ...slot, title: slot.title + " (CLONE)" };
-    window.masterData.push(newSlot);
+    masterData.push(newSlot);
     window.saveData();
-    window.activeSlotIndex = window.masterData.filter(d => d.category === window.activeMenu && !d.deleted).length - 1;
+    activeSlotIndex = masterData.filter(d => d.category === activeMenu && !d.deleted).length - 1;
     renderScriptEditor();
     window.showToast('Slot Berhasil Di-Clone!', 'success');
   }
@@ -2082,27 +2300,27 @@ window.toggleEditorFullscreen = function() {
 // ACTIONS
 // ==========================================
 window.toggleAlarmStatus = function(idx) {
-  if (window.masterData[idx]) {
-    window.masterData[idx].alarmOn = !window.masterData[idx].alarmOn;
+  if (masterData[idx]) {
+    masterData[idx].alarmOn = !masterData[idx].alarmOn;
     window.saveData();
     renderCards();
-    window.showToast(window.masterData[idx].alarmOn ? 'Alarm Diaktifkan (ON)' : 'Alarm Dimatikan (OFF)', 'info');
+    window.showToast(masterData[idx].alarmOn ? 'Alarm Diaktifkan (ON)' : 'Alarm Dimatikan (OFF)', 'info');
   }
 };
 
 window.toggleFavorite = function(idx) {
-  if (window.masterData[idx]) {
-    window.masterData[idx].favorite = !window.masterData[idx].favorite;
+  if (masterData[idx]) {
+    masterData[idx].favorite = !masterData[idx].favorite;
     window.saveData();
     renderCards();
-    window.showToast(window.masterData[idx].favorite ? 'Ditambah ke Favorit' : 'Dihapus dari Favorit', 'info');
+    window.showToast(masterData[idx].favorite ? 'Ditambah ke Favorit' : 'Dihapus dari Favorit', 'info');
   }
 };
 
 window.toggleFavoritesFilter = function() {
-  window.favoritesOnlyFilter = !window.favoritesOnlyFilter;
+  favoritesOnlyFilter = !favoritesOnlyFilter;
   if (favToggleBtn) {
-    if (window.favoritesOnlyFilter) {
+    if (favoritesOnlyFilter) {
       favToggleBtn.className = "px-4 py-3 rounded-2xl bg-yellow-400 text-black font-master font-bold text-xs transition flex items-center gap-2 shadow-lg cursor-pointer";
     } else {
       favToggleBtn.className = "px-4 py-3 rounded-2xl bg-[#080c14]/80 border border-white/10 text-gray-300 hover:text-yellow-400 hover:border-yellow-400/40 text-xs font-master font-bold transition flex items-center gap-2 cursor-pointer backdrop-blur-sm";
@@ -2112,38 +2330,38 @@ window.toggleFavoritesFilter = function() {
 };
 
 window.resetFilters = function() {
-  window.favoritesOnlyFilter = false;
+  favoritesOnlyFilter = false;
   if (searchInput) searchInput.value = '';
   renderCards();
   window.showToast('Filter Direset', 'info');
 };
 
 window.toggleCardPassVisibility = function(idx) {
-  window.passVisibleMap[idx] = !window.passVisibleMap[idx];
+  passVisibleMap[idx] = !passVisibleMap[idx];
   renderCards();
 };
 
 window.togglePasaranDone = function(idx) {
-  if (window.masterData[idx]) {
-    window.masterData[idx].pasaranDone = !window.masterData[idx].pasaranDone;
+  if (masterData[idx]) {
+    masterData[idx].pasaranDone = !masterData[idx].pasaranDone;
     window.saveData();
     renderCards();
-    window.showToast(window.masterData[idx].pasaranDone ? 'Pasaran Ditandai DONE (Redup)' : 'Pasaran PENDING (Hidup Kembali)', 'info');
+    window.showToast(masterData[idx].pasaranDone ? 'Pasaran Ditandai DONE (Redup)' : 'Pasaran PENDING (Hidup Kembali)', 'info');
   }
 };
 
 window.togglePasaranVisibility = function(idx) {
-  if (window.masterData[idx]) {
-    window.masterData[idx].hiddenNum = !window.masterData[idx].hiddenNum;
+  if (masterData[idx]) {
+    masterData[idx].hiddenNum = !masterData[idx].hiddenNum;
     window.saveData();
     renderCards();
-    window.showToast(window.masterData[idx].hiddenNum ? 'Pasaran Di-Hide (Redup & Mati Hari Ini)' : 'Pasaran Ditampilkan Kembali', 'info');
+    window.showToast(masterData[idx].hiddenNum ? 'Pasaran Di-Hide (Redup & Mati Hari Ini)' : 'Pasaran Ditampilkan Kembali', 'info');
   }
 };
 
 window.deleteItem = function(idx) {
   if (confirm('Hapus entry ini?')) {
-    window.masterData.splice(idx, 1);
+    masterData.splice(idx, 1);
     window.saveData();
     renderCards();
     window.showToast('Entry Dihapus', 'info');
@@ -2197,17 +2415,14 @@ window.copyImageFromCard = async function(src) {
   }
 };
 
-// ==========================================
-// TRIGGER PHOTO UPLOAD
-// ==========================================
 window.triggerDirectPhotoUpload = function() {
-  window.targetUploadCardIndex = null;
+  targetUploadCardIndex = null;
   const input = document.getElementById('directFileInput');
   if (input) input.click();
 };
 
 window.triggerCardPhotoUpload = function(idx) {
-  window.targetUploadCardIndex = idx;
+  targetUploadCardIndex = idx;
   const input = document.getElementById('directFileInput');
   if (input) input.click();
 };
@@ -2218,15 +2433,15 @@ window.handleDirectFileUpload = function(event) {
   const reader = new FileReader();
   reader.onload = function(evt) {
     const base64Img = evt.target.result;
-    if (window.targetUploadCardIndex !== null && window.masterData[window.targetUploadCardIndex]) {
-      window.masterData[window.targetUploadCardIndex].imageUrl = base64Img;
+    if (targetUploadCardIndex !== null && masterData[targetUploadCardIndex]) {
+      masterData[targetUploadCardIndex].imageUrl = base64Img;
       window.saveData();
       renderCards();
       window.showToast('Foto Berhasil Diperbarui!', 'success');
     } else {
-      const titleName = prompt("Masukkan Judul / Nama Foto Kendala:", "FOTO KENDALA " + (window.masterData.length + 1));
+      const titleName = prompt("Masukkan Judul / Nama Foto Kendala:", "FOTO KENDALA " + (masterData.length + 1));
       if (titleName) {
-        window.masterData.push({ category: window.activeMenu, title: titleName.toUpperCase(), imageUrl: base64Img, favorite: true });
+        masterData.push({ category: activeMenu, title: titleName.toUpperCase(), imageUrl: base64Img, favorite: true });
         window.saveData();
         renderCards();
         window.showToast('Foto Kendala Berhasil Diunggah!', 'success');
@@ -2237,11 +2452,8 @@ window.handleDirectFileUpload = function(event) {
   event.target.value = '';
 };
 
-// ==========================================
-// IMAGE LIGHTBOX
-// ==========================================
 window.openImageLightbox = function(src, title) {
-  window.currentLightboxSrc = src;
+  currentLightboxSrc = src;
   const img = document.getElementById('lightboxImage');
   const cap = document.getElementById('lightboxCaption');
   if (img) img.src = src;
@@ -2251,21 +2463,21 @@ window.openImageLightbox = function(src, title) {
 
 window.closeImageLightbox = function() {
   closeModal('imageLightboxModal');
-  window.currentLightboxSrc = '';
+  currentLightboxSrc = '';
 };
 
 window.copyLightboxImage = function() {
-  if (window.currentLightboxSrc) window.copyImageFromCard(window.currentLightboxSrc);
+  if (currentLightboxSrc) window.copyImageFromCard(currentLightboxSrc);
 };
 
 // ==========================================
 // SETTINGS
 // ==========================================
 window.openSettingsModal = function() {
-  if (settingNewUser) settingNewUser.value = window.masterAuth.user;
-  if (settingNewPass) settingNewPass.value = window.masterAuth.pass;
-  if (bgFrontUrlInput) bgFrontUrlInput.value = window.customBgFront;
-  if (bgInnerUrlInput) bgInnerUrlInput.value = window.customBgInner;
+  if (settingNewUser) settingNewUser.value = masterAuth.user;
+  if (settingNewPass) settingNewPass.value = masterAuth.pass;
+  if (bgFrontUrlInput) bgFrontUrlInput.value = customBgFront;
+  if (bgInnerUrlInput) bgInnerUrlInput.value = customBgInner;
   openModal('settingsModal');
 };
 
@@ -2277,8 +2489,8 @@ window.saveMasterAccountSettings = function() {
   if (!newUser || !newPass) {
     return window.showToast('Username dan Password tidak boleh kosong!', 'error');
   }
-  window.masterAuth.user = newUser;
-  window.masterAuth.pass = newPass;
+  masterAuth.user = newUser;
+  masterAuth.pass = newPass;
   window.saveData();
   window.showToast('Username & Password Master Berhasil Diperbarui!', 'success');
 };
@@ -2288,11 +2500,11 @@ window.handleBgFrontFileUpload = function(e) {
   if (!file) return;
   const reader = new FileReader();
   reader.onload = function(evt) {
-    window.customBgFront = evt.target.result;
-    localStorage.setItem('v19_bg_front', window.customBgFront);
+    customBgFront = evt.target.result;
+    localStorage.setItem('v19_bg_front', customBgFront);
     window.applyBackgrounds();
     window.saveData();
-    if (bgFrontUrlInput) bgFrontUrlInput.value = window.customBgFront;
+    if (bgFrontUrlInput) bgFrontUrlInput.value = customBgFront;
     window.showToast('Background Depan Berhasil Diperbarui!', 'success');
   };
   reader.readAsDataURL(file);
@@ -2302,15 +2514,15 @@ window.handleBgFrontFileUpload = function(e) {
 window.applyBgFrontFromInput = function() {
   const url = bgFrontUrlInput ? bgFrontUrlInput.value.trim() : '';
   if (!url) return window.showToast('Masukkan URL Gambar!', 'error');
-  window.customBgFront = url;
-  localStorage.setItem('v19_bg_front', window.customBgFront);
+  customBgFront = url;
+  localStorage.setItem('v19_bg_front', customBgFront);
   window.applyBackgrounds();
   window.saveData();
   window.showToast('Background Depan Berhasil Diperbarui!', 'success');
 };
 
 window.resetBgFront = function() {
-  window.customBgFront = "";
+  customBgFront = "";
   localStorage.removeItem('v19_bg_front');
   if (bgFrontUrlInput) bgFrontUrlInput.value = "";
   window.applyBackgrounds();
@@ -2323,11 +2535,11 @@ window.handleBgInnerFileUpload = function(e) {
   if (!file) return;
   const reader = new FileReader();
   reader.onload = function(evt) {
-    window.customBgInner = evt.target.result;
-    localStorage.setItem('v19_bg_inner', window.customBgInner);
+    customBgInner = evt.target.result;
+    localStorage.setItem('v19_bg_inner', customBgInner);
     window.applyBackgrounds();
     window.saveData();
-    if (bgInnerUrlInput) bgInnerUrlInput.value = window.customBgInner;
+    if (bgInnerUrlInput) bgInnerUrlInput.value = customBgInner;
     window.showToast('Background Dalam Berhasil Diperbarui!', 'success');
   };
   reader.readAsDataURL(file);
@@ -2337,15 +2549,15 @@ window.handleBgInnerFileUpload = function(e) {
 window.applyBgInnerFromInput = function() {
   const url = bgInnerUrlInput ? bgInnerUrlInput.value.trim() : '';
   if (!url) return window.showToast('Masukkan URL Gambar!', 'error');
-  window.customBgInner = url;
-  localStorage.setItem('v19_bg_inner', window.customBgInner);
+  customBgInner = url;
+  localStorage.setItem('v19_bg_inner', customBgInner);
   window.applyBackgrounds();
   window.saveData();
   window.showToast('Background Dalam Berhasil Diperbarui!', 'success');
 };
 
 window.resetBgInner = function() {
-  window.customBgInner = "";
+  customBgInner = "";
   localStorage.removeItem('v19_bg_inner');
   if (bgInnerUrlInput) bgInnerUrlInput.value = "";
   window.applyBackgrounds();
@@ -2366,7 +2578,7 @@ window.addNewMenu = function() {
   const type = typeInput ? typeInput.value : 'alarm';
 
   if (!name) return alert('Masukkan nama folder!');
-  if (window.menus.find(m => m.name === name)) return alert('Folder ini sudah ada!');
+  if (menus.find(m => m.name === name)) return alert('Folder ini sudah ada!');
 
   let icon = 'fa-folder';
   if (type === 'alarm') icon = 'fa-bell';
@@ -2376,7 +2588,7 @@ window.addNewMenu = function() {
   if (type === 'image_note') icon = 'fa-images';
   if (type === 'script_promo') icon = 'fa-code';
 
-  window.menus.push({ name, type, icon, subtitle: "MR.RCT Executive Command Center" });
+  menus.push({ name, type, icon, subtitle: "MR.RCT Executive Command Center" });
   window.saveData();
   window.switchMenu(name);
   closeMenuModal();
@@ -2386,10 +2598,10 @@ window.addNewMenu = function() {
 
 window.deleteMenu = function(name) {
   if (confirm(`Hapus folder "${name}"?`)) {
-    window.menus = window.menus.filter(m => m.name !== name);
-    window.masterData = window.masterData.filter(d => d.category !== name);
+    menus = menus.filter(m => m.name !== name);
+    masterData = masterData.filter(d => d.category !== name);
     window.saveData();
-    window.switchMenu(window.menus[0] ? window.menus[0].name : "ALARM CENTER");
+    window.switchMenu(menus[0] ? menus[0].name : "ALARM CENTER");
     window.showToast(`Folder Dihapus`, 'info');
   }
 };
@@ -2436,7 +2648,7 @@ window.getActiveDays = function() {
 // ==========================================
 window.openDataModal = function(index = null) {
   const isEdit = index !== null;
-  const mInfo = window.menus.find(m => m.name === window.activeMenu) || { type: 'alarm' };
+  const mInfo = menus.find(m => m.name === activeMenu) || { type: 'alarm' };
   const editIdxInput = document.getElementById('editIndex');
   if (editIdxInput) editIdxInput.value = isEdit ? index : '';
 
@@ -2459,7 +2671,7 @@ window.openDataModal = function(index = null) {
   }
 
   if (isEdit) {
-    const d = window.masterData[index];
+    const d = masterData[index];
     if (titleInput) titleInput.value = d.title || '';
     if (mInfo.type === 'alarm') {
       const timeIn = document.getElementById('inputAlarmTime');
@@ -2520,27 +2732,27 @@ if (vaultForm) {
     const contentIn = document.getElementById('inputContent');
 
     let obj = {
-      category: window.activeMenu,
+      category: activeMenu,
       title: titleInput ? titleInput.value.toUpperCase() : '',
       alarmTime: alarmTimeIn ? alarmTimeIn.value : '00:00',
       alarmDays: window.getActiveDays(),
-      alarmOn: (editIdx !== "" && window.masterData[editIdx] && window.masterData[editIdx].alarmOn !== undefined) ? window.masterData[editIdx].alarmOn : true,
+      alarmOn: (editIdx !== "" && masterData[editIdx] && masterData[editIdx].alarmOn !== undefined) ? masterData[editIdx].alarmOn : true,
       imageUrl: imgUrlIn ? imgUrlIn.value : '',
       pasaranClose: pasaranCloseIn ? pasaranCloseIn.value : '',
       pasaranResultTime: pasaranResIn ? pasaranResIn.value : '',
-      pasaranNumber: (editIdx !== "" && window.masterData[editIdx] && window.masterData[editIdx].pasaranNumber) ? window.masterData[editIdx].pasaranNumber : "- - - -",
+      pasaranNumber: (editIdx !== "" && masterData[editIdx] && masterData[editIdx].pasaranNumber) ? masterData[editIdx].pasaranNumber : "- - - -",
       url: pasaranUrlIn ? pasaranUrlIn.value : '',
-      pasaranDone: editIdx !== "" && window.masterData[editIdx] ? window.masterData[editIdx].pasaranDone : false,
+      pasaranDone: editIdx !== "" && masterData[editIdx] ? masterData[editIdx].pasaranDone : false,
       user: userIn ? userIn.value : '',
       pass: passIn ? passIn.value : '',
       loginUrl: loginUrlIn ? loginUrlIn.value : '',
       content: contentIn ? contentIn.value : '',
-      favorite: editIdx !== "" && window.masterData[editIdx] ? window.masterData[editIdx].favorite : false,
-      hiddenNum: editIdx !== "" && window.masterData[editIdx] ? window.masterData[editIdx].hiddenNum : false
+      favorite: editIdx !== "" && masterData[editIdx] ? masterData[editIdx].favorite : false,
+      hiddenNum: editIdx !== "" && masterData[editIdx] ? masterData[editIdx].hiddenNum : false
     };
 
-    if (editIdx !== "") window.masterData[editIdx] = obj;
-    else window.masterData.push(obj);
+    if (editIdx !== "") masterData[editIdx] = obj;
+    else masterData.push(obj);
     window.saveData();
     renderCards();
     closeDataModal();
@@ -2621,7 +2833,7 @@ function filterPalette() {
   if (!container) return;
   container.innerHTML = '';
 
-  window.menus.forEach(m => {
+  menus.forEach(m => {
     if (m.name.toLowerCase().includes(val)) {
       const div = document.createElement('div');
       div.className = "p-2.5 bg-[#080c14] hover:bg-yellow-400/20 hover:text-yellow-400 rounded-xl cursor-pointer flex justify-between items-center transition";
@@ -2660,7 +2872,7 @@ window.openImportExportModal = function() { openModal('ioModal'); };
 window.closeImportExportModal = function() { closeModal('ioModal'); };
 
 window.exportVaultData = function() {
-  const backupObj = { menus: window.menus, data: window.masterData, date: new Date().toISOString() };
+  const backupObj = { menus: menus, data: masterData, date: new Date().toISOString() };
   const blob = new Blob([JSON.stringify(backupObj, null, 2)], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
@@ -2678,11 +2890,11 @@ window.importVaultData = function() {
     try {
       const parsed = JSON.parse(e.target.result);
       if (parsed.data && parsed.menus) {
-        window.menus = parsed.menus;
-        window.masterData = parsed.data;
+        menus = parsed.menus;
+        masterData = parsed.data;
         window.saveData();
         renderSidebar();
-        window.switchMenu(window.menus[0].name);
+        window.switchMenu(menus[0].name);
         closeImportExportModal();
         window.showToast('Data Berhasil Dipulihkan!', 'success');
       }
@@ -2725,37 +2937,34 @@ function updateClock() {
   if (clockTime) clockTime.innerText = timeStr;
   if (clockDate) clockDate.innerText = dateStr;
 
-  // Check alarms
-  window.masterData.forEach((item, index) => {
+  masterData.forEach((item, index) => {
     if (item.category === 'ALARM CENTER' && item.alarmOn && item.alarmTime === currentHHMM) {
       const jadwal = (item.alarmDays || "DAILY").toUpperCase();
       const isTodayMatch = jadwal.includes(hariIni) || jadwal.includes("DAILY");
       if (isTodayMatch) {
         const triggerKey = `alarm_${index}_${currentHHMM}`;
-        if (!window.triggeredAlarmsMap[triggerKey]) {
-          window.triggeredAlarmsMap[triggerKey] = true;
+        if (!triggeredAlarmsMap[triggerKey]) {
+          triggeredAlarmsMap[triggerKey] = true;
           triggerBottomRightNotification(item.title, `Waktu Alarm: ${item.alarmTime} WIB (${hariIni})`, 'alarm');
         }
       }
     }
   });
 
-  // Check pasaran results
-  window.masterData.forEach((item, index) => {
+  masterData.forEach((item, index) => {
     if (item.pasaranResultTime && item.pasaranResultTime === currentHHMM && !item.pasaranDone && !item.hiddenNum) {
       const triggerKey = `pasaran_${index}_${currentHHMM}`;
-      if (!window.triggeredAlarmsMap[triggerKey]) {
-        window.triggeredAlarmsMap[triggerKey] = true;
+      if (!triggeredAlarmsMap[triggerKey]) {
+        triggeredAlarmsMap[triggerKey] = true;
         triggerBottomRightNotification(`WAKTU RESULT PASARAN! - ${item.title}`, `Pasaran ${item.title} telah memasuki jam result (${item.pasaranResultTime})`, 'pasaran');
       }
     }
   });
 
-  // Update upcoming container
   if (upcomingContainer) {
     upcomingContainer.innerHTML = '';
     const upcomingList = [];
-    window.masterData.forEach((item) => {
+    masterData.forEach((item) => {
       if (item.category === 'RESULT PASARAN' && !item.pasaranDone && !item.hiddenNum && item.pasaranResultTime) {
         const info = window.getPasaranTimerInfo(item.pasaranResultTime, false, false);
         if (info.isApproaching) {
@@ -2783,7 +2992,6 @@ function updateClock() {
 // NOTIFICATION
 // ==========================================
 function triggerBottomRightNotification(title, subtext, type = 'alarm') {
-  // Play chime
   try {
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     const osc = audioCtx.createOscillator();
@@ -2830,51 +3038,84 @@ function triggerBottomRightNotification(title, subtext, type = 'alarm') {
 }
 
 // ==========================================
-// PARTICLES (HD)
+// PARTICLES (HD - Enhanced)
 // ==========================================
 const canvas = document.getElementById('particleCanvas');
 if (canvas) {
   const ctx = canvas.getContext('2d');
+  let width, height;
+  
   function resizeCanvas() {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
+    width = window.innerWidth;
+    height = window.innerHeight;
+    canvas.width = width;
+    canvas.height = height;
   }
   window.addEventListener('resize', resizeCanvas);
   resizeCanvas();
   
   let particles = [];
-  const particleCount = window.innerWidth < 768 ? 30 : 60;
+  const particleCount = window.innerWidth < 768 ? 50 : 100;
+  
   for (let i = 0; i < particleCount; i++) {
     particles.push({
-      x: Math.random() * canvas.width,
-      y: Math.random() * canvas.height,
-      size: Math.random() * 2.5 + 0.5,
-      speedX: (Math.random() - 0.5) * 0.3,
-      speedY: (Math.random() - 0.5) * 0.3,
-      opacity: Math.random() * 0.5 + 0.2
+      x: Math.random() * width,
+      y: Math.random() * height,
+      size: Math.random() * 3 + 0.5,
+      speedX: (Math.random() - 0.5) * 0.4,
+      speedY: (Math.random() - 0.5) * 0.4,
+      opacity: Math.random() * 0.6 + 0.2,
+      pulse: Math.random() * Math.PI * 2,
+      color: ['rgba(250,204,21', 'rgba(59,130,246', 'rgba(239,68,68', 'rgba(16,185,129'][Math.floor(Math.random() * 4)]
     });
   }
   
   function animateParticles() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.clearRect(0, 0, width, height);
     
-    particles.forEach(p => {
+    particles.forEach((p, i) => {
       p.x += p.speedX;
       p.y += p.speedY;
+      p.pulse += 0.02;
       
-      if (p.x < 0 || p.x > canvas.width) p.speedX *= -1;
-      if (p.y < 0 || p.y > canvas.height) p.speedY *= -1;
+      if (p.x < 0 || p.x > width) p.speedX *= -1;
+      if (p.y < 0 || p.y > height) p.speedY *= -1;
       
-      ctx.beginPath();
-      ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-      ctx.fillStyle = `rgba(250, 204, 21, ${p.opacity})`;
-      ctx.fill();
+      const pulseOpacity = p.opacity * (0.6 + 0.4 * Math.sin(p.pulse));
+      const currentSize = p.size * (0.8 + 0.2 * Math.sin(p.pulse + 0.5));
       
       // Glow
-      ctx.shadowColor = 'rgba(250, 204, 21, 0.1)';
-      ctx.shadowBlur = 10;
+      const gradient = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, currentSize * 4);
+      gradient.addColorStop(0, `${p.color}, ${pulseOpacity})`);
+      gradient.addColorStop(0.3, `${p.color}, ${pulseOpacity * 0.5})`);
+      gradient.addColorStop(1, `${p.color}, 0)`);
+      
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, currentSize * 4, 0, Math.PI * 2);
+      ctx.fillStyle = gradient;
       ctx.fill();
-      ctx.shadowBlur = 0;
+      
+      // Core
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, currentSize * 0.5, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(255, 255, 255, ${pulseOpacity * 0.6})`;
+      ctx.fill();
+      
+      // Connection lines
+      particles.forEach((p2, j) => {
+        if (i === j) return;
+        const dx = p.x - p2.x;
+        const dy = p.y - p2.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < 120) {
+          ctx.beginPath();
+          ctx.moveTo(p.x, p.y);
+          ctx.lineTo(p2.x, p2.y);
+          ctx.strokeStyle = `rgba(250, 204, 21, ${0.1 * (1 - dist / 120)})`;
+          ctx.lineWidth = 0.5;
+          ctx.stroke();
+        }
+      });
     });
     
     requestAnimationFrame(animateParticles);
@@ -2885,7 +3126,6 @@ if (canvas) {
 // ==========================================
 // INITIALIZE
 // ==========================================
-// Check if user already authenticated
 const savedSession = sessionStorage.getItem('v19_session_active');
 if (savedSession === 'true' && auth.currentUser) {
   loginScreen.style.display = 'none';
@@ -2895,28 +3135,23 @@ if (savedSession === 'true' && auth.currentUser) {
   loginScreen.style.display = 'flex';
 }
 
-// Set default login values
 if (loginUser) loginUser.value = "rykcocastio557@gmail.com";
 if (loginPass) loginPass.value = "";
 
-// Apply backgrounds
 applyBackgrounds();
 
-// Load data (Firebase or localStorage)
 if (auth.currentUser) {
   loadFromFirebase();
 } else {
   loadFromLocalStorage();
 }
 
-// Start clock
 setInterval(updateClock, 1000);
 updateClock();
 
-// Expose to window
 window.updateClock = updateClock;
 
-console.log('🚀 MR.RCT Executive Vault v20 loaded');
+console.log('🚀 MR.RCT Executive Vault v20 loaded with HD visuals!');
 </script>
 </body>
 </html>
