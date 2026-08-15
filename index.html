@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MR.RCT - EXECUTIVE VAULT v22</title>
+<title>MR.RCT - EXECUTIVE VAULT v23</title>
 
 <!-- Tailwind CSS -->
 <script src="https://cdn.tailwindcss.com"></script>
@@ -57,7 +57,14 @@ tailwind.config = {
         'glitch-text': 'glitchText 0.5s ease-in-out infinite',
         'card-flip': 'cardFlip 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards',
         'shockwave': 'shockwave 0.8s ease-out forwards',
-        'visualizer': 'visualizer 0.5s ease-in-out infinite alternate'
+        'visualizer': 'visualizer 0.5s ease-in-out infinite alternate',
+        'matrix-rain': 'matrixRain 20s linear infinite',
+        'liquid-border': 'liquidBorder 3s ease-in-out infinite',
+        'radar-sweep': 'radarSweep 3s linear infinite',
+        'bio-scan': 'bioScan 2s ease-in-out infinite',
+        'terminal-type': 'terminalType 0.1s steps(1) forwards',
+        'magnetic-pull': 'magneticPull 0.3s ease-out forwards',
+        'grid-warp': 'gridWarp 4s ease-in-out infinite'
       },
       keyframes: {
         glowPulse: {
@@ -132,6 +139,37 @@ tailwind.config = {
         visualizer: {
           '0%': { transform: 'scaleY(0.3)' },
           '100%': { transform: 'scaleY(1)' }
+        },
+        matrixRain: {
+          '0%': { transform: 'translateY(-100%)' },
+          '100%': { transform: 'translateY(100vh)' }
+        },
+        liquidBorder: {
+          '0%': { backgroundPosition: '0% 50%' },
+          '50%': { backgroundPosition: '100% 50%' },
+          '100%': { backgroundPosition: '0% 50%' }
+        },
+        radarSweep: {
+          '0%': { transform: 'rotate(0deg)' },
+          '100%': { transform: 'rotate(360deg)' }
+        },
+        bioScan: {
+          '0%': { transform: 'scaleY(0)', opacity: '0' },
+          '50%': { transform: 'scaleY(1)', opacity: '0.3' },
+          '100%': { transform: 'scaleY(0)', opacity: '0' }
+        },
+        terminalType: {
+          '0%': { opacity: '0' },
+          '100%': { opacity: '1' }
+        },
+        magneticPull: {
+          '0%': { transform: 'scale(1)' },
+          '100%': { transform: 'scale(1.03)' }
+        },
+        gridWarp: {
+          '0%': { transform: 'perspective(800px) rotateX(2deg) scale(1)' },
+          '50%': { transform: 'perspective(800px) rotateX(-2deg) scale(1.02)' },
+          '100%': { transform: 'perspective(800px) rotateX(2deg) scale(1)' }
         }
       }
     }
@@ -260,6 +298,30 @@ tailwind.config = {
   opacity: 0.7;
 }
 
+/* ===== ATMOSPHERIC DUST PARTICLES ===== */
+#dustCanvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0.4;
+}
+
+/* ===== MATRIX OVERLAY ===== */
+#matrixCanvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: -1.5;
+  pointer-events: none;
+  opacity: 0.06;
+}
+
 /* ===== GLOW ORBS (HD) ===== */
 .glow-orb {
   position: fixed;
@@ -305,7 +367,7 @@ tailwind.config = {
   animation-duration: 15s;
 }
 
-/* ===== NEON GRID OVERLAY ===== */
+/* ===== NEON GRID WITH PERSPECTIVE WARP ===== */
 #neonGrid {
   position: fixed;
   top: 0;
@@ -314,12 +376,14 @@ tailwind.config = {
   height: 100vh;
   z-index: -2.5;
   pointer-events: none;
-  opacity: 0.03;
+  opacity: 0.04;
   background-image: 
-    linear-gradient(rgba(250, 204, 21, 0.1) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(250, 204, 21, 0.1) 1px, transparent 1px);
-  background-size: 60px 60px;
-  animation: shimmer 10s linear infinite;
+    linear-gradient(rgba(250, 204, 21, 0.15) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(250, 204, 21, 0.15) 1px, transparent 1px);
+  background-size: 80px 80px;
+  animation: gridWarp 6s ease-in-out infinite;
+  transform-style: preserve-3d;
+  perspective: 1000px;
 }
 
 /* ===== FLOATING PARTICLES (CSS) ===== */
@@ -446,7 +510,7 @@ tailwind.config = {
   animation: neonPulse 2s ease-in-out infinite;
 }
 
-/* ===== CARDS HD WITH 3D TILT & FLIP ===== */
+/* ===== CARDS HD WITH 3D TILT & FLIP & LIQUID BORDER ===== */
 .note-card {
   background: rgba(8, 12, 20, 0.85);
   backdrop-filter: blur(10px);
@@ -478,16 +542,23 @@ tailwind.config = {
 .note-card::after {
   content: '';
   position: absolute;
-  inset: -1px;
+  inset: -2px;
   border-radius: 24px;
-  background: linear-gradient(135deg, rgba(250,204,21,0.05), transparent, rgba(250,204,21,0.03));
+  background: conic-gradient(from var(--angle, 0deg), 
+    rgba(250,204,21,0.2), 
+    rgba(59,130,246,0.2), 
+    rgba(239,68,68,0.2), 
+    rgba(16,185,129,0.2), 
+    rgba(250,204,21,0.2));
   z-index: -1;
   opacity: 0;
   transition: opacity 0.4s ease;
+  animation: liquidBorder 3s ease-in-out infinite;
+  --angle: 0deg;
 }
 
 .note-card:hover::after {
-  opacity: 1;
+  opacity: 0.8;
 }
 
 .note-card:hover {
@@ -499,6 +570,17 @@ tailwind.config = {
 .note-card:hover::before {
   left: 100%;
   transition: left 0.6s ease;
+}
+
+/* Ambient Card Glow-Refraction berdasarkan tipe */
+.note-card[data-type="alarm"] { --card-glow: rgba(250, 204, 21, 0.15); }
+.note-card[data-type="image_note"] { --card-glow: rgba(16, 185, 129, 0.15); }
+.note-card[data-type="account"] { --card-glow: rgba(59, 130, 246, 0.15); }
+.note-card[data-type="pasaran"] { --card-glow: rgba(239, 68, 68, 0.15); }
+.note-card[data-type="note"] { --card-glow: rgba(168, 85, 247, 0.15); }
+
+.note-card[data-type]::after {
+  background: radial-gradient(circle at 50% 50%, var(--card-glow), transparent 70%);
 }
 
 /* Card 3D Flip */
@@ -592,7 +674,7 @@ tailwind.config = {
   filter: blur(2px) grayscale(100%) !important;
 }
 
-/* ===== MODAL HD ===== */
+/* ===== MODAL HD WITH BIOMETRIC LASER SCANNER ===== */
 .modal-glow-box {
   background: rgba(8, 12, 20, 0.95);
   backdrop-filter: blur(40px);
@@ -601,6 +683,42 @@ tailwind.config = {
   box-shadow: 0 30px 100px rgba(0, 0, 0, 0.8), 0 0 80px rgba(250, 204, 21, 0.03);
   border-radius: 32px;
   animation: popupIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Biometric Laser Scanner */
+.modal-glow-box .bio-scanner {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 0;
+}
+.modal-glow-box .bio-scanner::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(250, 204, 21, 0.4), transparent);
+  animation: bioScan 2s ease-in-out infinite;
+  box-shadow: 0 0 20px rgba(250, 204, 21, 0.1);
+}
+.modal-glow-box .bio-scanner::after {
+  content: '';
+  position: absolute;
+  bottom: -50%;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.3), transparent);
+  animation: bioScan 2s ease-in-out infinite 0.5s;
+  box-shadow: 0 0 20px rgba(59, 130, 246, 0.1);
 }
 
 /* ===== DAY SELECTOR ===== */
@@ -767,10 +885,11 @@ tailwind.config = {
   animation: shimmer 3s linear infinite;
 }
 
-/* ===== BUTTON GLOW ===== */
+/* ===== BUTTON GLOW WITH MAGNETIC EFFECT ===== */
 .btn-glow {
   position: relative;
   overflow: hidden;
+  transition: transform 0.2s ease;
 }
 .btn-glow::before {
   content: '';
@@ -781,6 +900,10 @@ tailwind.config = {
   height: 200%;
   background: radial-gradient(circle, rgba(250,204,21,0.1) 0%, transparent 70%);
   animation: rotateSlow 10s linear infinite;
+}
+.btn-glow.magnetic-pull {
+  transform: scale(1.05);
+  transition: transform 0.1s ease;
 }
 
 /* ===== WEATHER WIDGET ===== */
@@ -862,6 +985,66 @@ tailwind.config = {
   0% { transform: scale(1); opacity: 1; }
   100% { transform: scale(0); opacity: 0; }
 }
+
+/* ===== RADAR SWEEP ===== */
+.radar-container {
+  position: relative;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: 1px solid rgba(250, 204, 21, 0.2);
+  background: rgba(250, 204, 21, 0.03);
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.radar-container .radar-sweep {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: conic-gradient(from 0deg, transparent 0%, rgba(250, 204, 21, 0.1) 50%, transparent 100%);
+  animation: radarSweep 2s linear infinite;
+  transform-origin: center;
+}
+.radar-container .radar-dot {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: #facc15;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 0 10px rgba(250, 204, 21, 0.5);
+}
+.radar-container .radar-ring {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  border-radius: 50%;
+  border: 1px solid rgba(250, 204, 21, 0.05);
+  transform: translate(-50%, -50%);
+}
+.radar-container .radar-ring.r1 { width: 40%; height: 40%; }
+.radar-container .radar-ring.r2 { width: 70%; height: 70%; }
+.radar-container .radar-ring.r3 { width: 100%; height: 100%; }
+
+/* ===== TERMINAL TYPING INTRO ===== */
+.terminal-text {
+  font-family: 'JetBrains Mono', monospace;
+  color: #facc15;
+  border-right: 2px solid #facc15;
+  padding-right: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  animation: terminalType 0.1s steps(1) forwards;
+  width: 0;
+}
+.terminal-text.typing-complete {
+  width: 100%;
+  transition: width 0.5s ease;
+}
 </style>
 </head>
 <body class="font-body bg-vault-bg text-slate-100 h-screen flex overflow-hidden select-none">
@@ -898,6 +1081,8 @@ tailwind.config = {
   <div class="star" style="width: 2px; height: 2px; top: 18%; left: 55%; animation-delay: -0.6s;"></div>
 </div>
 <canvas id="particleMeshCanvas"></canvas>
+<canvas id="dustCanvas"></canvas>
+<canvas id="matrixCanvas"></canvas>
 
 <!-- Hidden File Inputs -->
 <input type="file" id="directFileInput" accept="image/*" style="display: none;" onchange="handleDirectFileUpload(event)">
@@ -1011,7 +1196,7 @@ tailwind.config = {
         <span id="firebaseStatusDot" class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
         <span id="firebaseStatusText" class="text-[8px] font-master font-bold text-amber-500 uppercase tracking-[2px]">CONNECTING...</span>
       </div>
-      <div class="mt-2 text-[7px] font-master text-gray-500 tracking-[2px] uppercase animate-pulse">Executive Vault v22</div>
+      <div class="mt-2 text-[7px] font-master text-gray-500 tracking-[2px] uppercase animate-pulse">Executive Vault v23</div>
     </div>
   </div>
 
@@ -1045,7 +1230,10 @@ tailwind.config = {
         </button>
         <div>
           <div class="flex items-center gap-3">
-            <h1 id="currentMenuTitle" class="font-master text-2xl md:text-3xl font-black text-yellow-400 tracking-wider uppercase italic shimmer-text glitch-text">ALARM CENTER</h1>
+            <!-- Terminal Typing Intro -->
+            <div class="relative">
+              <h1 id="currentMenuTitle" class="font-master text-2xl md:text-3xl font-black text-yellow-400 tracking-wider uppercase italic shimmer-text glitch-text terminal-text typing-complete">ALARM CENTER</h1>
+            </div>
             <span id="secureBadge" class="px-3 py-0.5 rounded-full border border-yellow-400/40 bg-yellow-400/10 text-yellow-400 text-[8px] font-master font-bold tracking-[2px] uppercase animate-pulse">● LIVE</span>
           </div>
           <p id="folderSubtitle" class="text-[9px] text-gray-400 font-bold uppercase tracking-widest mt-0.5">MR.RCT Executive Command Center</p>
@@ -1053,6 +1241,15 @@ tailwind.config = {
       </div>
 
       <div class="flex items-center gap-3 w-full lg:w-auto justify-between lg:justify-end flex-wrap">
+        <!-- Radar Sweep -->
+        <div class="radar-container">
+          <div class="radar-sweep"></div>
+          <div class="radar-ring r1"></div>
+          <div class="radar-ring r2"></div>
+          <div class="radar-ring r3"></div>
+          <div class="radar-dot"></div>
+        </div>
+
         <!-- Audio Visualizer -->
         <div class="flex items-center gap-2 bg-[#090d16] border border-white/5 px-3 py-1.5 rounded-xl">
           <div id="visualizerContainer" class="flex items-center gap-[2px] h-6">
@@ -1140,7 +1337,7 @@ tailwind.config = {
       </div>
 
       <div class="flex flex-wrap items-center gap-2.5 w-full md:w-auto justify-end">
-        <button onclick="toggleFavoritesFilter()" id="favToggleBtn" class="px-4 py-3 rounded-2xl bg-[#080c14]/80 border border-white/10 text-gray-300 hover:text-yellow-400 hover:border-yellow-400/40 text-[10px] font-master font-bold transition flex items-center gap-2 cursor-pointer group backdrop-blur-sm">
+        <button onclick="toggleFavoritesFilter()" id="favToggleBtn" class="px-4 py-3 rounded-2xl bg-[#080c14]/80 border border-white/10 text-gray-300 hover:text-yellow-400 hover:border-yellow-400/40 text-[10px] font-master font-bold transition flex items-center gap-2 cursor-pointer group backdrop-blur-sm btn-glow">
           <i class="fas fa-star text-yellow-400"></i> FAVORITES
         </button>
 
@@ -1152,7 +1349,7 @@ tailwind.config = {
           0 / 0 DONE
         </div>
 
-        <button onclick="resetFilters()" class="px-3.5 py-2 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 text-gray-400 hover:text-white text-[9px] font-master font-bold tracking-wider transition cursor-pointer">
+        <button onclick="resetFilters()" class="px-3.5 py-2 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 text-gray-400 hover:text-white text-[9px] font-master font-bold tracking-wider transition cursor-pointer btn-glow">
           <i class="fas fa-rotate-left mr-1"></i> RESET
         </button>
 
@@ -1195,22 +1392,22 @@ tailwind.config = {
           <button onclick="saveCurrentSlot()" class="py-2.5 px-2 bg-blue-600 hover:bg-blue-500 text-white font-master font-bold text-[8px] uppercase rounded-xl transition flex items-center justify-center gap-1.5 shadow-lg hover:shadow-blue-500/30 btn-glow">
             <i class="fas fa-save text-[10px]"></i> <span class="hidden sm:inline">Simpan</span>
           </button>
-          <button onclick="formatCode()" class="py-2.5 px-2 bg-indigo-600 hover:bg-indigo-500 text-white font-master font-bold text-[8px] uppercase rounded-xl transition flex items-center justify-center gap-1.5 shadow-lg hover:shadow-indigo-500/30">
+          <button onclick="formatCode()" class="py-2.5 px-2 bg-indigo-600 hover:bg-indigo-500 text-white font-master font-bold text-[8px] uppercase rounded-xl transition flex items-center justify-center gap-1.5 shadow-lg hover:shadow-indigo-500/30 btn-glow">
             <i class="fas fa-sparkles text-[10px]"></i> <span class="hidden sm:inline">Rapikan</span>
           </button>
-          <button onclick="toggleEditorFullscreen()" class="py-2.5 px-2 bg-cyan-600 hover:bg-cyan-500 text-white font-master font-bold text-[8px] uppercase rounded-xl transition flex items-center justify-center gap-1.5 shadow-lg hover:shadow-cyan-500/30">
+          <button onclick="toggleEditorFullscreen()" class="py-2.5 px-2 bg-cyan-600 hover:bg-cyan-500 text-white font-master font-bold text-[8px] uppercase rounded-xl transition flex items-center justify-center gap-1.5 shadow-lg hover:shadow-cyan-500/30 btn-glow">
             <i class="fas fa-expand text-[10px]"></i> <span class="hidden sm:inline">Fullscreen</span>
           </button>
-          <button onclick="applyTemplate()" class="py-2.5 px-2 bg-blue-700 hover:bg-blue-600 text-white font-master font-bold text-[8px] uppercase rounded-xl transition flex items-center justify-center gap-1.5 shadow-lg hover:shadow-blue-700/30">
+          <button onclick="applyTemplate()" class="py-2.5 px-2 bg-blue-700 hover:bg-blue-600 text-white font-master font-bold text-[8px] uppercase rounded-xl transition flex items-center justify-center gap-1.5 shadow-lg hover:shadow-blue-700/30 btn-glow">
             <i class="fas fa-wand-magic-sparkles text-[10px]"></i> <span class="hidden sm:inline">Template</span>
           </button>
-          <button onclick="cloneSlot()" class="py-2.5 px-2 bg-purple-600 hover:bg-purple-500 text-white font-master font-bold text-[8px] uppercase rounded-xl transition flex items-center justify-center gap-1.5 shadow-lg hover:shadow-purple-500/30">
+          <button onclick="cloneSlot()" class="py-2.5 px-2 bg-purple-600 hover:bg-purple-500 text-white font-master font-bold text-[8px] uppercase rounded-xl transition flex items-center justify-center gap-1.5 shadow-lg hover:shadow-purple-500/30 btn-glow">
             <i class="fas fa-clone text-[10px]"></i> <span class="hidden sm:inline">Clone</span>
           </button>
-          <button onclick="exportCode()" class="py-2.5 px-2 bg-slate-700 hover:bg-slate-600 text-white font-master font-bold text-[8px] uppercase rounded-xl transition flex items-center justify-center gap-1.5 shadow-lg">
+          <button onclick="exportCode()" class="py-2.5 px-2 bg-slate-700 hover:bg-slate-600 text-white font-master font-bold text-[8px] uppercase rounded-xl transition flex items-center justify-center gap-1.5 shadow-lg btn-glow">
             <i class="fas fa-download text-[10px]"></i> <span class="hidden sm:inline">Export</span>
           </button>
-          <button onclick="resetEditor()" class="py-2.5 px-2 bg-red-600/20 border border-red-500/40 hover:bg-red-500 text-red-400 hover:text-white font-master font-bold text-[8px] uppercase rounded-xl transition flex items-center justify-center gap-1.5 shadow-lg">
+          <button onclick="resetEditor()" class="py-2.5 px-2 bg-red-600/20 border border-red-500/40 hover:bg-red-500 text-red-400 hover:text-white font-master font-bold text-[8px] uppercase rounded-xl transition flex items-center justify-center gap-1.5 shadow-lg btn-glow">
             <i class="fas fa-rotate-left text-[10px]"></i> <span class="hidden sm:inline">Reset</span>
           </button>
         </div>
@@ -1269,7 +1466,8 @@ tailwind.config = {
 <!-- SETTINGS MODAL -->
 <div id="settingsModal" style="display: none;" class="fixed inset-0 bg-black/90 z-[10005] flex items-center justify-center p-4 backdrop-blur-xl" onclick="if(event.target === this) closeSettingsModal()">
   <div class="modal-glow-box p-6 md:p-8 rounded-[30px] w-full max-w-xl text-left border border-yellow-400/20 max-h-[90vh] overflow-y-auto shadow-2xl custom-scroll">
-    <div class="flex justify-between items-center border-b border-white/10 pb-4 mb-5">
+    <div class="bio-scanner"></div>
+    <div class="flex justify-between items-center border-b border-white/10 pb-4 mb-5 relative z-10">
       <div class="flex items-center gap-3">
         <div class="w-10 h-10 rounded-xl bg-yellow-400/10 border border-yellow-400/30 flex items-center justify-center text-yellow-400 text-lg animate-pulse-slow">
           <i class="fas fa-gear"></i>
@@ -1282,7 +1480,7 @@ tailwind.config = {
       <button onclick="closeSettingsModal()" class="text-gray-400 hover:text-white text-base p-1.5 rounded-lg hover:bg-white/10 transition cursor-pointer"><i class="fas fa-times"></i></button>
     </div>
 
-    <div class="bg-black/60 border border-white/10 rounded-2xl p-5 mb-5 space-y-4">
+    <div class="bg-black/60 border border-white/10 rounded-2xl p-5 mb-5 space-y-4 relative z-10">
       <h4 class="font-master font-bold text-xs text-yellow-400 uppercase tracking-wider flex items-center gap-2">
         <i class="fas fa-key text-yellow-400"></i> UBAH USERNAME & PASSWORD MASTER
       </h4>
@@ -1306,7 +1504,7 @@ tailwind.config = {
       </button>
     </div>
 
-    <div class="bg-black/60 border border-white/10 rounded-2xl p-5 mb-5 space-y-3">
+    <div class="bg-black/60 border border-white/10 rounded-2xl p-5 mb-5 space-y-3 relative z-10">
       <h4 class="font-master font-bold text-xs text-yellow-400 uppercase tracking-wider flex items-center gap-2">
         <i class="fas fa-image text-yellow-400"></i> BACKGROUND DEPAN (LOGIN)
       </h4>
@@ -1315,19 +1513,19 @@ tailwind.config = {
         <input type="text" id="bgFrontUrlInput" placeholder="https://... atau data:image/..." class="w-full bg-[#050811] border border-white/10 p-3 rounded-xl outline-none focus:border-yellow-400 text-white font-code text-xs transition mb-2">
       </div>
       <div class="flex flex-wrap gap-2">
-        <button onclick="document.getElementById('bgFrontFileInput').click()" class="px-4 py-2.5 bg-emerald-500/20 border border-emerald-500/30 hover:bg-emerald-500 hover:text-black text-emerald-300 font-master font-bold text-[9px] rounded-xl uppercase transition cursor-pointer">
+        <button onclick="document.getElementById('bgFrontFileInput').click()" class="px-4 py-2.5 bg-emerald-500/20 border border-emerald-500/30 hover:bg-emerald-500 hover:text-black text-emerald-300 font-master font-bold text-[9px] rounded-xl uppercase transition cursor-pointer btn-glow">
           <i class="fas fa-upload mr-1.5"></i> Unggah Gambar
         </button>
         <button onclick="applyBgFrontFromInput()" class="px-4 py-2.5 bg-yellow-400 hover:bg-amber-400 text-black font-master font-bold text-[9px] rounded-xl uppercase transition cursor-pointer shadow-md btn-glow">
           Terapkan URL
         </button>
-        <button onclick="resetBgFront()" class="px-4 py-2.5 bg-white/5 border border-white/10 hover:bg-white/10 text-gray-400 font-master font-bold text-[9px] rounded-xl uppercase transition cursor-pointer">
+        <button onclick="resetBgFront()" class="px-4 py-2.5 bg-white/5 border border-white/10 hover:bg-white/10 text-gray-400 font-master font-bold text-[9px] rounded-xl uppercase transition cursor-pointer btn-glow">
           Reset Default
         </button>
       </div>
     </div>
 
-    <div class="bg-black/60 border border-white/10 rounded-2xl p-5 mb-5 space-y-3">
+    <div class="bg-black/60 border border-white/10 rounded-2xl p-5 mb-5 space-y-3 relative z-10">
       <h4 class="font-master font-bold text-xs text-yellow-400 uppercase tracking-wider flex items-center gap-2">
         <i class="fas fa-desktop text-yellow-400"></i> BACKGROUND DALAM (DASHBOARD)
       </h4>
@@ -1336,19 +1534,19 @@ tailwind.config = {
         <input type="text" id="bgInnerUrlInput" placeholder="https://... atau data:image/..." class="w-full bg-[#050811] border border-white/10 p-3 rounded-xl outline-none focus:border-yellow-400 text-white font-code text-xs transition mb-2">
       </div>
       <div class="flex flex-wrap gap-2">
-        <button onclick="document.getElementById('bgInnerFileInput').click()" class="px-4 py-2.5 bg-emerald-500/20 border border-emerald-500/30 hover:bg-emerald-500 hover:text-black text-emerald-300 font-master font-bold text-[9px] rounded-xl uppercase transition cursor-pointer">
+        <button onclick="document.getElementById('bgInnerFileInput').click()" class="px-4 py-2.5 bg-emerald-500/20 border border-emerald-500/30 hover:bg-emerald-500 hover:text-black text-emerald-300 font-master font-bold text-[9px] rounded-xl uppercase transition cursor-pointer btn-glow">
           <i class="fas fa-upload mr-1.5"></i> Unggah Gambar
         </button>
         <button onclick="applyBgInnerFromInput()" class="px-4 py-2.5 bg-yellow-400 hover:bg-amber-400 text-black font-master font-bold text-[9px] rounded-xl uppercase transition cursor-pointer shadow-md btn-glow">
           Terapkan URL
         </button>
-        <button onclick="resetBgInner()" class="px-4 py-2.5 bg-white/5 border border-white/10 hover:bg-white/10 text-gray-400 font-master font-bold text-[9px] rounded-xl uppercase transition cursor-pointer">
+        <button onclick="resetBgInner()" class="px-4 py-2.5 bg-white/5 border border-white/10 hover:bg-white/10 text-gray-400 font-master font-bold text-[9px] rounded-xl uppercase transition cursor-pointer btn-glow">
           Reset Default
         </button>
       </div>
     </div>
 
-    <button onclick="logoutVault()" class="w-full py-4 rounded-xl bg-red-500/20 border border-red-500/40 hover:bg-red-500 text-red-300 hover:text-white font-master font-bold text-xs uppercase tracking-wider transition cursor-pointer flex items-center justify-center gap-2 shadow-lg btn-glow">
+    <button onclick="logoutVault()" class="w-full py-4 rounded-xl bg-red-500/20 border border-red-500/40 hover:bg-red-500 text-red-300 hover:text-white font-master font-bold text-xs uppercase tracking-wider transition cursor-pointer flex items-center justify-center gap-2 shadow-lg btn-glow relative z-10">
       <i class="fas fa-lock"></i> KUNCI TERMINAL & LOGOUT
     </button>
   </div>
@@ -1356,17 +1554,20 @@ tailwind.config = {
 
 <!-- IMAGE LIGHTBOX -->
 <div id="imageLightboxModal" style="display: none;" class="fixed inset-0 bg-black/95 z-[10005] flex flex-col items-center justify-center p-4 backdrop-blur-2xl" onclick="if(event.target === this) closeImageLightbox()">
-  <div class="absolute top-5 right-6 flex items-center gap-3 z-[10006]">
-    <button onclick="copyLightboxImage()" title="Salin Gambar ke Clipboard" class="px-5 py-2.5 bg-yellow-400 hover:bg-amber-400 text-black font-master font-bold text-xs rounded-xl transition flex items-center gap-2 cursor-pointer shadow-lg hover:shadow-yellow-400/30 btn-glow">
-      <i class="far fa-copy text-sm"></i> SALIN GAMBAR
-    </button>
-    <button onclick="closeImageLightbox()" title="Tutup (ESC)" class="w-10 h-10 bg-white/10 hover:bg-red-500/80 text-white rounded-xl transition flex items-center justify-center cursor-pointer text-lg font-bold border border-white/20">
-      <i class="fas fa-times"></i>
-    </button>
-  </div>
-  <div class="max-w-5xl max-h-[82vh] p-2 bg-[#080c14] border border-white/20 rounded-2xl shadow-2xl flex flex-col items-center justify-center relative overflow-hidden">
-    <img id="lightboxImage" src="" alt="Preview Foto Kendala" class="max-w-full max-h-[75vh] object-contain rounded-xl select-all">
-    <p id="lightboxCaption" class="mt-3 font-master font-bold text-xs text-yellow-400 uppercase tracking-widest italic text-center neon-glow"></p>
+  <div class="modal-glow-box p-4 max-w-5xl max-h-[82vh] w-full relative">
+    <div class="bio-scanner"></div>
+    <div class="absolute top-4 right-4 flex items-center gap-3 z-[10006]">
+      <button onclick="copyLightboxImage()" title="Salin Gambar ke Clipboard" class="px-5 py-2.5 bg-yellow-400 hover:bg-amber-400 text-black font-master font-bold text-xs rounded-xl transition flex items-center gap-2 cursor-pointer shadow-lg hover:shadow-yellow-400/30 btn-glow">
+        <i class="far fa-copy text-sm"></i> SALIN GAMBAR
+      </button>
+      <button onclick="closeImageLightbox()" title="Tutup (ESC)" class="w-10 h-10 bg-white/10 hover:bg-red-500/80 text-white rounded-xl transition flex items-center justify-center cursor-pointer text-lg font-bold border border-white/20">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <div class="flex flex-col items-center justify-center relative overflow-hidden pt-12">
+      <img id="lightboxImage" src="" alt="Preview Foto Kendala" class="max-w-full max-h-[70vh] object-contain rounded-xl select-all">
+      <p id="lightboxCaption" class="mt-3 font-master font-bold text-xs text-yellow-400 uppercase tracking-widest italic text-center neon-glow"></p>
+    </div>
   </div>
   <p class="text-[9px] font-master text-gray-500 uppercase tracking-[2px] mt-4">Tekan <kbd class="px-2.5 py-1 bg-white/10 rounded border border-white/20 text-white font-code">ESC</kbd> atau Klik Dimana Saja Untuk Menutup</p>
 </div>
@@ -1374,38 +1575,42 @@ tailwind.config = {
 <!-- FOLDER MODAL -->
 <div id="menuModal" style="display: none;" class="fixed inset-0 bg-black/90 z-[1001] flex items-center justify-center p-4 backdrop-blur-xl" onclick="if(event.target === this) closeMenuModal()">
   <div class="modal-glow-box p-8 rounded-[28px] w-full max-w-md text-center border border-white/10 shadow-2xl">
-    <div class="w-14 h-14 mx-auto mb-4 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-white text-xl shadow-inner animate-bounce-subtle">
-      <i class="fas fa-folder-plus text-yellow-400"></i>
-    </div>
-    <h3 class="font-master text-base md:text-lg font-black text-yellow-400 mb-6 tracking-wider uppercase neon-glow">CREATE NEW FOLDER</h3>
-    <div class="space-y-4 text-left">
-      <div>
-        <label class="block text-[9px] font-master font-bold text-yellow-400 uppercase tracking-[2px] mb-1.5">NAMA FOLDER</label>
-        <input type="text" id="newMenuName" placeholder="NAMA FOLDER BARU" class="w-full bg-[#050811] border border-white/10 p-3.5 rounded-xl outline-none focus:border-yellow-400 font-bold text-white text-xs uppercase tracking-wider transition">
+    <div class="bio-scanner"></div>
+    <div class="relative z-10">
+      <div class="w-14 h-14 mx-auto mb-4 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-white text-xl shadow-inner animate-bounce-subtle">
+        <i class="fas fa-folder-plus text-yellow-400"></i>
       </div>
-      <div>
-        <label class="block text-[9px] font-master font-bold text-yellow-400 uppercase tracking-[2px] mb-1.5">TIPE / MODE DATA</label>
-        <select id="newMenuType" class="w-full bg-[#050811] border border-white/10 p-3.5 rounded-xl outline-none focus:border-yellow-400 font-bold text-white text-xs transition">
-          <option value="alarm">MODE ALARM CENTER / PENGINGAT</option>
-          <option value="image_note">MODE POTO / GALERI GAMBAR</option>
-          <option value="account">MODE AKUN / DATA LOGIN</option>
-          <option value="note">MODE CATATAN / KOTAK-KOTAK</option>
-          <option value="pasaran">MODE PASARAN LOTTERY</option>
-          <option value="script_promo">MODE SCRIPT NEW (HTML EDITOR)</option>
-        </select>
+      <h3 class="font-master text-base md:text-lg font-black text-yellow-400 mb-6 tracking-wider uppercase neon-glow">CREATE NEW FOLDER</h3>
+      <div class="space-y-4 text-left">
+        <div>
+          <label class="block text-[9px] font-master font-bold text-yellow-400 uppercase tracking-[2px] mb-1.5">NAMA FOLDER</label>
+          <input type="text" id="newMenuName" placeholder="NAMA FOLDER BARU" class="w-full bg-[#050811] border border-white/10 p-3.5 rounded-xl outline-none focus:border-yellow-400 font-bold text-white text-xs uppercase tracking-wider transition">
+        </div>
+        <div>
+          <label class="block text-[9px] font-master font-bold text-yellow-400 uppercase tracking-[2px] mb-1.5">TIPE / MODE DATA</label>
+          <select id="newMenuType" class="w-full bg-[#050811] border border-white/10 p-3.5 rounded-xl outline-none focus:border-yellow-400 font-bold text-white text-xs transition">
+            <option value="alarm">MODE ALARM CENTER / PENGINGAT</option>
+            <option value="image_note">MODE POTO / GALERI GAMBAR</option>
+            <option value="account">MODE AKUN / DATA LOGIN</option>
+            <option value="note">MODE CATATAN / KOTAK-KOTAK</option>
+            <option value="pasaran">MODE PASARAN LOTTERY</option>
+            <option value="script_promo">MODE SCRIPT NEW (HTML EDITOR)</option>
+          </select>
+        </div>
       </div>
+      <button onclick="addNewMenu()" class="w-full py-3.5 mt-6 bg-gradient-to-r from-yellow-400 to-amber-500 hover:from-yellow-300 hover:to-amber-400 text-black font-master font-black rounded-xl uppercase text-xs tracking-widest transition shadow-[0_0_30px_rgba(250,204,21,0.1)] cursor-pointer transform hover:scale-[1.01] btn-glow">
+        SIMPAN FOLDER BARU
+      </button>
+      <button onclick="closeMenuModal()" class="mt-3 text-gray-500 text-[9px] font-master font-bold uppercase tracking-widest hover:text-white transition cursor-pointer">BATAL</button>
     </div>
-    <button onclick="addNewMenu()" class="w-full py-3.5 mt-6 bg-gradient-to-r from-yellow-400 to-amber-500 hover:from-yellow-300 hover:to-amber-400 text-black font-master font-black rounded-xl uppercase text-xs tracking-widest transition shadow-[0_0_30px_rgba(250,204,21,0.1)] cursor-pointer transform hover:scale-[1.01] btn-glow">
-      SIMPAN FOLDER BARU
-    </button>
-    <button onclick="closeMenuModal()" class="mt-3 text-gray-500 text-[9px] font-master font-bold uppercase tracking-widest hover:text-white transition cursor-pointer">BATAL</button>
   </div>
 </div>
 
 <!-- ENTRY MODAL -->
 <div id="dataModal" style="display: none;" class="fixed inset-0 bg-black/90 z-[1000] flex items-center justify-center p-4 backdrop-blur-xl" onclick="if(event.target === this) closeDataModal()">
   <div class="modal-glow-box overflow-hidden rounded-[28px] w-full max-w-lg text-left border border-white/10 bg-[#080c14] shadow-2xl">
-    <div class="bg-gradient-to-r from-yellow-400 to-amber-500 px-6 py-4 flex justify-between items-center text-black">
+    <div class="bio-scanner"></div>
+    <div class="bg-gradient-to-r from-yellow-400 to-amber-500 px-6 py-4 flex justify-between items-center text-black relative z-10">
       <div class="flex items-center gap-2 font-master font-black text-xs md:text-sm uppercase tracking-wider">
         <i class="fas fa-pen-to-square text-sm"></i>
         <span id="modalHeaderTitle" class="neon-glow">ENTRY CONFIGURATION</span>
@@ -1414,7 +1619,7 @@ tailwind.config = {
         <i class="fas fa-times"></i>
       </button>
     </div>
-    <form id="vaultForm" class="p-6 md:p-8 space-y-4">
+    <form id="vaultForm" class="p-6 md:p-8 space-y-4 relative z-10">
       <input type="hidden" id="editIndex">
       <div>
         <label class="block text-[9px] font-master font-bold text-yellow-400 uppercase tracking-[2px] mb-1.5">JUDUL / NAMA ITEM</label>
@@ -1431,9 +1636,9 @@ tailwind.config = {
             <label class="block text-[9px] font-master font-bold text-yellow-400 uppercase tracking-[2px] mb-1.5">PILIH HARI AKTIF</label>
             <div id="daySelectorContainer" class="flex flex-wrap gap-2"></div>
             <div class="flex gap-2 mt-3">
-              <button type="button" onclick="presetDays('DAILY')" class="text-[8px] px-3 py-1.5 bg-white/5 border border-white/10 rounded-lg font-master text-gray-400 hover:bg-yellow-400 hover:text-black transition">DAILY</button>
-              <button type="button" onclick="presetDays('WEEKDAYS')" class="text-[8px] px-3 py-1.5 bg-white/5 border border-white/10 rounded-lg font-master text-gray-400 hover:bg-yellow-400 hover:text-black transition">SENIN-JUMAT</button>
-              <button type="button" onclick="presetDays('WEEKEND')" class="text-[8px] px-3 py-1.5 bg-white/5 border border-white/10 rounded-lg font-master text-gray-400 hover:bg-yellow-400 hover:text-black transition">WEEKEND</button>
+              <button type="button" onclick="presetDays('DAILY')" class="text-[8px] px-3 py-1.5 bg-white/5 border border-white/10 rounded-lg font-master text-gray-400 hover:bg-yellow-400 hover:text-black transition btn-glow">DAILY</button>
+              <button type="button" onclick="presetDays('WEEKDAYS')" class="text-[8px] px-3 py-1.5 bg-white/5 border border-white/10 rounded-lg font-master text-gray-400 hover:bg-yellow-400 hover:text-black transition btn-glow">SENIN-JUMAT</button>
+              <button type="button" onclick="presetDays('WEEKEND')" class="text-[8px] px-3 py-1.5 bg-white/5 border border-white/10 rounded-lg font-master text-gray-400 hover:bg-yellow-400 hover:text-black transition btn-glow">WEEKEND</button>
             </div>
           </div>
         </div>
@@ -1512,33 +1717,39 @@ tailwind.config = {
 <!-- COMMAND PALETTE -->
 <div id="paletteModal" style="display: none;" class="fixed inset-0 bg-black/90 z-[1002] flex items-start justify-center pt-24 p-4 backdrop-blur-xl" onclick="if(event.target === this) closeCommandPalette()">
   <div class="modal-glow-box p-5 rounded-2xl w-full max-w-xl text-left shadow-2xl">
-    <div class="relative mb-3">
-      <input type="text" id="paletteInput" oninput="filterPalette()" placeholder="Ketik nama folder atau pasaran..." class="w-full bg-[#050811] border border-yellow-400/40 p-3.5 pl-10 rounded-xl outline-none text-xs text-yellow-400 font-bold tracking-wider transition focus:border-yellow-400">
-      <i class="fas fa-terminal absolute left-3.5 top-4 text-yellow-400 text-xs animate-pulse"></i>
+    <div class="bio-scanner"></div>
+    <div class="relative z-10">
+      <div class="relative mb-3">
+        <input type="text" id="paletteInput" oninput="filterPalette()" placeholder="Ketik nama folder atau pasaran..." class="w-full bg-[#050811] border border-yellow-400/40 p-3.5 pl-10 rounded-xl outline-none text-xs text-yellow-400 font-bold tracking-wider transition focus:border-yellow-400">
+        <i class="fas fa-terminal absolute left-3.5 top-4 text-yellow-400 text-xs animate-pulse"></i>
+      </div>
+      <div id="paletteResults" class="space-y-1 font-code text-xs max-h-60 overflow-y-auto custom-scroll"></div>
     </div>
-    <div id="paletteResults" class="space-y-1 font-code text-xs max-h-60 overflow-y-auto custom-scroll"></div>
   </div>
 </div>
 
 <!-- PASSWORD GENERATOR -->
 <div id="genModal" style="display: none;" class="fixed inset-0 bg-black/90 z-[1002] flex items-center justify-center p-4 backdrop-blur-xl" onclick="if(event.target === this) closePasswordGenerator()">
   <div class="modal-glow-box p-6 rounded-[28px] w-full max-w-md text-left shadow-2xl">
-    <div class="flex justify-between items-center mb-4 border-b border-white/10 pb-3">
-      <h3 class="font-master font-black text-sm text-purple-400 uppercase flex items-center gap-2 neon-glow"><i class="fas fa-key"></i> Password Generator</h3>
-      <button onclick="closePasswordGenerator()" class="text-gray-400 hover:text-white transition cursor-pointer w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white/10"><i class="fas fa-times"></i></button>
-    </div>
-    <div class="bg-black/60 border border-purple-500/30 p-3.5 rounded-xl flex justify-between items-center mb-4">
-      <span id="genOutput" class="font-code text-xs text-purple-300 font-bold select-all">Click Generate</span>
-      <button onclick="copyGeneratedPass()" class="px-3.5 py-1.5 bg-purple-600 hover:bg-purple-500 text-white text-[9px] font-master font-bold rounded-lg transition cursor-pointer shadow-lg hover:shadow-purple-500/30 btn-glow">SALIN</button>
-    </div>
-    <div class="space-y-3 text-xs text-gray-300 mb-4">
-      <div>
-        <label class="block text-[9px] font-master text-gray-400 mb-1 tracking-wider">PANJANG: <span id="genLenVal" class="text-yellow-400 font-bold">16</span></label>
-        <input type="range" id="genLen" min="8" max="48" value="16" oninput="document.getElementById('genLenVal').innerText=this.value; generatePass();" class="w-full accent-yellow-400 h-2 rounded-lg appearance-none cursor-pointer">
+    <div class="bio-scanner"></div>
+    <div class="relative z-10">
+      <div class="flex justify-between items-center mb-4 border-b border-white/10 pb-3">
+        <h3 class="font-master font-black text-sm text-purple-400 uppercase flex items-center gap-2 neon-glow"><i class="fas fa-key"></i> Password Generator</h3>
+        <button onclick="closePasswordGenerator()" class="text-gray-400 hover:text-white transition cursor-pointer w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white/10"><i class="fas fa-times"></i></button>
       </div>
-      <button onclick="generatePass()" class="w-full py-3 bg-purple-600 hover:bg-purple-500 text-white font-master font-bold rounded-xl text-xs uppercase tracking-wider transition cursor-pointer shadow-lg hover:shadow-purple-500/30 btn-glow">
-        <i class="fas fa-rotate-right mr-2"></i> ACAK REFRESH
-      </button>
+      <div class="bg-black/60 border border-purple-500/30 p-3.5 rounded-xl flex justify-between items-center mb-4">
+        <span id="genOutput" class="font-code text-xs text-purple-300 font-bold select-all">Click Generate</span>
+        <button onclick="copyGeneratedPass()" class="px-3.5 py-1.5 bg-purple-600 hover:bg-purple-500 text-white text-[9px] font-master font-bold rounded-lg transition cursor-pointer shadow-lg hover:shadow-purple-500/30 btn-glow">SALIN</button>
+      </div>
+      <div class="space-y-3 text-xs text-gray-300 mb-4">
+        <div>
+          <label class="block text-[9px] font-master text-gray-400 mb-1 tracking-wider">PANJANG: <span id="genLenVal" class="text-yellow-400 font-bold">16</span></label>
+          <input type="range" id="genLen" min="8" max="48" value="16" oninput="document.getElementById('genLenVal').innerText=this.value; generatePass();" class="w-full accent-yellow-400 h-2 rounded-lg appearance-none cursor-pointer">
+        </div>
+        <button onclick="generatePass()" class="w-full py-3 bg-purple-600 hover:bg-purple-500 text-white font-master font-bold rounded-xl text-xs uppercase tracking-wider transition cursor-pointer shadow-lg hover:shadow-purple-500/30 btn-glow">
+          <i class="fas fa-rotate-right mr-2"></i> ACAK REFRESH
+        </button>
+      </div>
     </div>
   </div>
 </div>
@@ -1546,20 +1757,23 @@ tailwind.config = {
 <!-- BACKUP MODAL -->
 <div id="ioModal" style="display: none;" class="fixed inset-0 bg-black/90 z-[1002] flex items-center justify-center p-4 backdrop-blur-xl" onclick="if(event.target === this) closeImportExportModal()">
   <div class="modal-glow-box p-6 rounded-[28px] w-full max-w-md text-left shadow-2xl">
-    <div class="flex justify-between items-center mb-4 border-b border-white/10 pb-3">
-      <h3 class="font-master font-black text-sm text-cyan-400 uppercase flex items-center gap-2 neon-glow"><i class="fas fa-database"></i> Backup & Restore Data</h3>
-      <button onclick="closeImportExportModal()" class="text-gray-400 hover:text-white transition cursor-pointer w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white/10"><i class="fas fa-times"></i></button>
-    </div>
-    <div class="space-y-3">
-      <button onclick="exportVaultData()" class="w-full py-3.5 bg-gradient-to-r from-yellow-400 to-amber-500 hover:from-yellow-300 hover:to-amber-400 text-black font-master font-bold rounded-xl text-xs uppercase tracking-wider transition cursor-pointer shadow-lg transform hover:scale-[1.01] btn-glow">
-        <i class="fas fa-download mr-2"></i> UNDUH BACKUP JSON
-      </button>
-      <div class="p-4 border border-white/10 rounded-xl bg-black/30">
-        <label class="block text-[9px] font-master text-gray-400 mb-2 tracking-wider uppercase">IMPOR FILE JSON BACKUP</label>
-        <input type="file" id="importFile" accept=".json" class="text-xs text-gray-400 mb-3 w-full file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-yellow-400/20 file:text-yellow-400 hover:file:bg-yellow-400 hover:file:text-black transition file:cursor-pointer">
-        <button onclick="importVaultData()" class="w-full py-3 bg-cyan-500 hover:bg-cyan-400 text-white font-master font-bold rounded-xl text-xs uppercase tracking-wider transition cursor-pointer shadow-lg hover:shadow-cyan-500/30 btn-glow">
-          <i class="fas fa-upload mr-2"></i> PROSES IMPOR
+    <div class="bio-scanner"></div>
+    <div class="relative z-10">
+      <div class="flex justify-between items-center mb-4 border-b border-white/10 pb-3">
+        <h3 class="font-master font-black text-sm text-cyan-400 uppercase flex items-center gap-2 neon-glow"><i class="fas fa-database"></i> Backup & Restore Data</h3>
+        <button onclick="closeImportExportModal()" class="text-gray-400 hover:text-white transition cursor-pointer w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white/10"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="space-y-3">
+        <button onclick="exportVaultData()" class="w-full py-3.5 bg-gradient-to-r from-yellow-400 to-amber-500 hover:from-yellow-300 hover:to-amber-400 text-black font-master font-bold rounded-xl text-xs uppercase tracking-wider transition cursor-pointer shadow-lg transform hover:scale-[1.01] btn-glow">
+          <i class="fas fa-download mr-2"></i> UNDUH BACKUP JSON
         </button>
+        <div class="p-4 border border-white/10 rounded-xl bg-black/30">
+          <label class="block text-[9px] font-master text-gray-400 mb-2 tracking-wider uppercase">IMPOR FILE JSON BACKUP</label>
+          <input type="file" id="importFile" accept=".json" class="text-xs text-gray-400 mb-3 w-full file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-yellow-400/20 file:text-yellow-400 hover:file:bg-yellow-400 hover:file:text-black transition file:cursor-pointer">
+          <button onclick="importVaultData()" class="w-full py-3 bg-cyan-500 hover:bg-cyan-400 text-white font-master font-bold rounded-xl text-xs uppercase tracking-wider transition cursor-pointer shadow-lg hover:shadow-cyan-500/30 btn-glow">
+            <i class="fas fa-upload mr-2"></i> PROSES IMPOR
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -2180,7 +2394,14 @@ window.switchMenu = function(name) {
   toggleMobileSidebar(false);
 
   const mInfo = menus.find(m => m.name === activeMenu) || menus[0];
-  if (currentMenuTitle) currentMenuTitle.innerText = mInfo.name;
+  if (currentMenuTitle) {
+    currentMenuTitle.innerText = mInfo.name;
+    // Re-trigger typing animation
+    currentMenuTitle.classList.remove('typing-complete');
+    setTimeout(() => {
+      currentMenuTitle.classList.add('typing-complete');
+    }, 50);
+  }
   if (folderSubtitle) folderSubtitle.innerText = mInfo.subtitle || "MR.RCT Executive Command Center";
 
   activeSlotIndex = 0;
@@ -2208,7 +2429,7 @@ window.toggleMobileSidebar = function(open) {
 };
 
 // ==========================================
-// RENDER CARDS WITH 3D TILT & FLIP
+// RENDER CARDS WITH 3D TILT & FLIP & AMBIENT GLOW
 // ==========================================
 window.renderCards = function() {
   if (!cardGrid) return;
@@ -2285,6 +2506,7 @@ window.renderCards = function() {
       const isAlarmActive = item.alarmOn !== false;
       card.className = `note-card p-6 border ${isAlarmActive ? 'border-yellow-400/40 shadow-[0_0_30px_rgba(250,204,21,0.05)]' : 'border-white/10 opacity-60'} rounded-2xl transition flex flex-col justify-between h-full min-h-[190px] tilt-effect`;
       card.dataset.index = rIndex;
+      card.dataset.type = "alarm";
       card.innerHTML = `
         <div class="card-inner">
           <div class="card-front">
@@ -2327,7 +2549,7 @@ window.renderCards = function() {
       setupCardTilt(card);
     });
   }
-  // ===== PASARAN CARDS =====
+  // ===== PASARAN ROWS =====
   else if (mInfo.type === 'pasaran') {
     cardGrid.className = "space-y-3";
     filtered.forEach((item) => {
@@ -2380,6 +2602,7 @@ window.renderCards = function() {
       const imgUrl = item.imageUrl || createSampleSvg(item.title || "POTO KENDALA", "#050b14", "#091122", "NO IMAGE", "Klik Upload Foto");
       card.className = "note-card p-5 border border-white/10 rounded-2xl hover:border-yellow-400/40 transition flex flex-col justify-between h-full group tilt-effect";
       card.dataset.index = rIndex;
+      card.dataset.type = "image_note";
       card.innerHTML = `
         <div class="card-inner">
           <div class="card-front">
@@ -2438,6 +2661,7 @@ window.renderCards = function() {
       const loginUrl = item.loginUrl || item.url || '';
       card.className = `note-card p-5 border ${loginUrl ? 'border-yellow-400/40 shadow-[0_0_30px_rgba(250,204,21,0.04)]' : 'border-white/10'} rounded-2xl transition flex flex-col justify-between h-full tilt-effect`;
       card.dataset.index = rIndex;
+      card.dataset.type = "account";
       card.innerHTML = `
         <div class="card-inner">
           <div class="card-front">
@@ -2503,6 +2727,7 @@ window.renderCards = function() {
       const card = document.createElement('div');
       card.className = "note-card p-5 flex flex-col justify-between h-full border border-white/10 rounded-2xl hover:border-yellow-400/40 transition tilt-effect";
       card.dataset.index = rIndex;
+      card.dataset.type = "note";
       card.innerHTML = `
         <div class="card-inner">
           <div class="card-front">
@@ -2602,6 +2827,31 @@ function createSparkleParticles() {
     }
   });
 }
+
+// ==========================================
+// MAGNETIC BUTTON EFFECT
+// ==========================================
+document.querySelectorAll('.btn-glow').forEach(btn => {
+  btn.addEventListener('mousemove', function(e) {
+    const rect = this.getBoundingClientRect();
+    const x = e.clientX - rect.left - rect.width / 2;
+    const y = e.clientY - rect.top - rect.height / 2;
+    const dist = Math.sqrt(x*x + y*y);
+    const maxDist = 120;
+    if (dist < maxDist) {
+      const pull = 1 - (dist / maxDist) * 0.05;
+      this.style.transform = `scale(${pull + 0.05})`;
+      this.classList.add('magnetic-pull');
+    } else {
+      this.style.transform = '';
+      this.classList.remove('magnetic-pull');
+    }
+  });
+  btn.addEventListener('mouseleave', function() {
+    this.style.transform = '';
+    this.classList.remove('magnetic-pull');
+  });
+});
 
 // ==========================================
 // SCRIPT EDITOR
@@ -3505,7 +3755,6 @@ function updateClock() {
 // SYSTEM METRICS
 // ==========================================
 function updateMetrics() {
-  // Ping Latency (simulasi)
   const pingEl = document.getElementById('pingLatency');
   if (pingEl) {
     const latency = 15 + Math.floor(Math.random() * 30);
@@ -3516,7 +3765,6 @@ function updateMetrics() {
     }
   }
   
-  // Uptime
   const uptimeEl = document.getElementById('uptimeCounter');
   if (uptimeEl) {
     const elapsed = Math.floor((Date.now() - sessionStartTime) / 1000);
@@ -3526,7 +3774,6 @@ function updateMetrics() {
     uptimeEl.textContent = `${h}:${m}:${s}`;
   }
   
-  // Memory (simulasi)
   const memEl = document.getElementById('memoryUsage');
   if (memEl) {
     const usage = 30 + Math.floor(Math.random() * 40);
@@ -3603,7 +3850,6 @@ if (meshCanvas) {
   window.addEventListener('resize', resizeMesh);
   resizeMesh();
 
-  // Particle generation
   const meshCount = Math.min(80, Math.floor(window.innerWidth / 16));
   for (let i = 0; i < meshCount; i++) {
     meshParticles.push({
@@ -3624,12 +3870,10 @@ if (meshCanvas) {
     if (!meshActive) return;
     ctx.clearRect(0, 0, meshWidth, meshHeight);
     
-    // Update particles
     meshParticles.forEach(p => {
       p.x += p.vx;
       p.y += p.vy;
       
-      // Mouse interaction - repulsion
       const dx = p.x - mouseX;
       const dy = p.y - mouseY;
       const dist = Math.sqrt(dx * dx + dy * dy);
@@ -3639,15 +3883,12 @@ if (meshCanvas) {
         p.vy += (dy / dist) * force;
       }
       
-      // Boundary
       if (p.x < 0 || p.x > meshWidth) p.vx *= -0.8;
       if (p.y < 0 || p.y > meshHeight) p.vy *= -0.8;
       
-      // Damping
       p.vx *= 0.995;
       p.vy *= 0.995;
       
-      // Clamp speed
       const speed = Math.sqrt(p.vx * p.vx + p.vy * p.vy);
       if (speed > 1.5) {
         p.vx = (p.vx / speed) * 1.5;
@@ -3655,7 +3896,6 @@ if (meshCanvas) {
       }
     });
 
-    // Draw connections
     for (let i = 0; i < meshParticles.length; i++) {
       for (let j = i + 1; j < meshParticles.length; j++) {
         const dx = meshParticles[i].x - meshParticles[j].x;
@@ -3673,7 +3913,6 @@ if (meshCanvas) {
       }
     }
 
-    // Draw particles
     meshParticles.forEach(p => {
       const grad = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size * 3);
       grad.addColorStop(0, 'rgba(250, 204, 21, 0.6)');
@@ -3692,6 +3931,111 @@ if (meshCanvas) {
     requestAnimationFrame(drawMesh);
   }
   drawMesh();
+}
+
+// ==========================================
+// ATMOSPHERIC DUST PARTICLES
+// ==========================================
+const dustCanvas = document.getElementById('dustCanvas');
+if (dustCanvas) {
+  const dCtx = dustCanvas.getContext('2d');
+  let dW, dH;
+  let dustParticles = [];
+
+  function resizeDust() {
+    dW = window.innerWidth;
+    dH = window.innerHeight;
+    dustCanvas.width = dW;
+    dustCanvas.height = dH;
+  }
+  window.addEventListener('resize', resizeDust);
+  resizeDust();
+
+  const dustCount = Math.min(120, Math.floor(window.innerWidth / 8));
+  for (let i = 0; i < dustCount; i++) {
+    dustParticles.push({
+      x: Math.random() * dW,
+      y: Math.random() * dH,
+      size: 0.5 + Math.random() * 2,
+      speedX: (Math.random() - 0.5) * 0.15,
+      speedY: (Math.random() - 0.5) * 0.15,
+      opacity: 0.1 + Math.random() * 0.3
+    });
+  }
+
+  function drawDust() {
+    dCtx.clearRect(0, 0, dW, dH);
+    dustParticles.forEach(p => {
+      p.x += p.speedX;
+      p.y += p.speedY;
+      if (p.x < 0) p.x = dW;
+      if (p.x > dW) p.x = 0;
+      if (p.y < 0) p.y = dH;
+      if (p.y > dH) p.y = 0;
+      
+      dCtx.beginPath();
+      dCtx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+      dCtx.fillStyle = `rgba(250, 204, 21, ${p.opacity})`;
+      dCtx.fill();
+    });
+    requestAnimationFrame(drawDust);
+  }
+  drawDust();
+}
+
+// ==========================================
+// MATRIX OVERLAY
+// ==========================================
+const matrixCanvas = document.getElementById('matrixCanvas');
+if (matrixCanvas) {
+  const mCtx = matrixCanvas.getContext('2d');
+  let mW, mH;
+  let columns = [];
+  let matrixChars = [];
+
+  function resizeMatrix() {
+    mW = window.innerWidth;
+    mH = window.innerHeight;
+    matrixCanvas.width = mW;
+    matrixCanvas.height = mH;
+    columns = Math.floor(mW / 20);
+    matrixChars = [];
+    for (let i = 0; i < columns; i++) {
+      matrixChars.push({
+        y: Math.random() * mH,
+        speed: 0.5 + Math.random() * 1.5
+      });
+    }
+  }
+  window.addEventListener('resize', resizeMatrix);
+  resizeMatrix();
+
+  const chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  
+  function drawMatrix() {
+    mCtx.fillStyle = 'rgba(3, 7, 18, 0.02)';
+    mCtx.fillRect(0, 0, mW, mH);
+    
+    mCtx.font = '14px monospace';
+    
+    for (let i = 0; i < matrixChars.length; i++) {
+      const char = chars[Math.floor(Math.random() * chars.length)];
+      const x = i * 20;
+      const y = matrixChars[i].y;
+      
+      mCtx.fillStyle = `rgba(250, 204, 21, ${0.02 + Math.random() * 0.03})`;
+      mCtx.fillText(char, x, y);
+      
+      matrixChars[i].y += matrixChars[i].speed;
+      if (matrixChars[i].y > mH) {
+        matrixChars[i].y = -20;
+        matrixChars[i].speed = 0.5 + Math.random() * 1.5;
+      }
+    }
+    
+    requestAnimationFrame(drawMatrix);
+  }
+  drawMatrix();
 }
 
 // ==========================================
@@ -3741,7 +4085,6 @@ document.addEventListener('click', (e) => {
     if (shockwave.parentNode) shockwave.remove();
   }, 800);
   
-  // Sparkle burst
   for (let i = 0; i < 8; i++) {
     const sparkle = document.createElement('div');
     sparkle.className = 'sparkle-particle';
@@ -3796,6 +4139,13 @@ if (auth.currentUser) {
   loadFromLocalStorage();
 }
 
+// Terminal typing for title
+if (currentMenuTitle) {
+  setTimeout(() => {
+    currentMenuTitle.classList.add('typing-complete');
+  }, 300);
+}
+
 // Update weather time
 if (document.getElementById('weatherTime')) {
   setInterval(() => {
@@ -3808,7 +4158,7 @@ updateClock();
 
 window.updateClock = updateClock;
 
-console.log('🚀 MR.RCT Executive Vault v22 loaded with HD visuals and advanced effects!');
+console.log('🚀 MR.RCT Executive Vault v23 loaded with ALL HD effects and animations!');
 </script>
 </body>
 </html>
