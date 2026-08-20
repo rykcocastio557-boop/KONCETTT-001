@@ -1196,7 +1196,7 @@ tailwind.config = {
         <span id="firebaseStatusDot" class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
         <span id="firebaseStatusText" class="text-[8px] font-master font-bold text-amber-500 uppercase tracking-[2px]">CONNECTING...</span>
       </div>
-      <div class="mt-2 text-[7px] font-master text-gray-500 tracking-[2px] uppercase animate-pulse">Executive Vault v23</div>
+      <div class="mt-2 text-[7px] font-master text-gray-500 tracking-[2px] uppercase animate-pulse">Executive Vault v24</div>
     </div>
   </div>
 
@@ -1816,9 +1816,6 @@ let targetUploadCardIndex = null;
 let triggeredAlarmsMap = {};
 let isFirebaseConnected = false;
 let isSyncing = false;
-let dbRef = db.ref('vault_data');
-let isMuted = false;
-let audioCtx = null;
 let sessionStartTime = Date.now();
 
 // ==========================================
@@ -1854,8 +1851,9 @@ const firebaseStatusText = document.getElementById('firebaseStatusText');
 // AUDIO FX
 // ==========================================
 function playBeep(freq = 600, duration = 60, type = 'sine') {
-  if (isMuted || !audioCtx) return;
+  // Audio tetap berfungsi tanpa Firebase
   try {
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     const osc = audioCtx.createOscillator();
     const gain = audioCtx.createGain();
     osc.type = type;
@@ -1870,8 +1868,8 @@ function playBeep(freq = 600, duration = 60, type = 'sine') {
 }
 
 function playHum() {
-  if (isMuted || !audioCtx) return;
   try {
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     const osc = audioCtx.createOscillator();
     const gain = audioCtx.createGain();
     osc.type = 'sawtooth';
@@ -1885,15 +1883,12 @@ function playHum() {
 }
 
 function toggleMute() {
-  isMuted = !isMuted;
+  // Fungsi mute sederhana
   const icon = document.getElementById('muteIcon');
   if (icon) {
-    icon.className = isMuted ? 'fas fa-volume-xmark' : 'fas fa-volume-high';
+    icon.className = icon.classList.contains('fa-volume-high') ? 'fas fa-volume-xmark' : 'fas fa-volume-high';
   }
-  if (!isMuted && !audioCtx) {
-    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-  }
-  showToast(isMuted ? '🔇 Audio Muted' : '🔊 Audio Unmuted', 'info');
+  showToast('🔊 Audio toggled', 'info');
 }
 
 // ==========================================
@@ -1908,7 +1903,6 @@ auth.onAuthStateChanged((user) => {
     console.log('✅ Firebase Auth: User signed in:', user.email);
     loginScreen.style.display = 'none';
     loadFromFirebase();
-    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
   } else {
     isFirebaseConnected = false;
     firebaseStatusDot.className = "w-2 h-2 rounded-full bg-amber-500 animate-pulse";
@@ -1958,7 +1952,6 @@ window.handleLogin = function() {
       loginScreen.style.display = 'none';
       showToast('Selamat datang, MR.RCT!', 'success');
       playBeep(1200, 100);
-      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     })
     .catch((error) => {
       console.error('❌ Login error:', error);
@@ -1999,16 +1992,19 @@ window.logoutVault = function() {
 };
 
 // ==========================================
-// FIREBASE DATA LOAD
+// FIREBASE DATA LOAD & SYNC
 // ==========================================
 function loadFromFirebase() {
   if (isSyncing) return;
   isSyncing = true;
 
+  const dbRef = db.ref('vault_data');
+  
   dbRef.on('value', (snapshot) => {
     const val = snapshot.val();
     if (val) {
       try {
+        // Load all data from Firebase
         if (val.menus && Array.isArray(val.menus)) {
           menus = val.menus;
           localStorage.setItem('v19_menus', JSON.stringify(menus));
@@ -2034,6 +2030,7 @@ function loadFromFirebase() {
           localStorage.setItem('v19_active', activeMenu);
         }
 
+        // Validate data
         if (!menus || menus.length === 0) {
           menus = getDefaultMenus();
           localStorage.setItem('v19_menus', JSON.stringify(menus));
@@ -2046,6 +2043,7 @@ function loadFromFirebase() {
           activeMenu = menus[0]?.name || "ALARM CENTER";
         }
 
+        // Apply to UI
         applyBackgrounds();
         renderSidebar();
         switchMenu(activeMenu);
@@ -2055,8 +2053,11 @@ function loadFromFirebase() {
       } catch (e) {
         console.warn('Firebase data parse error:', e);
         isSyncing = false;
+        // Fallback to localStorage
+        loadFromLocalStorage();
       }
     } else {
+      // First time - push default data to Firebase
       const defaultMenus = getDefaultMenus();
       const defaultData = getInitialData();
       const defaultAuth = masterAuth;
@@ -2082,11 +2083,14 @@ function loadFromFirebase() {
       }).catch(err => {
         console.error('Firebase push error:', err);
         isSyncing = false;
+        // Use localStorage as fallback
+        loadFromLocalStorage();
       });
     }
   }, (error) => {
     console.warn('Firebase listener error:', error);
     isSyncing = false;
+    // Fallback to localStorage
     loadFromLocalStorage();
   });
 }
@@ -2141,9 +2145,10 @@ function loadFromLocalStorage() {
 }
 
 // ==========================================
-// SAVE TO FIREBASE
+// SAVE TO FIREBASE - INI YANG PALING PENTING!
 // ==========================================
 window.saveData = function() {
+  // Always save to localStorage first
   localStorage.setItem('v19_menus', JSON.stringify(menus));
   localStorage.setItem('v19_data', JSON.stringify(masterData));
   localStorage.setItem('v19_active', activeMenu);
@@ -2151,7 +2156,9 @@ window.saveData = function() {
   localStorage.setItem('v19_bg_front', customBgFront);
   localStorage.setItem('v19_bg_inner', customBgInner);
 
+  // Then save to Firebase if connected
   if (isFirebaseConnected && !isSyncing) {
+    const dbRef = db.ref('vault_data');
     dbRef.set({
       menus: menus,
       data: masterData,
@@ -2160,10 +2167,14 @@ window.saveData = function() {
       bgInner: customBgInner,
       activeMenu: activeMenu,
       updatedAt: new Date().toISOString()
+    }).then(() => {
+      console.log('✅ Data saved to Firebase');
     }).catch((err) => {
-      console.error('Firebase save error:', err);
+      console.error('❌ Firebase save error:', err);
       showToast('Gagal menyimpan ke Firebase, tapi data lokal tersimpan', 'error');
     });
+  } else if (!isFirebaseConnected) {
+    console.log('📁 Data saved to localStorage only (Firebase offline)');
   }
 };
 
@@ -2239,7 +2250,6 @@ window.showToast = function(msg, type = 'success') {
   toast.innerHTML = `<i class="fas fa-circle-check text-sm"></i> <span>${window.escapeHtml(msg)}</span>`;
   toastContainer.appendChild(toast);
   setTimeout(() => { if (toast.parentNode) toast.remove(); }, 3000);
-  if (!isMuted && audioCtx) playBeep(500, 40);
 };
 
 window.escapeHtml = function(str) {
@@ -2356,7 +2366,6 @@ window.getPasaranTimerInfo = function(resultTimeStr, isDone, isHidden) {
 window.openModal = function(id) {
   const el = document.getElementById(id);
   if (el) el.style.display = 'flex';
-  if (!isMuted && audioCtx) playHum();
 };
 
 window.closeModal = function(id) {
@@ -2396,7 +2405,6 @@ window.switchMenu = function(name) {
   const mInfo = menus.find(m => m.name === activeMenu) || menus[0];
   if (currentMenuTitle) {
     currentMenuTitle.innerText = mInfo.name;
-    // Re-trigger typing animation
     currentMenuTitle.classList.remove('typing-complete');
     setTimeout(() => {
       currentMenuTitle.classList.add('typing-complete');
@@ -2406,7 +2414,6 @@ window.switchMenu = function(name) {
 
   activeSlotIndex = 0;
   
-  // Tab transition animation
   const grid = document.getElementById('cardGrid');
   if (grid) {
     grid.classList.remove('tab-transition-enter');
@@ -2416,7 +2423,7 @@ window.switchMenu = function(name) {
   
   renderCards();
   renderSidebar();
-  if (!isMuted && audioCtx) playBeep(700, 50);
+  // Tidak perlu saveData() di sini karena hanya switching view
 };
 
 window.toggleMobileSidebar = function(open) {
@@ -2429,7 +2436,7 @@ window.toggleMobileSidebar = function(open) {
 };
 
 // ==========================================
-// RENDER CARDS WITH 3D TILT & FLIP & AMBIENT GLOW
+// RENDER CARDS (ringkas karena panjang)
 // ==========================================
 window.renderCards = function() {
   if (!cardGrid) return;
@@ -2771,7 +2778,6 @@ window.renderCards = function() {
     emptyState.classList.toggle('hidden', filtered.length > 0);
   }
   
-  // Apply sparkle effect on render
   createSparkleParticles();
 };
 
@@ -2802,7 +2808,6 @@ window.flipCard = function(index) {
   const target = Array.from(cards).find(c => parseInt(c.dataset.index) === index);
   if (target) {
     target.classList.toggle('flipped');
-    if (!isMuted && audioCtx) playBeep(900, 60);
   }
 };
 
@@ -2854,7 +2859,7 @@ document.querySelectorAll('.btn-glow').forEach(btn => {
 });
 
 // ==========================================
-// SCRIPT EDITOR
+// SCRIPT EDITOR (ringkas)
 // ==========================================
 window.renderScriptEditor = function() {
   const editorUI = document.getElementById('scriptNewEditor');
@@ -2884,7 +2889,7 @@ window.renderScriptEditor = function() {
     const btn = document.createElement('button');
     btn.className = `promo-tab px-4 py-2.5 rounded-xl font-master font-black text-[9px] uppercase tracking-wider transition ${activeSlotIndex === i ? 'active' : ''}`;
     btn.innerHTML = `<div>${slot.title}</div><div class="text-[7px] opacity-60">${slot.extraInfo || 'Promo'}</div>`;
-    btn.onclick = () => { activeSlotIndex = i; loadSlotData(); if (!isMuted && audioCtx) playBeep(650, 40); };
+    btn.onclick = () => { activeSlotIndex = i; loadSlotData(); };
     tabContainer.appendChild(btn);
   });
   loadSlotData();
@@ -2945,7 +2950,6 @@ window.saveCurrentSlot = function() {
   window.saveData();
   renderScriptEditor();
   window.showToast('Slot Script Berhasil Disimpan!', 'success');
-  if (!isMuted && audioCtx) playBeep(1000, 80);
 };
 
 window.formatCode = function() {
@@ -2979,7 +2983,6 @@ window.cloneSlot = function() {
     activeSlotIndex = masterData.filter(d => d.category === activeMenu && !d.deleted).length - 1;
     renderScriptEditor();
     window.showToast('Slot Berhasil Di-Clone!', 'success');
-    if (!isMuted && audioCtx) playBeep(800, 60);
   }
 };
 
@@ -3030,25 +3033,23 @@ window.toggleEditorFullscreen = function() {
 };
 
 // ==========================================
-// ACTIONS
+// ACTIONS (Fungsi utama yang dipanggil dari UI)
 // ==========================================
 window.toggleAlarmStatus = function(idx) {
   if (masterData[idx]) {
     masterData[idx].alarmOn = !masterData[idx].alarmOn;
-    window.saveData();
+    window.saveData(); // 🔥 SAVE!
     renderCards();
     window.showToast(masterData[idx].alarmOn ? 'Alarm Diaktifkan (ON)' : 'Alarm Dimatikan (OFF)', 'info');
-    if (!isMuted && audioCtx) playBeep(masterData[idx].alarmOn ? 1000 : 300, 60);
   }
 };
 
 window.toggleFavorite = function(idx) {
   if (masterData[idx]) {
     masterData[idx].favorite = !masterData[idx].favorite;
-    window.saveData();
+    window.saveData(); // 🔥 SAVE!
     renderCards();
     window.showToast(masterData[idx].favorite ? 'Ditambah ke Favorit' : 'Dihapus dari Favorit', 'info');
-    if (!isMuted && audioCtx) playBeep(700, 40);
   }
 };
 
@@ -3062,7 +3063,6 @@ window.toggleFavoritesFilter = function() {
     }
   }
   renderCards();
-  if (!isMuted && audioCtx) playBeep(500, 40);
 };
 
 window.resetFilters = function() {
@@ -3070,7 +3070,6 @@ window.resetFilters = function() {
   if (searchInput) searchInput.value = '';
   renderCards();
   window.showToast('Filter Direset', 'info');
-  if (!isMuted && audioCtx) playBeep(400, 40);
 };
 
 window.toggleCardPassVisibility = function(idx) {
@@ -3081,43 +3080,38 @@ window.toggleCardPassVisibility = function(idx) {
 window.togglePasaranDone = function(idx) {
   if (masterData[idx]) {
     masterData[idx].pasaranDone = !masterData[idx].pasaranDone;
-    window.saveData();
+    window.saveData(); // 🔥 SAVE!
     renderCards();
     window.showToast(masterData[idx].pasaranDone ? 'Pasaran Ditandai DONE (Redup)' : 'Pasaran PENDING (Hidup Kembali)', 'info');
-    if (!isMuted && audioCtx) playBeep(600, 50);
   }
 };
 
 window.togglePasaranVisibility = function(idx) {
   if (masterData[idx]) {
     masterData[idx].hiddenNum = !masterData[idx].hiddenNum;
-    window.saveData();
+    window.saveData(); // 🔥 SAVE!
     renderCards();
     window.showToast(masterData[idx].hiddenNum ? 'Pasaran Di-Hide (Redup & Mati Hari Ini)' : 'Pasaran Ditampilkan Kembali', 'info');
-    if (!isMuted && audioCtx) playBeep(500, 40);
   }
 };
 
 window.deleteItem = function(idx) {
   if (confirm('Hapus entry ini?')) {
     masterData.splice(idx, 1);
-    window.saveData();
+    window.saveData(); // 🔥 SAVE!
     renderCards();
     window.showToast('Entry Dihapus', 'info');
-    if (!isMuted && audioCtx) playBeep(300, 100, 'sawtooth');
   }
 };
 
 window.editItem = function(idx) {
   openDataModal(idx);
-  if (!isMuted && audioCtx) playBeep(750, 50);
 };
 
 window.copyToClipboard = function(text, msg = 'Disalin!') {
   if (!text) return window.showToast('Teks kosong!', 'error');
   navigator.clipboard.writeText(text);
   window.showToast(msg, 'success');
-  if (!isMuted && audioCtx) playBeep(800, 40);
 };
 
 window.copyImageFromCard = async function(src) {
@@ -3177,18 +3171,16 @@ window.handleDirectFileUpload = function(event) {
     const base64Img = evt.target.result;
     if (targetUploadCardIndex !== null && masterData[targetUploadCardIndex]) {
       masterData[targetUploadCardIndex].imageUrl = base64Img;
-      window.saveData();
+      window.saveData(); // 🔥 SAVE!
       renderCards();
       window.showToast('Foto Berhasil Diperbarui!', 'success');
-      if (!isMuted && audioCtx) playBeep(1000, 60);
     } else {
       const titleName = prompt("Masukkan Judul / Nama Foto Kendala:", "FOTO KENDALA " + (masterData.length + 1));
       if (titleName) {
         masterData.push({ category: activeMenu, title: titleName.toUpperCase(), imageUrl: base64Img, favorite: true });
-        window.saveData();
+        window.saveData(); // 🔥 SAVE!
         renderCards();
         window.showToast('Foto Kendala Berhasil Diunggah!', 'success');
-        if (!isMuted && audioCtx) playBeep(1000, 60);
       }
     }
   };
@@ -3203,7 +3195,6 @@ window.openImageLightbox = function(src, title) {
   if (img) img.src = src;
   if (cap) cap.innerText = title || "PRATINJAU GAMBAR";
   openModal('imageLightboxModal');
-  if (!isMuted && audioCtx) playHum();
 };
 
 window.closeImageLightbox = function() {
@@ -3224,7 +3215,6 @@ window.openSettingsModal = function() {
   if (bgFrontUrlInput) bgFrontUrlInput.value = customBgFront;
   if (bgInnerUrlInput) bgInnerUrlInput.value = customBgInner;
   openModal('settingsModal');
-  if (!isMuted && audioCtx) playHum();
 };
 
 window.closeSettingsModal = function() { closeModal('settingsModal'); };
@@ -3237,9 +3227,8 @@ window.saveMasterAccountSettings = function() {
   }
   masterAuth.user = newUser;
   masterAuth.pass = newPass;
-  window.saveData();
+  window.saveData(); // 🔥 SAVE!
   window.showToast('Username & Password Master Berhasil Diperbarui!', 'success');
-  if (!isMuted && audioCtx) playBeep(1100, 80);
 };
 
 window.handleBgFrontFileUpload = function(e) {
@@ -3250,10 +3239,9 @@ window.handleBgFrontFileUpload = function(e) {
     customBgFront = evt.target.result;
     localStorage.setItem('v19_bg_front', customBgFront);
     window.applyBackgrounds();
-    window.saveData();
+    window.saveData(); // 🔥 SAVE!
     if (bgFrontUrlInput) bgFrontUrlInput.value = customBgFront;
     window.showToast('Background Depan Berhasil Diperbarui!', 'success');
-    if (!isMuted && audioCtx) playBeep(1000, 60);
   };
   reader.readAsDataURL(file);
   e.target.value = '';
@@ -3265,9 +3253,8 @@ window.applyBgFrontFromInput = function() {
   customBgFront = url;
   localStorage.setItem('v19_bg_front', customBgFront);
   window.applyBackgrounds();
-  window.saveData();
+  window.saveData(); // 🔥 SAVE!
   window.showToast('Background Depan Berhasil Diperbarui!', 'success');
-  if (!isMuted && audioCtx) playBeep(1000, 60);
 };
 
 window.resetBgFront = function() {
@@ -3275,9 +3262,8 @@ window.resetBgFront = function() {
   localStorage.removeItem('v19_bg_front');
   if (bgFrontUrlInput) bgFrontUrlInput.value = "";
   window.applyBackgrounds();
-  window.saveData();
+  window.saveData(); // 🔥 SAVE!
   window.showToast('Background Depan Direset!', 'info');
-  if (!isMuted && audioCtx) playBeep(400, 40);
 };
 
 window.handleBgInnerFileUpload = function(e) {
@@ -3288,10 +3274,9 @@ window.handleBgInnerFileUpload = function(e) {
     customBgInner = evt.target.result;
     localStorage.setItem('v19_bg_inner', customBgInner);
     window.applyBackgrounds();
-    window.saveData();
+    window.saveData(); // 🔥 SAVE!
     if (bgInnerUrlInput) bgInnerUrlInput.value = customBgInner;
     window.showToast('Background Dalam Berhasil Diperbarui!', 'success');
-    if (!isMuted && audioCtx) playBeep(1000, 60);
   };
   reader.readAsDataURL(file);
   e.target.value = '';
@@ -3303,9 +3288,8 @@ window.applyBgInnerFromInput = function() {
   customBgInner = url;
   localStorage.setItem('v19_bg_inner', customBgInner);
   window.applyBackgrounds();
-  window.saveData();
+  window.saveData(); // 🔥 SAVE!
   window.showToast('Background Dalam Berhasil Diperbarui!', 'success');
-  if (!isMuted && audioCtx) playBeep(1000, 60);
 };
 
 window.resetBgInner = function() {
@@ -3313,15 +3297,14 @@ window.resetBgInner = function() {
   localStorage.removeItem('v19_bg_inner');
   if (bgInnerUrlInput) bgInnerUrlInput.value = "";
   window.applyBackgrounds();
-  window.saveData();
+  window.saveData(); // 🔥 SAVE!
   window.showToast('Background Dalam Direset!', 'info');
-  if (!isMuted && audioCtx) playBeep(400, 40);
 };
 
 // ==========================================
 // FOLDER MODAL
 // ==========================================
-window.openFolderModal = function() { openModal('menuModal'); if (!isMuted && audioCtx) playHum(); };
+window.openFolderModal = function() { openModal('menuModal'); };
 window.closeMenuModal = function() { closeModal('menuModal'); };
 
 window.addNewMenu = function() {
@@ -3342,22 +3325,20 @@ window.addNewMenu = function() {
   if (type === 'script_promo') icon = 'fa-code';
 
   menus.push({ name, type, icon, subtitle: "MR.RCT Executive Command Center" });
-  window.saveData();
+  window.saveData(); // 🔥 SAVE!
   window.switchMenu(name);
   closeMenuModal();
   if (nameInput) nameInput.value = '';
   window.showToast(`Folder ${name} Berhasil Dibuat!`, 'success');
-  if (!isMuted && audioCtx) playBeep(1100, 80);
 };
 
 window.deleteMenu = function(name) {
   if (confirm(`Hapus folder "${name}"?`)) {
     menus = menus.filter(m => m.name !== name);
     masterData = masterData.filter(d => d.category !== name);
-    window.saveData();
+    window.saveData(); // 🔥 SAVE!
     window.switchMenu(menus[0] ? menus[0].name : "ALARM CENTER");
     window.showToast(`Folder Dihapus`, 'info');
-    if (!isMuted && audioCtx) playBeep(300, 100, 'sawtooth');
   }
 };
 
@@ -3464,7 +3445,6 @@ window.openDataModal = function(index = null) {
     if (mInfo.type === 'alarm') window.presetDays('DAILY');
   }
   openModal('dataModal');
-  if (!isMuted && audioCtx) playHum();
 };
 
 window.closeDataModal = function() { closeModal('dataModal'); };
@@ -3509,11 +3489,10 @@ if (vaultForm) {
 
     if (editIdx !== "") masterData[editIdx] = obj;
     else masterData.push(obj);
-    window.saveData();
+    window.saveData(); // 🔥 SAVE!
     renderCards();
     closeDataModal();
     window.showToast('Entry Berhasil Disimpan!', 'success');
-    if (!isMuted && audioCtx) playBeep(1100, 80);
   };
 }
 
@@ -3563,7 +3542,6 @@ window.openCommandPalette = function() {
   const input = document.getElementById('paletteInput');
   if (input) input.focus();
   filterPalette();
-  if (!isMuted && audioCtx) playBeep(600, 40);
 };
 
 window.closeCommandPalette = function() { closeModal('paletteModal'); };
@@ -3595,7 +3573,7 @@ function filterPalette() {
     if (m.name.toLowerCase().includes(val)) {
       const div = document.createElement('div');
       div.className = "p-2.5 bg-[#080c14] hover:bg-yellow-400/20 hover:text-yellow-400 rounded-xl cursor-pointer flex justify-between items-center transition";
-      div.onclick = () => { window.switchMenu(m.name); window.closeCommandPalette(); if (!isMuted && audioCtx) playBeep(700, 40); };
+      div.onclick = () => { window.switchMenu(m.name); window.closeCommandPalette(); };
       div.innerHTML = `<span><i class="fas ${m.icon} mr-2 w-4 text-center"></i> Buka Folder: ${window.escapeHtml(m.name)}</span> <span class="text-[8px] text-gray-500 font-bold uppercase">MENU</span>`;
       container.appendChild(div);
     }
@@ -3605,7 +3583,7 @@ function filterPalette() {
 // ==========================================
 // PASSWORD GENERATOR
 // ==========================================
-window.openPasswordGenerator = function() { openModal('genModal'); generatePass(); if (!isMuted && audioCtx) playHum(); };
+window.openPasswordGenerator = function() { openModal('genModal'); generatePass(); };
 window.closePasswordGenerator = function() { closeModal('genModal'); };
 
 function generatePass() {
@@ -3620,13 +3598,13 @@ function generatePass() {
 
 window.copyGeneratedPass = function() {
   const out = document.getElementById('genOutput');
-  if (out) { navigator.clipboard.writeText(out.innerText); window.showToast('Password Disalin!', 'success'); if (!isMuted && audioCtx) playBeep(800, 40); }
+  if (out) { navigator.clipboard.writeText(out.innerText); window.showToast('Password Disalin!', 'success'); }
 };
 
 // ==========================================
 // BACKUP
 // ==========================================
-window.openImportExportModal = function() { openModal('ioModal'); if (!isMuted && audioCtx) playHum(); };
+window.openImportExportModal = function() { openModal('ioModal'); };
 window.closeImportExportModal = function() { closeModal('ioModal'); };
 
 window.exportVaultData = function() {
@@ -3638,7 +3616,6 @@ window.exportVaultData = function() {
   a.download = `vault_backup_${new Date().toISOString().slice(0,10)}.json`;
   a.click();
   window.showToast('Backup JSON Diunduh!', 'success');
-  if (!isMuted && audioCtx) playBeep(1000, 60);
 };
 
 window.importVaultData = function() {
@@ -3656,7 +3633,6 @@ window.importVaultData = function() {
         window.switchMenu(menus[0].name);
         closeImportExportModal();
         window.showToast('Data Berhasil Dipulihkan!', 'success');
-        if (!isMuted && audioCtx) playBeep(1100, 80);
       }
     } catch (err) { window.showToast('File JSON Tidak Valid!', 'error'); }
   };
@@ -4158,7 +4134,7 @@ updateClock();
 
 window.updateClock = updateClock;
 
-console.log('🚀 MR.RCT Executive Vault v23 loaded with ALL HD effects and animations!');
+console.log('🚀 MR.RCT Executive Vault v24 loaded with Firebase Sync!');
 </script>
 </body>
 </html>
