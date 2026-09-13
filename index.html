@@ -1045,6 +1045,15 @@ tailwind.config = {
   width: 100%;
   transition: width 0.5s ease;
 }
+
+/* ===== DANGER ZONE ===== */
+.danger-zone {
+  animation: dangerPulse 2s ease-in-out infinite;
+}
+@keyframes dangerPulse {
+  0%, 100% { border-color: rgba(239, 68, 68, 0.3); }
+  50% { border-color: rgba(239, 68, 68, 0.6); box-shadow: 0 0 20px rgba(239, 68, 68, 0.1); }
+}
 </style>
 </head>
 <body class="font-body bg-vault-bg text-slate-100 h-screen flex overflow-hidden select-none">
@@ -1142,7 +1151,7 @@ tailwind.config = {
         <div>
           <label class="block text-white/70 text-sm font-medium mb-1.5">Email / Username</label>
           <div class="relative">
-            <input type="text" id="loginUser" value="rykcocastio557@gmail.com"
+            <input type="text" id="loginUser" value=""
               class="login-input-line w-full text-white outline-none py-2.5 placeholder:text-white/30 text-sm"
               placeholder="Enter your email or username">
             <i class="fas fa-envelope absolute right-0 top-3.5 text-white/50 text-sm animate-pulse"></i>
@@ -1502,6 +1511,26 @@ tailwind.config = {
       <button onclick="saveMasterAccountSettings()" class="w-full py-3.5 rounded-xl bg-gradient-to-r from-yellow-400 to-amber-500 hover:from-yellow-300 hover:to-amber-400 text-black font-master font-black text-xs uppercase tracking-wider transition shadow-md cursor-pointer transform hover:scale-[1.01] btn-glow">
         SIMPAN PERUBAHAN AKUN MASTER
       </button>
+
+      <!-- ===== DANGER ZONE — FIREBASE RESET ===== -->
+      <div class="mt-3 p-4 bg-red-950/30 border border-red-500/30 rounded-xl danger-zone">
+        <p class="text-[8px] font-master text-red-400 uppercase tracking-[2px] mb-2.5 flex items-center gap-2">
+          <i class="fas fa-triangle-exclamation"></i> DANGER ZONE — FIREBASE CONTROL
+        </p>
+        <div class="flex gap-2">
+          <button onclick="forceSaveToFirebase()" class="flex-1 py-3 rounded-lg bg-amber-500/20 border border-amber-500/40 hover:bg-amber-500 hover:text-black text-amber-300 font-master font-bold text-[9px] uppercase tracking-wider transition cursor-pointer btn-glow">
+            <i class="fas fa-cloud-arrow-up mr-1"></i> FORCE SAVE
+          </button>
+          <button onclick="purgeFirebase()" class="flex-1 py-3 rounded-lg bg-red-500/20 border border-red-500/40 hover:bg-red-500 hover:text-white text-red-300 font-master font-bold text-[9px] uppercase tracking-wider transition cursor-pointer btn-glow">
+            <i class="fas fa-bomb mr-1"></i> PURGE FIREBASE
+          </button>
+        </div>
+        <p class="text-[8px] font-code text-gray-500 mt-2 leading-relaxed">
+          ⚠️ <b class="text-amber-400">Force Save</b>: paksa tulis data lokal ke Firebase (overwrite).<br>
+          💣 <b class="text-red-400">Purge</b>: hapus TOTAL semua data di Firebase (permanent!).<br>
+          <span class="text-gray-600">⚠️ Wajib Firebase Rules: <code class="text-yellow-400">"vault_data": {".write": "auth != null"}</code></span>
+        </p>
+      </div>
     </div>
 
     <div class="bg-black/60 border border-white/10 rounded-2xl p-5 mb-5 space-y-3 relative z-10">
@@ -1667,15 +1696,15 @@ tailwind.config = {
       <div id="accountFields" class="hidden space-y-3">
         <div>
           <label class="block text-[9px] font-master font-bold text-yellow-400 uppercase tracking-[2px] mb-1.5">USERNAME / EMAIL</label>
-          <input type="text" id="inputUser" placeholder="rickycharles0509@gmail.com" class="w-full bg-[#050811] border border-white/10 p-3.5 rounded-xl outline-none focus:border-yellow-400 text-white font-code text-xs transition">
+          <input type="text" id="inputUser" placeholder="username@email.com" class="w-full bg-[#050811] border border-white/10 p-3.5 rounded-xl outline-none focus:border-yellow-400 text-white font-code text-xs transition">
         </div>
         <div>
           <label class="block text-[9px] font-master font-bold text-yellow-400 uppercase tracking-[2px] mb-1.5">PASSWORD</label>
-          <input type="text" id="inputPass" placeholder="voxaarickychar" class="w-full bg-[#050811] border border-white/10 p-3.5 rounded-xl outline-none focus:border-yellow-400 text-white font-code text-xs transition">
+          <input type="text" id="inputPass" placeholder="password" class="w-full bg-[#050811] border border-white/10 p-3.5 rounded-xl outline-none focus:border-yellow-400 text-white font-code text-xs transition">
         </div>
         <div>
           <label class="block text-[9px] font-master font-bold text-yellow-400 uppercase tracking-[2px] mb-1.5">LINK LOGIN / URL TARGET</label>
-          <input type="text" id="inputLoginUrl" placeholder="http://agwl7.suksesbogil.com?passkey=zlknCLkuysXUSwi..." class="w-full bg-[#050811] border border-white/10 p-3.5 rounded-xl outline-none focus:border-yellow-400 text-white font-code text-xs transition">
+          <input type="text" id="inputLoginUrl" placeholder="https://..." class="w-full bg-[#050811] border border-white/10 p-3.5 rounded-xl outline-none focus:border-yellow-400 text-white font-code text-xs transition">
         </div>
       </div>
 
@@ -1851,7 +1880,6 @@ const firebaseStatusText = document.getElementById('firebaseStatusText');
 // AUDIO FX
 // ==========================================
 function playBeep(freq = 600, duration = 60, type = 'sine') {
-  // Audio tetap berfungsi tanpa Firebase
   try {
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     const osc = audioCtx.createOscillator();
@@ -1883,7 +1911,6 @@ function playHum() {
 }
 
 function toggleMute() {
-  // Fungsi mute sederhana
   const icon = document.getElementById('muteIcon');
   if (icon) {
     icon.className = icon.classList.contains('fa-volume-high') ? 'fas fa-volume-xmark' : 'fas fa-volume-high';
@@ -2004,7 +2031,6 @@ function loadFromFirebase() {
     const val = snapshot.val();
     if (val) {
       try {
-        // Load all data from Firebase
         if (val.menus && Array.isArray(val.menus)) {
           menus = val.menus;
           localStorage.setItem('v19_menus', JSON.stringify(menus));
@@ -2030,7 +2056,6 @@ function loadFromFirebase() {
           localStorage.setItem('v19_active', activeMenu);
         }
 
-        // Validate data
         if (!menus || menus.length === 0) {
           menus = getDefaultMenus();
           localStorage.setItem('v19_menus', JSON.stringify(menus));
@@ -2043,7 +2068,6 @@ function loadFromFirebase() {
           activeMenu = menus[0]?.name || "ALARM CENTER";
         }
 
-        // Apply to UI
         applyBackgrounds();
         renderSidebar();
         switchMenu(activeMenu);
@@ -2053,11 +2077,9 @@ function loadFromFirebase() {
       } catch (e) {
         console.warn('Firebase data parse error:', e);
         isSyncing = false;
-        // Fallback to localStorage
         loadFromLocalStorage();
       }
     } else {
-      // First time - push default data to Firebase
       const defaultMenus = getDefaultMenus();
       const defaultData = getInitialData();
       const defaultAuth = masterAuth;
@@ -2083,14 +2105,12 @@ function loadFromFirebase() {
       }).catch(err => {
         console.error('Firebase push error:', err);
         isSyncing = false;
-        // Use localStorage as fallback
         loadFromLocalStorage();
       });
     }
   }, (error) => {
     console.warn('Firebase listener error:', error);
     isSyncing = false;
-    // Fallback to localStorage
     loadFromLocalStorage();
   });
 }
@@ -2145,10 +2165,9 @@ function loadFromLocalStorage() {
 }
 
 // ==========================================
-// SAVE TO FIREBASE - INI YANG PALING PENTING!
+// SAVE TO FIREBASE
 // ==========================================
 window.saveData = function() {
-  // Always save to localStorage first
   localStorage.setItem('v19_menus', JSON.stringify(menus));
   localStorage.setItem('v19_data', JSON.stringify(masterData));
   localStorage.setItem('v19_active', activeMenu);
@@ -2156,7 +2175,6 @@ window.saveData = function() {
   localStorage.setItem('v19_bg_front', customBgFront);
   localStorage.setItem('v19_bg_inner', customBgInner);
 
-  // Then save to Firebase if connected
   if (isFirebaseConnected && !isSyncing) {
     const dbRef = db.ref('vault_data');
     dbRef.set({
@@ -2179,7 +2197,7 @@ window.saveData = function() {
 };
 
 // ==========================================
-// DEFAULT DATA
+// DEFAULT DATA — SUDAH BERSIH DARI DATA RICKY CHARLES
 // ==========================================
 function getDefaultMenus() {
   return [
@@ -2230,8 +2248,9 @@ function getInitialData() {
     { category: "POTO KENDALA", title: "CARA KIRIM SS DI LIVECHAT", imageUrl: createSvg("CARA KIRIM SS DI LIVECHAT", "#0f172a", "#1e293b", "ATTACH SCREENSHOT", "Panduan Upload Bukti Transfer"), favorite: true },
     { category: "POTO KENDALA", title: "PERATURAN PIHAK KETIGA", imageUrl: createSvg("PERATURAN PIHAK KETIGA", "#180e04", "#2c1706", "PERATURAN DEPOSIT", "Transfer Pihak Ketiga Dilarang"), favorite: true },
     
-    { category: "DATA LOGIN", title: "GMAIL", user: "rickycharles0509@gmail.com", pass: "password123", loginUrl: "", favorite: true },
-    { category: "DATA LOGIN", title: "ADMIN", user: "voxaarickychar", pass: "mastersecret123", loginUrl: "http://agwl7.idnpaito.com?passkey=zlknCLkuysXUSwi", favorite: true },
+    // ✅ DATA LOGIN SUDAH DIKOSONGKAN - RICKY CHARLES DIHAPUS TOTAL
+    { category: "DATA LOGIN", title: "GMAIL UTAMA", user: "", pass: "", loginUrl: "", favorite: false },
+    { category: "DATA LOGIN", title: "ADMIN", user: "", pass: "", loginUrl: "", favorite: false },
     
     { category: "RESULT PASARAN", title: "CAMBODIA 11:50", pasaranClose: "11:35", pasaranResultTime: "11:50", pasaranDone: false, favorite: false, url: "", hiddenNum: false },
     { category: "RESULT PASARAN", title: "HOKIDRAW", pasaranClose: "20:00", pasaranResultTime: "20:15", pasaranDone: true, favorite: true, url: "https://hokidraw.com", hiddenNum: false },
@@ -2423,7 +2442,6 @@ window.switchMenu = function(name) {
   
   renderCards();
   renderSidebar();
-  // Tidak perlu saveData() di sini karena hanya switching view
 };
 
 window.toggleMobileSidebar = function(open) {
@@ -2436,7 +2454,7 @@ window.toggleMobileSidebar = function(open) {
 };
 
 // ==========================================
-// RENDER CARDS (ringkas karena panjang)
+// RENDER CARDS
 // ==========================================
 window.renderCards = function() {
   if (!cardGrid) return;
@@ -2859,7 +2877,7 @@ document.querySelectorAll('.btn-glow').forEach(btn => {
 });
 
 // ==========================================
-// SCRIPT EDITOR (ringkas)
+// SCRIPT EDITOR
 // ==========================================
 window.renderScriptEditor = function() {
   const editorUI = document.getElementById('scriptNewEditor');
@@ -3033,12 +3051,12 @@ window.toggleEditorFullscreen = function() {
 };
 
 // ==========================================
-// ACTIONS (Fungsi utama yang dipanggil dari UI)
+// ACTIONS
 // ==========================================
 window.toggleAlarmStatus = function(idx) {
   if (masterData[idx]) {
     masterData[idx].alarmOn = !masterData[idx].alarmOn;
-    window.saveData(); // 🔥 SAVE!
+    window.saveData();
     renderCards();
     window.showToast(masterData[idx].alarmOn ? 'Alarm Diaktifkan (ON)' : 'Alarm Dimatikan (OFF)', 'info');
   }
@@ -3047,7 +3065,7 @@ window.toggleAlarmStatus = function(idx) {
 window.toggleFavorite = function(idx) {
   if (masterData[idx]) {
     masterData[idx].favorite = !masterData[idx].favorite;
-    window.saveData(); // 🔥 SAVE!
+    window.saveData();
     renderCards();
     window.showToast(masterData[idx].favorite ? 'Ditambah ke Favorit' : 'Dihapus dari Favorit', 'info');
   }
@@ -3080,7 +3098,7 @@ window.toggleCardPassVisibility = function(idx) {
 window.togglePasaranDone = function(idx) {
   if (masterData[idx]) {
     masterData[idx].pasaranDone = !masterData[idx].pasaranDone;
-    window.saveData(); // 🔥 SAVE!
+    window.saveData();
     renderCards();
     window.showToast(masterData[idx].pasaranDone ? 'Pasaran Ditandai DONE (Redup)' : 'Pasaran PENDING (Hidup Kembali)', 'info');
   }
@@ -3089,7 +3107,7 @@ window.togglePasaranDone = function(idx) {
 window.togglePasaranVisibility = function(idx) {
   if (masterData[idx]) {
     masterData[idx].hiddenNum = !masterData[idx].hiddenNum;
-    window.saveData(); // 🔥 SAVE!
+    window.saveData();
     renderCards();
     window.showToast(masterData[idx].hiddenNum ? 'Pasaran Di-Hide (Redup & Mati Hari Ini)' : 'Pasaran Ditampilkan Kembali', 'info');
   }
@@ -3098,7 +3116,7 @@ window.togglePasaranVisibility = function(idx) {
 window.deleteItem = function(idx) {
   if (confirm('Hapus entry ini?')) {
     masterData.splice(idx, 1);
-    window.saveData(); // 🔥 SAVE!
+    window.saveData();
     renderCards();
     window.showToast('Entry Dihapus', 'info');
   }
@@ -3171,14 +3189,14 @@ window.handleDirectFileUpload = function(event) {
     const base64Img = evt.target.result;
     if (targetUploadCardIndex !== null && masterData[targetUploadCardIndex]) {
       masterData[targetUploadCardIndex].imageUrl = base64Img;
-      window.saveData(); // 🔥 SAVE!
+      window.saveData();
       renderCards();
       window.showToast('Foto Berhasil Diperbarui!', 'success');
     } else {
       const titleName = prompt("Masukkan Judul / Nama Foto Kendala:", "FOTO KENDALA " + (masterData.length + 1));
       if (titleName) {
         masterData.push({ category: activeMenu, title: titleName.toUpperCase(), imageUrl: base64Img, favorite: true });
-        window.saveData(); // 🔥 SAVE!
+        window.saveData();
         renderCards();
         window.showToast('Foto Kendala Berhasil Diunggah!', 'success');
       }
@@ -3227,7 +3245,7 @@ window.saveMasterAccountSettings = function() {
   }
   masterAuth.user = newUser;
   masterAuth.pass = newPass;
-  window.saveData(); // 🔥 SAVE!
+  window.saveData();
   window.showToast('Username & Password Master Berhasil Diperbarui!', 'success');
 };
 
@@ -3239,7 +3257,7 @@ window.handleBgFrontFileUpload = function(e) {
     customBgFront = evt.target.result;
     localStorage.setItem('v19_bg_front', customBgFront);
     window.applyBackgrounds();
-    window.saveData(); // 🔥 SAVE!
+    window.saveData();
     if (bgFrontUrlInput) bgFrontUrlInput.value = customBgFront;
     window.showToast('Background Depan Berhasil Diperbarui!', 'success');
   };
@@ -3253,7 +3271,7 @@ window.applyBgFrontFromInput = function() {
   customBgFront = url;
   localStorage.setItem('v19_bg_front', customBgFront);
   window.applyBackgrounds();
-  window.saveData(); // 🔥 SAVE!
+  window.saveData();
   window.showToast('Background Depan Berhasil Diperbarui!', 'success');
 };
 
@@ -3262,7 +3280,7 @@ window.resetBgFront = function() {
   localStorage.removeItem('v19_bg_front');
   if (bgFrontUrlInput) bgFrontUrlInput.value = "";
   window.applyBackgrounds();
-  window.saveData(); // 🔥 SAVE!
+  window.saveData();
   window.showToast('Background Depan Direset!', 'info');
 };
 
@@ -3274,7 +3292,7 @@ window.handleBgInnerFileUpload = function(e) {
     customBgInner = evt.target.result;
     localStorage.setItem('v19_bg_inner', customBgInner);
     window.applyBackgrounds();
-    window.saveData(); // 🔥 SAVE!
+    window.saveData();
     if (bgInnerUrlInput) bgInnerUrlInput.value = customBgInner;
     window.showToast('Background Dalam Berhasil Diperbarui!', 'success');
   };
@@ -3288,7 +3306,7 @@ window.applyBgInnerFromInput = function() {
   customBgInner = url;
   localStorage.setItem('v19_bg_inner', customBgInner);
   window.applyBackgrounds();
-  window.saveData(); // 🔥 SAVE!
+  window.saveData();
   window.showToast('Background Dalam Berhasil Diperbarui!', 'success');
 };
 
@@ -3297,7 +3315,7 @@ window.resetBgInner = function() {
   localStorage.removeItem('v19_bg_inner');
   if (bgInnerUrlInput) bgInnerUrlInput.value = "";
   window.applyBackgrounds();
-  window.saveData(); // 🔥 SAVE!
+  window.saveData();
   window.showToast('Background Dalam Direset!', 'info');
 };
 
@@ -3325,7 +3343,7 @@ window.addNewMenu = function() {
   if (type === 'script_promo') icon = 'fa-code';
 
   menus.push({ name, type, icon, subtitle: "MR.RCT Executive Command Center" });
-  window.saveData(); // 🔥 SAVE!
+  window.saveData();
   window.switchMenu(name);
   closeMenuModal();
   if (nameInput) nameInput.value = '';
@@ -3336,7 +3354,7 @@ window.deleteMenu = function(name) {
   if (confirm(`Hapus folder "${name}"?`)) {
     menus = menus.filter(m => m.name !== name);
     masterData = masterData.filter(d => d.category !== name);
-    window.saveData(); // 🔥 SAVE!
+    window.saveData();
     window.switchMenu(menus[0] ? menus[0].name : "ALARM CENTER");
     window.showToast(`Folder Dihapus`, 'info');
   }
@@ -3489,7 +3507,7 @@ if (vaultForm) {
 
     if (editIdx !== "") masterData[editIdx] = obj;
     else masterData.push(obj);
-    window.saveData(); // 🔥 SAVE!
+    window.saveData();
     renderCards();
     closeDataModal();
     window.showToast('Entry Berhasil Disimpan!', 'success');
@@ -3673,7 +3691,6 @@ function updateClock() {
   if (clockTime) clockTime.innerText = timeStr;
   if (clockDate) clockDate.innerText = dateStr;
 
-  // Update metrics
   updateMetrics();
 
   masterData.forEach((item, index) => {
@@ -4093,6 +4110,72 @@ function animateVisualizer() {
 animateVisualizer();
 
 // ==========================================
+// 🔥 FIREBASE CONTROL — FORCE SAVE & PURGE
+// ==========================================
+
+// FORCE PURGE FIREBASE — Hapus TOTAL data di Firebase
+// Cara pakai: buka Console (F12), ketik: purgeFirebase()
+window.purgeFirebase = function() {
+  if (!confirm('⚠️ HAPUS SEMUA DATA DI FIREBASE?\n\nSemua folder, data login, alarm, pasaran akan HILANG PERMANENT!\n\nLanjut?')) return;
+  if (!confirm('⚠️ KONFIRMASI TERAKHIR!\n\nYakin 100% mau reset Firebase?')) return;
+  
+  if (!auth.currentUser) {
+    alert('❌ Kamu harus login dulu ke Firebase!');
+    return;
+  }
+
+  showToast('⏳ Menghapus data Firebase...', 'info');
+  
+  db.ref('vault_data').remove()
+    .then(() => {
+      console.log('✅ Firebase DIBERSIHKAN TOTAL');
+      localStorage.removeItem('v19_menus');
+      localStorage.removeItem('v19_data');
+      localStorage.removeItem('v19_active');
+      localStorage.removeItem('v19_bg_front');
+      localStorage.removeItem('v19_bg_inner');
+      showToast('🔥 Firebase & LocalStorage berhasil dikosongkan! Reload halaman sekarang.', 'success');
+      setTimeout(() => {
+        if (confirm('Reload halaman sekarang untuk reseed dengan data default baru?')) {
+          location.reload();
+        }
+      }, 1500);
+    })
+    .catch(err => {
+      console.error('❌ Gagal purge Firebase:', err);
+      alert('❌ GAGAL HAPUS Firebase!\n\nError: ' + err.message + 
+            '\n\nPenyebab: Firebase Rules masih READ-ONLY.\n\nSolusi: Buka Firebase Console → Realtime Database → Rules, lalu set:\n\n{\n  "rules": {\n    "vault_data": {\n      ".read": "auth != null",\n      ".write": "auth != null"\n    }\n  }\n}');
+    });
+};
+
+// FORCE SAVE — Paksa tulis data lokal ke Firebase
+window.forceSaveToFirebase = function() {
+  if (!auth.currentUser) {
+    alert('❌ Login dulu ke Firebase!');
+    return;
+  }
+  
+  showToast('⏳ Menyimpan paksa ke Firebase...', 'info');
+  
+  db.ref('vault_data').set({
+    menus: menus,
+    data: masterData,
+    auth: masterAuth,
+    bgFront: customBgFront,
+    bgInner: customBgInner,
+    activeMenu: activeMenu,
+    updatedAt: new Date().toISOString()
+  }).then(() => {
+    showToast('✅ Data lokal berhasil DIPAKSA ke Firebase!', 'success');
+    console.log('✅ Force save berhasil');
+  }).catch(err => {
+    console.error('❌ Force save gagal:', err);
+    alert('❌ GAGAL SIMPAN KE FIREBASE!\n\nError: ' + err.message + 
+          '\n\nCek Firebase Rules kamu — kemungkinan masih READ-ONLY.');
+  });
+};
+
+// ==========================================
 // INITIALIZE
 // ==========================================
 const savedSession = sessionStorage.getItem('v19_session_active');
@@ -4104,7 +4187,8 @@ if (savedSession === 'true' && auth.currentUser) {
   loginScreen.style.display = 'flex';
 }
 
-if (loginUser) loginUser.value = "rykcocastio557@gmail.com";
+// ✅ Auto-fill login DIHAPUS demi keamanan (tidak lagi menampilkan email Ricky Charles)
+if (loginUser) loginUser.value = "";
 if (loginPass) loginPass.value = "";
 
 applyBackgrounds();
@@ -4135,6 +4219,8 @@ updateClock();
 window.updateClock = updateClock;
 
 console.log('🚀 MR.RCT Executive Vault v24 loaded with Firebase Sync!');
+console.log('💡 TIP: Ketik purgeFirebase() di console untuk reset Firebase total');
+console.log('💡 TIP: Ketik forceSaveToFirebase() untuk paksa sync ke Firebase');
 </script>
 </body>
-</html>
+</html>  
