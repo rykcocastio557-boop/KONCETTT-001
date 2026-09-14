@@ -1494,40 +1494,43 @@ body {
   .cursor-trail { display: none; }
 }
 
-/* Custom cursor glow — VERSI FIXED */
+/* ==========================================
+   ✨ CURSOR GLOW — v31 FIXED (Ringan & Efektif)
+   ========================================== */
 .cursor-glow-main {
   position: fixed;
-  width: 24px;
-  height: 24px;
+  width: 20px;
+  height: 20px;
   border-radius: 50%;
   pointer-events: none;
-  z-index: 9997;
+  z-index: 9996;
   background: radial-gradient(
     circle,
     var(--th-primary-glow) 0%,
-    var(--th-primary-soft) 40%,
-    transparent 70%
+    var(--th-primary-soft) 45%,
+    transparent 75%
   );
-  transform: translate(-50%, -50%);
-  transition: width 0.25s ease, height 0.25s ease, opacity 0.25s ease;
-  opacity: 0.5;
-  will-change: transform;
+  transform: translate3d(-50%, -50%, 0);
+  transition: width 0.2s ease, height 0.2s ease, opacity 0.2s ease;
+  opacity: 0.45;
+  will-change: transform, opacity;
   mix-blend-mode: screen;
 }
 
 .cursor-glow-main.hover-active {
-  width: 48px;
-  height: 48px;
-  opacity: 0.8;
+  width: 40px;
+  height: 40px;
+  opacity: 0.75;
 }
 
 .cursor-glow-main.click-active {
-  width: 60px;
-  height: 60px;
-  opacity: 1;
+  width: 55px;
+  height: 55px;
+  opacity: 0.95;
 }
 
-@media (hover: none) {
+/* Sembunyikan di mobile/touch device */
+@media (hover: none), (max-width: 768px) {
   .cursor-glow-main {
     display: none !important;
   }
@@ -1682,6 +1685,25 @@ body {
 @keyframes dangerPulse {
   0%, 100% { border-color: rgba(239, 68, 68, 0.3); }
   50% { border-color: rgba(239, 68, 68, 0.6); box-shadow: 0 0 20px rgba(239, 68, 68, 0.1); }
+}
+  /* ===== INTERLOCK WARNING MODAL ===== */
+@keyframes interlockPulse {
+  0%, 100% { 
+    box-shadow: 0 0 30px rgba(239, 68, 68, 0.3), inset 0 0 20px rgba(239, 68, 68, 0.1);
+    border-color: rgba(239, 68, 68, 0.5);
+  }
+  50% { 
+    box-shadow: 0 0 60px rgba(239, 68, 68, 0.6), inset 0 0 30px rgba(239, 68, 68, 0.2);
+    border-color: rgba(239, 68, 68, 1);
+  }
+}
+
+#interlockWarningModal .modal-glow-box {
+  animation: interlockPulse 1.5s ease-in-out infinite, popupIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+#interlockWarningModal .glitch-text {
+  animation: glitchText 0.5s ease-in-out infinite;
 }
 </style>
 </head>
@@ -2529,6 +2551,58 @@ body {
         </div>
       </div>
     </div>
+  </div>
+</div>
+  <!-- ==================== INTERLOCK WARNING MODAL ==================== -->
+<div id="interlockWarningModal" style="display: none;" class="fixed inset-0 bg-black/95 z-[10010] flex items-center justify-center p-4 backdrop-blur-xl">
+  <div class="modal-glow-box p-6 md:p-8 rounded-[30px] w-full max-w-md text-center border-2 border-red-500/50 shadow-[0_0_50px_rgba(239,68,68,0.3)] relative overflow-hidden">
+    
+    <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-red-500 to-transparent animate-pulse"></div>
+    
+    <div class="w-20 h-20 mx-auto mb-4 rounded-full bg-red-500/10 border-2 border-red-500/50 flex items-center justify-center text-red-500 text-4xl animate-pulse shadow-[0_0_30px_rgba(239,68,68,0.5)]">
+      <i class="fas fa-triangle-exclamation"></i>
+    </div>
+
+    <h2 class="font-master font-black text-xl md:text-2xl text-red-500 uppercase tracking-widest mb-1 neon-glow glitch-text">
+      SISTEM INTERLOCK WARNING
+    </h2>
+    <p class="text-[9px] font-master text-red-400/80 uppercase tracking-[3px] mb-6">
+      PROTOKOL RESULT PASARAN OTOMATIS
+    </p>
+
+    <div class="bg-black/60 border border-red-500/30 rounded-xl p-5 mb-6 text-left space-y-4">
+      <div class="flex items-center gap-2 text-red-400 text-[10px] font-master font-bold uppercase tracking-wider">
+        <span class="w-2 h-2 rounded-full bg-red-500 animate-ping"></span>
+        STATUS OPERASIONAL: SIAGA DARURAT
+      </div>
+      
+      <p class="text-sm font-body text-gray-200 leading-relaxed">
+        <span class="font-bold text-red-400">PERINGATAN:</span> Pasaran <span id="interlockPasaranName" class="font-black text-yellow-400">-</span> akan result dalam <span id="interlockCountdown" class="font-black text-red-500">5 MENIT</span>. Pastikan fokus input result sekarang.
+      </p>
+      
+      <div class="text-[10px] font-code text-gray-400 bg-white/5 p-3 rounded-lg border border-white/10">
+        <p><i class="fas fa-info-circle mr-1 text-red-400"></i> Sistem mendeteksi sisa waktu menuju jadwal jam result. Segera fokus agar proses input data dan penyimpanan sistem berjalan tepat waktu.</p>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 text-[9px] font-code">
+        <div class="bg-black/40 p-2 rounded border border-white/5">
+          <span class="text-gray-500 block">Pasaran:</span>
+          <span id="interlockPasaranCode" class="text-white font-bold">-</span>
+        </div>
+        <div class="bg-black/40 p-2 rounded border border-white/5">
+          <span class="text-gray-500 block">Waktu:</span>
+          <span id="interlockResultTime" class="text-yellow-400 font-bold">- WIB</span>
+        </div>
+      </div>
+    </div>
+
+    <button onclick="closeInterlockWarning()" class="w-full py-4 bg-gradient-to-r from-red-600 to-red-800 hover:from-red-500 hover:to-red-700 text-white font-master font-black rounded-xl text-xs uppercase tracking-widest transition shadow-[0_0_30px_rgba(239,68,68,0.4)] cursor-pointer transform hover:scale-[1.02] btn-glow">
+      <i class="fas fa-check-circle mr-2"></i> SAYA MENGERTI & SIAP INPUT
+    </button>
+    
+    <p class="text-[8px] font-master text-gray-600 uppercase tracking-widest mt-4">
+      MR.RCT EXECUTIVE VAULT - INTERLOCK SYSTEM
+    </p>
   </div>
 </div>
 
@@ -4942,7 +5016,90 @@ setInterval(updateClock, 1000);
 updateClock();
 
 window.updateClock = updateClock;
+// ==========================================
+// 🔥 SISTEM INTERLOCK WARNING — v32
+// ==========================================
+let interlockTriggeredMap = {};
+let currentInterlockPasaran = null;
 
+window.closeInterlockWarning = function() {
+  const modal = document.getElementById('interlockWarningModal');
+  if (modal) modal.style.display = 'none';
+  currentInterlockPasaran = null;
+  if (typeof playBeep === 'function') playBeep(800, 100);
+};
+
+function checkInterlockSystem() {
+  const now = new Date();
+  const currentHHMM = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+
+  masterData.forEach((item) => {
+    if (item.category === 'RESULT PASARAN' && !item.pasaranDone && !item.hiddenNum && item.pasaranResultTime) {
+      
+      const resultTime = window.parseTimeToMinutes(item.pasaranResultTime);
+      const currentTime = window.parseTimeToMinutes(currentHHMM);
+      const diff = resultTime - currentTime;
+
+      if (diff >= 1 && diff <= 5) {
+        const triggerKey = `interlock_${item.title}_${item.pasaranResultTime}`;
+        
+        if (!interlockTriggeredMap[triggerKey]) {
+          interlockTriggeredMap[triggerKey] = true;
+          
+          currentInterlockPasaran = item;
+          
+          const nameEl = document.getElementById('interlockPasaranName');
+          const codeEl = document.getElementById('interlockPasaranCode');
+          const timeEl = document.getElementById('interlockResultTime');
+          const countEl = document.getElementById('interlockCountdown');
+          
+          if (nameEl) nameEl.innerText = item.title;
+          if (codeEl) codeEl.innerText = item.title;
+          if (timeEl) timeEl.innerText = item.pasaranResultTime + ' WIB';
+          if (countEl) countEl.innerText = `${diff} MENIT`;
+          
+          const modal = document.getElementById('interlockWarningModal');
+          if (modal) modal.style.display = 'flex';
+          
+          playInterlockSound();
+          
+          if (typeof triggerBottomRightNotification === 'function') {
+            triggerBottomRightNotification(
+              `⚠️ INTERLOCK: ${item.title}`, 
+              `Result dalam ${diff} menit! Segera siapkan input.`, 
+              'pasaran'
+            );
+          }
+        }
+      }
+    }
+  });
+}
+
+function playInterlockSound() {
+  try {
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    for (let i = 0; i < 3; i++) {
+      setTimeout(() => {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'square';
+        osc.frequency.setValueAtTime(880, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(440, audioCtx.currentTime + 0.15);
+        gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.15);
+      }, i * 200);
+    }
+  } catch(e) {}
+}
+
+setInterval(checkInterlockSystem, 1000);
+
+console.log('🔥 Sistem Interlock Warning v32 AKTIF');
 console.log('🚀 MR.RCT Executive Vault v24 loaded with Firebase Sync!');
 // ==========================================
 // 🔐 PIN LOCK SCREEN — v25
@@ -5501,196 +5658,241 @@ function loadActivityLog() {
 loadActivityLog();
 
 console.log('📜 Activity Log System v27 AKTIF');
-  
-  // ==========================================
-// 🔗 HOOK — Auto-log semua aktivitas
-// ==========================================
 
-// 1. Hook LOGIN
-const _origHandleLogin = window.handleLogin;
-window.handleLogin = function() {
-  _origHandleLogin.apply(this, arguments);
+// ==========================================
+// 🔗 HOOK CHAIN SYSTEM — v31
+// Semua sistem bisa hook fungsi yang sama tanpa konflik
+// ==========================================
+window.__hookRegistry = window.__hookRegistry || {};
+
+window.registerHook = function(fnName, hookFn) {
+  if (!window.__hookRegistry[fnName]) {
+    window.__hookRegistry[fnName] = [];
+  }
+  window.__hookRegistry[fnName].push(hookFn);
+  
+  // Wrap fungsi asli kalau belum di-wrap
+  if (!window[fnName].__hooked) {
+    const original = window[fnName];
+    window[fnName] = function() {
+      const args = arguments;
+      const context = this;
+      
+      // Panggil fungsi asli dulu
+      const result = original.apply(context, args);
+      
+      // Panggil semua hook berurutan
+      const hooks = window.__hookRegistry[fnName] || [];
+      hooks.forEach(hook => {
+        try {
+          hook.apply(context, args);
+        } catch(e) {
+          console.warn(`⚠️ Hook error in ${fnName}:`, e);
+        }
+      });
+      
+      return result;
+    };
+    window[fnName].__hooked = true;
+    window[fnName].__original = original;
+  }
+  
+  return true;
+};
+
+// ===== Register Hook Log Aktivitas =====
+
+// 1. LOGIN
+registerHook('handleLogin', () => {
   setTimeout(() => {
-    if (auth.currentUser) {
+    if (auth.currentUser && typeof addActivityLog === 'function') {
       addActivityLog('login', 'Login Berhasil', auth.currentUser.email, 'AUTH');
     }
   }, 1000);
-};
+});
 
-// 2. Hook LOGOUT
-const _origLogout = window.logoutVault;
-window.logoutVault = function() {
-  addActivityLog('logout', 'Logout', 'Terminal dikunci', 'AUTH');
-  _origLogout.apply(this, arguments);
-};
+// 2. LOGOUT
+registerHook('logoutVault', () => {
+  if (typeof addActivityLog === 'function') {
+    addActivityLog('logout', 'Logout', 'Terminal dikunci', 'AUTH');
+  }
+});
 
-// 3. Hook GANTI TEMA
-const _origApplyTheme = window.applyTheme;
-window.applyTheme = function(themeName) {
-  _origApplyTheme.apply(this, arguments);
-  addActivityLog('theme', 'Ganti Tema', 'Tema: ' + themeName.toUpperCase(), 'TAMPILAN');
-};
+// 3. GANTI TEMA
+registerHook('applyTheme', (themeName) => {
+  if (typeof addActivityLog === 'function') {
+    addActivityLog('theme', 'Ganti Tema', 'Tema: ' + String(themeName).toUpperCase(), 'TAMPILAN');
+  }
+});
 
-// 4. Hook SUBMIT FORM (Add/Edit)
-if (typeof vaultForm !== 'undefined' && vaultForm) {
-  const _origSubmit = vaultForm.onsubmit;
-  vaultForm.onsubmit = function(e) {
-    e.preventDefault();
-    const editIdxInput = document.getElementById('editIndex');
-    const editIdx = editIdxInput ? editIdxInput.value : '';
-    const titleInput = document.getElementById('inputTitle');
-    const title = titleInput ? titleInput.value.toUpperCase() : '';
-    
-    if (_origSubmit) _origSubmit.call(this, e);
-    
-    setTimeout(() => {
-      if (editIdx !== '') {
-        addActivityLog('edit', 'Edit Item', title, activeMenu);
-      } else {
-        addActivityLog('add', 'Tambah Item Baru', title, activeMenu);
-      }
-    }, 100);
-  };
-}
-
-// 5. Hook HAPUS ITEM
-const _origDeleteItem = window.deleteItem;
-window.deleteItem = function(idx) {
-  const item = masterData[idx];
-  const title = item ? item.title : 'Unknown';
-  const cat = item ? item.category : '';
-  _origDeleteItem.apply(this, arguments);
-  setTimeout(() => {
-    if (!masterData[idx] || masterData[idx].title !== title) {
-      addActivityLog('delete', 'Hapus Item', title, cat);
+// 4. HAPUS ITEM
+registerHook('deleteItem', (idx) => {
+  if (typeof masterData !== 'undefined' && masterData[idx]) {
+    const item = masterData[idx];
+    if (typeof addActivityLog === 'function') {
+      addActivityLog('delete', 'Hapus Item', item.title, item.category || '');
     }
-  }, 200);
-};
+  }
+});
 
-// 6. Hook FAVORITE
-const _origToggleFav = window.toggleFavorite;
-window.toggleFavorite = function(idx) {
-  const item = masterData[idx];
-  const title = item ? item.title : '';
-  const wasFav = item ? item.favorite : false;
-  _origToggleFav.apply(this, arguments);
-  setTimeout(() => {
-    if (item && item.favorite !== wasFav) {
-      addActivityLog('favorite', item.favorite ? 'Tambah Favorite' : 'Hapus Favorite', title, item.category || '');
+// 5. TOGGLE FAVORITE
+registerHook('toggleFavorite', (idx) => {
+  if (typeof masterData !== 'undefined' && masterData[idx]) {
+    const item = masterData[idx];
+    if (typeof addActivityLog === 'function') {
+      addActivityLog('favorite', item.favorite ? 'Tambah Favorite' : 'Hapus Favorite', item.title, item.category || '');
     }
-  }, 100);
-};
+  }
+});
 
-// 7. Hook SAVE MASTER SETTINGS
-const _origSaveMaster = window.saveMasterAccountSettings;
-window.saveMasterAccountSettings = function() {
-  _origSaveMaster.apply(this, arguments);
-  setTimeout(() => {
+// 6. SAVE MASTER SETTINGS
+registerHook('saveMasterAccountSettings', () => {
+  if (typeof addActivityLog === 'function') {
     addActivityLog('settings', 'Ubah Akun Master', 'Username & password diperbarui', 'SETTINGS');
-  }, 300);
-};
+  }
+});
 
-// 8. Hook BUAT FOLDER
-const _origAddNewMenu = window.addNewMenu;
-window.addNewMenu = function() {
+// 7. BUAT FOLDER
+registerHook('addNewMenu', () => {
   const nameInput = document.getElementById('newMenuName');
   const menuName = nameInput ? nameInput.value.toUpperCase() : '';
-  _origAddNewMenu.apply(this, arguments);
-  setTimeout(() => {
-    if (menuName) addActivityLog('add', 'Buat Folder Baru', menuName, 'FOLDER');
-  }, 300);
-};
+  if (menuName && typeof addActivityLog === 'function') {
+    addActivityLog('add', 'Buat Folder Baru', menuName, 'FOLDER');
+  }
+});
 
-// 9. Hook HAPUS FOLDER
-const _origDeleteMenu = window.deleteMenu;
-window.deleteMenu = function(name) {
-  _origDeleteMenu.apply(this, arguments);
-  setTimeout(() => {
+// 8. HAPUS FOLDER
+registerHook('deleteMenu', (name) => {
+  if (typeof addActivityLog === 'function') {
     addActivityLog('delete', 'Hapus Folder', name, 'FOLDER');
-  }, 300);
-};
+  }
+});
 
-// 10. Hook EXPORT BACKUP
-const _origExportVault = window.exportVaultData;
-window.exportVaultData = function() {
-  _origExportVault.apply(this, arguments);
-  addActivityLog('export', 'Export Backup', 'File JSON diunduh', 'BACKUP');
-};
+// 9. EXPORT BACKUP
+registerHook('exportVaultData', () => {
+  if (typeof addActivityLog === 'function') {
+    addActivityLog('export', 'Export Backup', 'File JSON diunduh', 'BACKUP');
+  }
+});
 
-// 11. Hook IMPORT BACKUP
-const _origImportVault = window.importVaultData;
-window.importVaultData = function() {
-  _origImportVault.apply(this, arguments);
+// 10. IMPORT BACKUP
+registerHook('importVaultData', () => {
   setTimeout(() => {
-    addActivityLog('import', 'Import Backup', 'Data dipulihkan dari JSON', 'BACKUP');
+    if (typeof addActivityLog === 'function') {
+      addActivityLog('import', 'Import Backup', 'Data dipulihkan dari JSON', 'BACKUP');
+    }
   }, 500);
-};
+});
 
-// 12. Hook PURGE FIREBASE
-const _origPurge = window.purgeFirebase;
-window.purgeFirebase = function() {
-  _origPurge.apply(this, arguments);
+// 11. PURGE FIREBASE
+registerHook('purgeFirebase', () => {
   setTimeout(() => {
-    addActivityLog('firebase', 'Purge Firebase', 'Semua data Firebase dihapus', 'DANGER');
+    if (typeof addActivityLog === 'function') {
+      addActivityLog('firebase', 'Purge Firebase', 'Semua data Firebase dihapus', 'DANGER');
+    }
   }, 1000);
-};
+});
 
-// 13. Hook FORCE SAVE
-const _origForceSave = window.forceSaveToFirebase;
-window.forceSaveToFirebase = function() {
-  _origForceSave.apply(this, arguments);
+// 12. FORCE SAVE
+registerHook('forceSaveToFirebase', () => {
   setTimeout(() => {
-    addActivityLog('firebase', 'Force Save', 'Data lokal di-push ke Firebase', 'DANGER');
+    if (typeof addActivityLog === 'function') {
+      addActivityLog('firebase', 'Force Save', 'Data lokal di-push ke Firebase', 'DANGER');
+    }
   }, 500);
-};
+});
 
-console.log('🔗 Activity Log HOOKS installed — semua aksi akan tercatat');
-  // ===== CURSOR GLOW MAIN (Custom Cursor) =====
-(function initCursorGlow() {
-  // Cek device support hover (bukan HP)
+console.log('🔗 Hook Chain System v31 — semua hook terdaftar tanpa konflik');
+  // ==========================================
+// ✨ CURSOR GLOW — v31 (Event Delegation, Ringan)
+// ==========================================
+(function initCursorGlowFixed() {
+  // Skip kalau bukan desktop
   if (window.matchMedia('(hover: none)').matches) return;
+  if (window.innerWidth < 1024) return;
   
-  const cursorGlow = document.createElement('div');
-  cursorGlow.className = 'cursor-glow-main';
-  document.body.appendChild(cursorGlow);
+  const glow = document.createElement('div');
+  glow.className = 'cursor-glow-main';
+  document.body.appendChild(glow);
   
   let mouseX = window.innerWidth / 2;
   let mouseY = window.innerHeight / 2;
   let currentX = mouseX;
   let currentY = mouseY;
+  let isHovering = false;
+  let isClicking = false;
+  let idleTimer = null;
+  let needsUpdate = false;
   
+  // Track mouse - pake passive biar nggak block scroll
   document.addEventListener('mousemove', (e) => {
     mouseX = e.clientX;
     mouseY = e.clientY;
-  });
+    needsUpdate = true;
+    
+    // Reset idle timer
+    clearTimeout(idleTimer);
+    if (!isHovering && !isClicking) {
+      glow.style.opacity = '0.45';
+    }
+    idleTimer = setTimeout(() => {
+      if (!isHovering && !isClicking) {
+        glow.style.opacity = '0.15';
+      }
+    }, 2000);
+  }, { passive: true });
   
-  function animateCursor() {
-    // Smooth follow (lerp)
-    currentX += (mouseX - currentX) * 0.15;
-    currentY += (mouseY - currentY) * 0.15;
+  // Smooth animation loop
+  function animate() {
+    // Lerp (smooth follow)
+    currentX += (mouseX - currentX) * 0.22;
+    currentY += (mouseY - currentY) * 0.22;
     
-    cursorGlow.style.left = currentX + 'px';
-    cursorGlow.style.top = currentY + 'px';
+    // Pakai translate3d untuk GPU acceleration
+    glow.style.transform = `translate3d(${currentX}px, ${currentY}px, 0) translate(-50%, -50%)`;
     
-    requestAnimationFrame(animateCursor);
+    requestAnimationFrame(animate);
   }
-  animateCursor();
+  animate();
   
-  // Hover effect - cursor membesar saat hover di tombol
-  document.querySelectorAll('button, .note-card, a').forEach(el => {
-    el.addEventListener('mouseenter', () => {
-      cursorGlow.style.width = '80px';
-      cursorGlow.style.height = '80px';
-      cursorGlow.style.opacity = '0.9';
-    });
-    el.addEventListener('mouseleave', () => {
-      cursorGlow.style.width = '40px';
-      cursorGlow.style.height = '40px';
-      cursorGlow.style.opacity = '0.6';
-    });
+  // EVENT DELEGATION - 1 listener untuk semua elemen
+  document.addEventListener('mouseover', (e) => {
+    const target = e.target.closest('button, a, .note-card, .sidebar-item, input, select, textarea, .theme-btn');
+    if (target) {
+      isHovering = true;
+      glow.classList.add('hover-active');
+    }
+  }, { passive: true });
+  
+  document.addEventListener('mouseout', (e) => {
+    const target = e.target.closest('button, a, .note-card, .sidebar-item, input, select, textarea, .theme-btn');
+    if (target) {
+      isHovering = false;
+      glow.classList.remove('hover-active');
+    }
+  }, { passive: true });
+  
+  // Click effect
+  document.addEventListener('mousedown', () => {
+    isClicking = true;
+    glow.classList.add('click-active');
+  }, { passive: true });
+  
+  document.addEventListener('mouseup', () => {
+    isClicking = false;
+    glow.classList.remove('click-active');
+  }, { passive: true });
+  
+  // Hide saat keluar window
+  document.addEventListener('mouseleave', () => {
+    glow.style.opacity = '0';
   });
   
-  console.log('✨ Cursor Glow aktif');
+  document.addEventListener('mouseenter', () => {
+    glow.style.opacity = '0.45';
+  });
+  
+  console.log('✨ Cursor Glow v31 aktif — ringan & smooth');
 })();
 console.log('💡 Buka Settings → tab HISTORY untuk lihat log');
 console.log('💡 clearActivityLog() untuk hapus semua log');
