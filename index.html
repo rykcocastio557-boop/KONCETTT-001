@@ -1324,6 +1324,357 @@ body {
 .theme-btn[data-theme="sunset"].active { border-color: #f97316; color: #f97316; background: rgba(249, 115, 22, 0.1); }
 .theme-btn[data-theme="ocean"].active { border-color: #0ea5e9; color: #0ea5e9; background: rgba(14, 165, 233, 0.1); }
 .theme-btn[data-theme="light"].active { border-color: #3b82f6; color: #3b82f6; background: rgba(59, 130, 246, 0.1); }
+/* ==========================================
+   ✨ VISUAL UPGRADE v28 — 5 Fitur WOW
+   Aurora + Glassmorphism + 3D Flip + Cursor + Shimmer
+   ========================================== */
+
+/* ===== 1. AURORA GRADIENT BACKGROUND ===== */
+@keyframes auroraFlow {
+  0% {
+    background-position: 0% 0%, 100% 100%, 50% 50%;
+  }
+  50% {
+    background-position: 100% 100%, 0% 0%, 50% 50%;
+  }
+  100% {
+    background-position: 0% 0%, 100% 100%, 50% 50%;
+  }
+}
+
+#bgLayer::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: 
+    radial-gradient(ellipse 80% 60% at 20% 30%, var(--th-bg-gradient-1) 0%, transparent 50%),
+    radial-gradient(ellipse 80% 60% at 80% 70%, var(--th-bg-gradient-2) 0%, transparent 50%),
+    radial-gradient(ellipse 60% 80% at 50% 50%, var(--th-bg-gradient-3) 0%, transparent 60%);
+  background-size: 150% 150%, 150% 150%, 100% 100%;
+  animation: auroraFlow 20s ease-in-out infinite;
+  z-index: -3;
+  pointer-events: none;
+  opacity: 0.9;
+}
+
+/* ===== 2. GLASSMORPHISM 2.0 (Kartu Kaca Premium) ===== */
+.note-card {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.04) 0%,
+    var(--th-bg-card) 50%,
+    rgba(255, 255, 255, 0.02) 100%
+  ) !important;
+  backdrop-filter: blur(20px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.2) !important;
+}
+
+/* Glass reflection di atas kartu */
+.note-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 50%;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.06) 0%,
+    transparent 100%
+  );
+  pointer-events: none;
+  border-radius: 24px 24px 0 0;
+  z-index: 1;
+}
+
+/* Hover glass - lebih terang */
+.note-card:hover {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.08) 0%,
+    var(--th-bg-card) 50%,
+    rgba(255, 255, 255, 0.04) 100%
+  ) !important;
+  border-color: var(--th-border-hover) !important;
+  box-shadow: 
+    0 20px 60px var(--th-primary-soft),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15),
+    0 0 40px var(--th-primary-glow) !important;
+  transform: translateY(-8px) scale(1.02) !important;
+}
+
+/* Glass untuk modal */
+.modal-glow-box {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.05) 0%,
+    rgba(8, 12, 20, 0.95) 100%
+  ) !important;
+  backdrop-filter: blur(30px) saturate(200%) !important;
+  -webkit-backdrop-filter: blur(30px) saturate(200%) !important;
+}
+
+/* Glass untuk sidebar */
+#mainSidebar {
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.03) 0%,
+    var(--th-bg-card) 100%
+  ) !important;
+  backdrop-filter: blur(20px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+}
+
+/* Glass untuk weather widget */
+.weather-widget {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.04) 0%,
+    rgba(8, 12, 20, 0.8) 100%
+  ) !important;
+  backdrop-filter: blur(20px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+/* Glass untuk metrics HUD */
+.metrics-hud {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.04) 0%,
+    rgba(8, 12, 20, 0.7) 100%
+  ) !important;
+  backdrop-filter: blur(20px) !important;
+}
+
+/* ===== 3. CARD HOVER 3D FLIP ===== */
+.note-card {
+  transform-style: preserve-3d;
+  perspective: 1000px;
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.note-card:hover {
+  transform: translateY(-8px) scale(1.02) rotateX(2deg) rotateY(-2deg) !important;
+}
+
+/* Inner content sedikit timbul saat hover */
+.note-card:hover .card-front {
+  transform: translateZ(20px);
+  transition: transform 0.4s ease;
+}
+
+/* ===== 4. CURSOR GLOW TRAIL (Enhanced) ===== */
+.cursor-trail {
+  background: radial-gradient(
+    circle,
+    var(--th-primary-glow) 0%,
+    var(--th-primary-soft) 40%,
+    transparent 70%
+  ) !important;
+  box-shadow: 
+    0 0 20px var(--th-primary-glow),
+    0 0 40px var(--th-primary-soft) !important;
+}
+
+/* Main cursor glow - mengikuti kursor utama */
+
+}
+
+@media (hover: none) {
+  /* Di HP, kembalikan cursor normal */
+  body { cursor: auto; }
+  .cursor-trail { display: none; }
+}
+
+/* Custom cursor glow — VERSI FIXED */
+.cursor-glow-main {
+  position: fixed;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 9997;
+  background: radial-gradient(
+    circle,
+    var(--th-primary-glow) 0%,
+    var(--th-primary-soft) 40%,
+    transparent 70%
+  );
+  transform: translate(-50%, -50%);
+  transition: width 0.25s ease, height 0.25s ease, opacity 0.25s ease;
+  opacity: 0.5;
+  will-change: transform;
+  mix-blend-mode: screen;
+}
+
+.cursor-glow-main.hover-active {
+  width: 48px;
+  height: 48px;
+  opacity: 0.8;
+}
+
+.cursor-glow-main.click-active {
+  width: 60px;
+  height: 60px;
+  opacity: 1;
+}
+
+@media (hover: none) {
+  .cursor-glow-main {
+    display: none !important;
+  }
+}
+
+/* ===== 5. TEXT SHIMMER WAVE ===== */
+@keyframes shimmerWave {
+  0% {
+    background-position: -200% center;
+  }
+  100% {
+    background-position: 200% center;
+  }
+}
+
+.shimmer-text {
+  background: linear-gradient(
+    90deg,
+    var(--th-primary) 0%,
+    var(--th-secondary) 25%,
+    var(--th-primary) 50%,
+    var(--th-secondary) 75%,
+    var(--th-primary) 100%
+  ) !important;
+  background-size: 200% auto !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  background-clip: text !important;
+  animation: shimmerWave 3s linear infinite !important;
+}
+
+/* Shimmer untuk judul menu */
+#currentMenuTitle {
+  background-size: 200% auto !important;
+  animation: shimmerWave 4s linear infinite !important;
+}
+
+/* Shimmer untuk header sidebar */
+#mainSidebar h2 {
+  background: linear-gradient(
+    90deg,
+    var(--th-text) 0%,
+    var(--th-primary) 50%,
+    var(--th-text) 100%
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: shimmerWave 4s linear infinite;
+}
+
+/* ===== BONUS: Smooth Global Transition ===== */
+* {
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ===== BONUS: Scrollbar Premium ===== */
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(
+    180deg,
+    var(--th-primary) 0%,
+    var(--th-secondary) 100%
+  ) !important;
+  box-shadow: 0 0 10px var(--th-primary-glow);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(
+    180deg,
+    #ffffff 0%,
+    var(--th-primary) 100%
+  ) !important;
+  box-shadow: 0 0 20px var(--th-primary-glow);
+}
+
+/* ===== BONUS: Button Premium Glass ===== */
+.btn-glow {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.05) 0%,
+    transparent 100%
+  );
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-glow:hover {
+  background: linear-gradient(
+    135deg,
+    var(--th-primary-soft) 0%,
+    transparent 100%
+  );
+  border-color: var(--th-border-hover);
+  box-shadow: 
+    0 8px 30px var(--th-primary-soft),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  transform: translateY(-2px);
+}
+
+/* ===== BONUS: Pasaran Row Glass ===== */
+.pasaran-row {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.03) 0%,
+    rgba(8, 12, 20, 0.9) 100%
+  ) !important;
+  backdrop-filter: blur(15px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.06) !important;
+}
+
+.pasaran-row:hover {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.06) 0%,
+    rgba(8, 12, 20, 0.9) 100%
+  ) !important;
+  border-color: var(--th-border-hover) !important;
+}
+
+/* ===== ANTI-LAG: Kurangi efek di HP ===== */
+@media (max-width: 768px) {
+  #bgLayer::after {
+    animation: none;
+  }
+  .note-card {
+    backdrop-filter: blur(10px) !important;
+    -webkit-backdrop-filter: blur(10px) !important;
+  }
+  .note-card:hover {
+    transform: translateY(-4px) !important;
+  }
+  .cursor-glow-main {
+    display: none;
+  }
+}
+
+/* ===== PERFORMANCE: Reduce motion ===== */
+@media (prefers-reduced-motion: reduce) {
+  #bgLayer::after,
+  .shimmer-text,
+  #currentMenuTitle {
+    animation: none !important;
+  }
+}
 /* ===== DANGER ZONE ===== */
 .danger-zone {
   animation: dangerPulse 2s ease-in-out infinite;
@@ -5150,6 +5501,197 @@ function loadActivityLog() {
 loadActivityLog();
 
 console.log('📜 Activity Log System v27 AKTIF');
+  
+  // ==========================================
+// 🔗 HOOK — Auto-log semua aktivitas
+// ==========================================
+
+// 1. Hook LOGIN
+const _origHandleLogin = window.handleLogin;
+window.handleLogin = function() {
+  _origHandleLogin.apply(this, arguments);
+  setTimeout(() => {
+    if (auth.currentUser) {
+      addActivityLog('login', 'Login Berhasil', auth.currentUser.email, 'AUTH');
+    }
+  }, 1000);
+};
+
+// 2. Hook LOGOUT
+const _origLogout = window.logoutVault;
+window.logoutVault = function() {
+  addActivityLog('logout', 'Logout', 'Terminal dikunci', 'AUTH');
+  _origLogout.apply(this, arguments);
+};
+
+// 3. Hook GANTI TEMA
+const _origApplyTheme = window.applyTheme;
+window.applyTheme = function(themeName) {
+  _origApplyTheme.apply(this, arguments);
+  addActivityLog('theme', 'Ganti Tema', 'Tema: ' + themeName.toUpperCase(), 'TAMPILAN');
+};
+
+// 4. Hook SUBMIT FORM (Add/Edit)
+if (typeof vaultForm !== 'undefined' && vaultForm) {
+  const _origSubmit = vaultForm.onsubmit;
+  vaultForm.onsubmit = function(e) {
+    e.preventDefault();
+    const editIdxInput = document.getElementById('editIndex');
+    const editIdx = editIdxInput ? editIdxInput.value : '';
+    const titleInput = document.getElementById('inputTitle');
+    const title = titleInput ? titleInput.value.toUpperCase() : '';
+    
+    if (_origSubmit) _origSubmit.call(this, e);
+    
+    setTimeout(() => {
+      if (editIdx !== '') {
+        addActivityLog('edit', 'Edit Item', title, activeMenu);
+      } else {
+        addActivityLog('add', 'Tambah Item Baru', title, activeMenu);
+      }
+    }, 100);
+  };
+}
+
+// 5. Hook HAPUS ITEM
+const _origDeleteItem = window.deleteItem;
+window.deleteItem = function(idx) {
+  const item = masterData[idx];
+  const title = item ? item.title : 'Unknown';
+  const cat = item ? item.category : '';
+  _origDeleteItem.apply(this, arguments);
+  setTimeout(() => {
+    if (!masterData[idx] || masterData[idx].title !== title) {
+      addActivityLog('delete', 'Hapus Item', title, cat);
+    }
+  }, 200);
+};
+
+// 6. Hook FAVORITE
+const _origToggleFav = window.toggleFavorite;
+window.toggleFavorite = function(idx) {
+  const item = masterData[idx];
+  const title = item ? item.title : '';
+  const wasFav = item ? item.favorite : false;
+  _origToggleFav.apply(this, arguments);
+  setTimeout(() => {
+    if (item && item.favorite !== wasFav) {
+      addActivityLog('favorite', item.favorite ? 'Tambah Favorite' : 'Hapus Favorite', title, item.category || '');
+    }
+  }, 100);
+};
+
+// 7. Hook SAVE MASTER SETTINGS
+const _origSaveMaster = window.saveMasterAccountSettings;
+window.saveMasterAccountSettings = function() {
+  _origSaveMaster.apply(this, arguments);
+  setTimeout(() => {
+    addActivityLog('settings', 'Ubah Akun Master', 'Username & password diperbarui', 'SETTINGS');
+  }, 300);
+};
+
+// 8. Hook BUAT FOLDER
+const _origAddNewMenu = window.addNewMenu;
+window.addNewMenu = function() {
+  const nameInput = document.getElementById('newMenuName');
+  const menuName = nameInput ? nameInput.value.toUpperCase() : '';
+  _origAddNewMenu.apply(this, arguments);
+  setTimeout(() => {
+    if (menuName) addActivityLog('add', 'Buat Folder Baru', menuName, 'FOLDER');
+  }, 300);
+};
+
+// 9. Hook HAPUS FOLDER
+const _origDeleteMenu = window.deleteMenu;
+window.deleteMenu = function(name) {
+  _origDeleteMenu.apply(this, arguments);
+  setTimeout(() => {
+    addActivityLog('delete', 'Hapus Folder', name, 'FOLDER');
+  }, 300);
+};
+
+// 10. Hook EXPORT BACKUP
+const _origExportVault = window.exportVaultData;
+window.exportVaultData = function() {
+  _origExportVault.apply(this, arguments);
+  addActivityLog('export', 'Export Backup', 'File JSON diunduh', 'BACKUP');
+};
+
+// 11. Hook IMPORT BACKUP
+const _origImportVault = window.importVaultData;
+window.importVaultData = function() {
+  _origImportVault.apply(this, arguments);
+  setTimeout(() => {
+    addActivityLog('import', 'Import Backup', 'Data dipulihkan dari JSON', 'BACKUP');
+  }, 500);
+};
+
+// 12. Hook PURGE FIREBASE
+const _origPurge = window.purgeFirebase;
+window.purgeFirebase = function() {
+  _origPurge.apply(this, arguments);
+  setTimeout(() => {
+    addActivityLog('firebase', 'Purge Firebase', 'Semua data Firebase dihapus', 'DANGER');
+  }, 1000);
+};
+
+// 13. Hook FORCE SAVE
+const _origForceSave = window.forceSaveToFirebase;
+window.forceSaveToFirebase = function() {
+  _origForceSave.apply(this, arguments);
+  setTimeout(() => {
+    addActivityLog('firebase', 'Force Save', 'Data lokal di-push ke Firebase', 'DANGER');
+  }, 500);
+};
+
+console.log('🔗 Activity Log HOOKS installed — semua aksi akan tercatat');
+  // ===== CURSOR GLOW MAIN (Custom Cursor) =====
+(function initCursorGlow() {
+  // Cek device support hover (bukan HP)
+  if (window.matchMedia('(hover: none)').matches) return;
+  
+  const cursorGlow = document.createElement('div');
+  cursorGlow.className = 'cursor-glow-main';
+  document.body.appendChild(cursorGlow);
+  
+  let mouseX = window.innerWidth / 2;
+  let mouseY = window.innerHeight / 2;
+  let currentX = mouseX;
+  let currentY = mouseY;
+  
+  document.addEventListener('mousemove', (e) => {
+    mouseX = e.clientX;
+    mouseY = e.clientY;
+  });
+  
+  function animateCursor() {
+    // Smooth follow (lerp)
+    currentX += (mouseX - currentX) * 0.15;
+    currentY += (mouseY - currentY) * 0.15;
+    
+    cursorGlow.style.left = currentX + 'px';
+    cursorGlow.style.top = currentY + 'px';
+    
+    requestAnimationFrame(animateCursor);
+  }
+  animateCursor();
+  
+  // Hover effect - cursor membesar saat hover di tombol
+  document.querySelectorAll('button, .note-card, a').forEach(el => {
+    el.addEventListener('mouseenter', () => {
+      cursorGlow.style.width = '80px';
+      cursorGlow.style.height = '80px';
+      cursorGlow.style.opacity = '0.9';
+    });
+    el.addEventListener('mouseleave', () => {
+      cursorGlow.style.width = '40px';
+      cursorGlow.style.height = '40px';
+      cursorGlow.style.opacity = '0.6';
+    });
+  });
+  
+  console.log('✨ Cursor Glow aktif');
+})();
 console.log('💡 Buka Settings → tab HISTORY untuk lihat log');
 console.log('💡 clearActivityLog() untuk hapus semua log');
 </script>
