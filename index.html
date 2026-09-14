@@ -1046,7 +1046,284 @@ tailwind.config = {
   width: 100%;
   transition: width 0.5s ease;
 }
+/* ==========================================
+   🎨 THEME SYSTEM — v26
+   6 Tema bisa diganti via Settings
+   ========================================== */
 
+/* Default theme (Gold Luxury) - variables */
+:root {
+  --th-bg-deep: #030712;
+  --th-bg-mid: #0a0a14;
+  --th-bg-card: rgba(8, 12, 20, 0.85);
+  --th-primary: #facc15;
+  --th-primary-soft: rgba(250, 204, 21, 0.15);
+  --th-primary-glow: rgba(250, 204, 21, 0.5);
+  --th-secondary: #f59e0b;
+  --th-secondary-soft: rgba(245, 158, 11, 0.15);
+  --th-text: #f1f5f9;
+  --th-text-sec: #94a3b8;
+  --th-border: rgba(250, 204, 21, 0.2);
+  --th-border-hover: rgba(250, 204, 21, 0.5);
+  --th-bg-gradient-1: rgba(10, 10, 42, 0.8);
+  --th-bg-gradient-2: rgba(26, 10, 42, 0.8);
+  --th-bg-gradient-3: rgba(10, 26, 42, 0.8);
+}
+
+/* 💜 CYBERPUNK PURPLE */
+html[data-theme="cyberpunk"] {
+  --th-bg-deep: #0a0420;
+  --th-bg-mid: #14082e;
+  --th-bg-card: rgba(20, 8, 46, 0.85);
+  --th-primary: #a855f7;
+  --th-primary-soft: rgba(168, 85, 247, 0.15);
+  --th-primary-glow: rgba(168, 85, 247, 0.5);
+  --th-secondary: #06b6d4;
+  --th-secondary-soft: rgba(6, 182, 212, 0.15);
+  --th-text: #f5f3ff;
+  --th-text-sec: #a78bfa;
+  --th-border: rgba(168, 85, 247, 0.2);
+  --th-border-hover: rgba(168, 85, 247, 0.5);
+  --th-bg-gradient-1: rgba(168, 85, 247, 0.15);
+  --th-bg-gradient-2: rgba(6, 182, 212, 0.12);
+  --th-bg-gradient-3: rgba(236, 72, 153, 0.08);
+}
+
+/* 💚 MATRIX GREEN */
+html[data-theme="matrix"] {
+  --th-bg-deep: #000000;
+  --th-bg-mid: #0a0f0a;
+  --th-bg-card: rgba(10, 15, 10, 0.9);
+  --th-primary: #22c55e;
+  --th-primary-soft: rgba(34, 197, 94, 0.15);
+  --th-primary-glow: rgba(34, 197, 94, 0.5);
+  --th-secondary: #4ade80;
+  --th-secondary-soft: rgba(74, 222, 128, 0.15);
+  --th-text: #dcfce7;
+  --th-text-sec: #16a34a;
+  --th-border: rgba(34, 197, 94, 0.25);
+  --th-border-hover: rgba(34, 197, 94, 0.6);
+  --th-bg-gradient-1: rgba(34, 197, 94, 0.08);
+  --th-bg-gradient-2: rgba(22, 163, 74, 0.05);
+  --th-bg-gradient-3: rgba(74, 222, 128, 0.05);
+}
+
+/* 🌅 SUNSET ORANGE */
+html[data-theme="sunset"] {
+  --th-bg-deep: #1a0805;
+  --th-bg-mid: #2d0f0a;
+  --th-bg-card: rgba(45, 15, 10, 0.85);
+  --th-primary: #f97316;
+  --th-primary-soft: rgba(249, 115, 22, 0.15);
+  --th-primary-glow: rgba(249, 115, 22, 0.5);
+  --th-secondary: #ef4444;
+  --th-secondary-soft: rgba(239, 68, 68, 0.15);
+  --th-text: #fef3c7;
+  --th-text-sec: #fdba74;
+  --th-border: rgba(249, 115, 22, 0.25);
+  --th-border-hover: rgba(249, 115, 22, 0.6);
+  --th-bg-gradient-1: rgba(249, 115, 22, 0.1);
+  --th-bg-gradient-2: rgba(239, 68, 68, 0.08);
+  --th-bg-gradient-3: rgba(251, 146, 60, 0.06);
+}
+
+/* 🌊 OCEAN BLUE */
+html[data-theme="ocean"] {
+  --th-bg-deep: #0c1929;
+  --th-bg-mid: #132f4c;
+  --th-bg-card: rgba(19, 47, 76, 0.85);
+  --th-primary: #0ea5e9;
+  --th-primary-soft: rgba(14, 165, 233, 0.15);
+  --th-primary-glow: rgba(14, 165, 233, 0.5);
+  --th-secondary: #06b6d4;
+  --th-secondary-soft: rgba(6, 182, 212, 0.15);
+  --th-text: #e0f2fe;
+  --th-text-sec: #7dd3fc;
+  --th-border: rgba(14, 165, 233, 0.25);
+  --th-border-hover: rgba(14, 165, 233, 0.6);
+  --th-bg-gradient-1: rgba(14, 165, 233, 0.12);
+  --th-bg-gradient-2: rgba(6, 182, 212, 0.1);
+  --th-bg-gradient-3: rgba(56, 189, 248, 0.08);
+}
+
+/* ☀️ LIGHT MODE */
+html[data-theme="light"] {
+  --th-bg-deep: #f8fafc;
+  --th-bg-mid: #ffffff;
+  --th-bg-card: rgba(255, 255, 255, 0.95);
+  --th-primary: #3b82f6;
+  --th-primary-soft: rgba(59, 130, 246, 0.15);
+  --th-primary-glow: rgba(59, 130, 246, 0.5);
+  --th-secondary: #10b981;
+  --th-secondary-soft: rgba(16, 185, 129, 0.15);
+  --th-text: #0f172a;
+  --th-text-sec: #64748b;
+  --th-border: rgba(59, 130, 246, 0.25);
+  --th-border-hover: rgba(59, 130, 246, 0.6);
+  --th-bg-gradient-1: rgba(59, 130, 246, 0.1);
+  --th-bg-gradient-2: rgba(16, 185, 129, 0.08);
+  --th-bg-gradient-3: rgba(139, 92, 246, 0.06);
+}
+
+/* Apply variables ke elemen-elemen utama */
+body {
+  background: var(--th-bg-deep) !important;
+  color: var(--th-text) !important;
+  transition: background 0.5s ease, color 0.5s ease;
+}
+
+#bgLayer {
+  background: var(--th-bg-deep) !important;
+  transition: background 0.5s ease;
+}
+
+#bgLayer::before {
+  background:
+    radial-gradient(ellipse at 20% 30%, var(--th-bg-gradient-1) 0%, transparent 60%),
+    radial-gradient(ellipse at 80% 70%, var(--th-bg-gradient-2) 0%, transparent 55%),
+    radial-gradient(ellipse at 50% 100%, var(--th-bg-gradient-3) 0%, transparent 50%),
+    var(--th-bg-deep) !important;
+  transition: background 0.5s ease;
+}
+
+#mainSidebar {
+  background: var(--th-bg-card) !important;
+  border-right-color: var(--th-border) !important;
+  transition: all 0.5s ease;
+}
+
+.sidebar-item.active {
+  color: var(--th-primary) !important;
+  background: linear-gradient(90deg, var(--th-primary-soft) 0%, transparent 100%) !important;
+  border-left-color: var(--th-primary) !important;
+}
+
+.sidebar-item:hover {
+  background: var(--th-primary-soft) !important;
+  border-left-color: var(--th-border-hover) !important;
+}
+
+.note-card {
+  background: var(--th-bg-card) !important;
+  border-color: var(--th-border) !important;
+  transition: all 0.4s ease;
+}
+.note-card:hover {
+  border-color: var(--th-border-hover) !important;
+  box-shadow: 0 8px 60px var(--th-primary-soft), inset 0 0 30px var(--th-primary-soft) !important;
+}
+
+.shimmer-text {
+  background: linear-gradient(90deg, var(--th-primary), var(--th-secondary), var(--th-primary), var(--th-secondary)) !important;
+  background-size: 300% auto !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+}
+
+.neon-glow {
+  text-shadow: 0 0 10px var(--th-primary-glow), 0 0 20px var(--th-primary-glow) !important;
+}
+
+.pin-dot {
+  border-color: var(--th-border) !important;
+}
+.pin-dot.filled {
+  background: var(--th-primary) !important;
+  border-color: var(--th-primary) !important;
+  box-shadow: 0 0 20px var(--th-primary-glow) !important;
+}
+
+.pin-btn {
+  background: var(--th-primary-soft) !important;
+  border-color: var(--th-border) !important;
+  color: var(--th-text) !important;
+}
+.pin-btn:hover {
+  background: var(--th-primary-soft) !important;
+  border-color: var(--th-primary) !important;
+  box-shadow: 0 0 20px var(--th-primary-glow) !important;
+}
+
+.metrics-hud {
+  background: var(--th-bg-card) !important;
+  border-color: var(--th-border) !important;
+  color: var(--th-text-sec) !important;
+}
+
+.visualizer-bar {
+  background: linear-gradient(180deg, var(--th-primary), var(--th-secondary)) !important;
+}
+
+.radar-container {
+  border-color: var(--th-border) !important;
+}
+.radar-container .radar-dot {
+  background: var(--th-primary) !important;
+  box-shadow: 0 0 10px var(--th-primary-glow) !important;
+}
+
+.day-select-btn.active {
+  background: linear-gradient(135deg, var(--th-primary), var(--th-secondary)) !important;
+  border-color: var(--th-primary) !important;
+  box-shadow: 0 0 30px var(--th-primary-glow) !important;
+}
+
+.promo-tab.active {
+  background: linear-gradient(135deg, var(--th-primary), var(--th-secondary)) !important;
+  box-shadow: 0 4px 40px var(--th-primary-glow) !important;
+}
+
+/* ===== THEME SWITCHER UI ===== */
+.theme-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+.theme-btn {
+  padding: 12px 8px;
+  border-radius: 14px;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: center;
+  font-family: 'Orbitron', sans-serif;
+  font-size: 8px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  background: rgba(255, 255, 255, 0.03);
+  color: #94a3b8;
+}
+.theme-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+}
+.theme-btn.active {
+  border-width: 2px;
+  border-style: solid;
+  font-weight: 900;
+}
+.theme-preview {
+  width: 100%;
+  height: 32px;
+  border-radius: 8px;
+  margin-bottom: 6px;
+  display: flex;
+  overflow: hidden;
+}
+.theme-preview > div { flex: 1; }
+.theme-btn[data-theme="gold"] .theme-preview { background: linear-gradient(90deg, #facc15, #f59e0b, #030712); }
+.theme-btn[data-theme="cyberpunk"] .theme-preview { background: linear-gradient(90deg, #a855f7, #06b6d4, #ec4899); }
+.theme-btn[data-theme="matrix"] .theme-preview { background: linear-gradient(90deg, #22c55e, #4ade80, #000000); }
+.theme-btn[data-theme="sunset"] .theme-preview { background: linear-gradient(90deg, #f97316, #ef4444, #1a0805); }
+.theme-btn[data-theme="ocean"] .theme-preview { background: linear-gradient(90deg, #0ea5e9, #06b6d4, #0c1929); }
+.theme-btn[data-theme="light"] .theme-preview { background: linear-gradient(90deg, #3b82f6, #10b981, #f8fafc); }
+.theme-btn[data-theme="gold"].active { border-color: #facc15; color: #facc15; background: rgba(250, 204, 21, 0.1); }
+.theme-btn[data-theme="cyberpunk"].active { border-color: #a855f7; color: #a855f7; background: rgba(168, 85, 247, 0.1); }
+.theme-btn[data-theme="matrix"].active { border-color: #22c55e; color: #22c55e; background: rgba(34, 197, 94, 0.1); }
+.theme-btn[data-theme="sunset"].active { border-color: #f97316; color: #f97316; background: rgba(249, 115, 22, 0.1); }
+.theme-btn[data-theme="ocean"].active { border-color: #0ea5e9; color: #0ea5e9; background: rgba(14, 165, 233, 0.1); }
+.theme-btn[data-theme="light"].active { border-color: #3b82f6; color: #3b82f6; background: rgba(59, 130, 246, 0.1); }
 /* ===== DANGER ZONE ===== */
 .danger-zone {
   animation: dangerPulse 2s ease-in-out infinite;
@@ -1512,6 +1789,41 @@ tailwind.config = {
       <button onclick="saveMasterAccountSettings()" class="w-full py-3.5 rounded-xl bg-gradient-to-r from-yellow-400 to-amber-500 hover:from-yellow-300 hover:to-amber-400 text-black font-master font-black text-xs uppercase tracking-wider transition shadow-md cursor-pointer transform hover:scale-[1.01] btn-glow">
         SIMPAN PERUBAHAN AKUN MASTER
       </button>
+<!-- ===== THEME SWITCHER ===== -->
+<div class="mt-3 p-4 bg-black/60 border border-purple-500/30 rounded-xl">
+  <p class="text-[9px] font-master text-purple-400 uppercase tracking-[2px] mb-3 flex items-center gap-2">
+    <i class="fas fa-palette"></i> PILIH TEMA TAMPILAN
+  </p>
+  <div class="theme-grid">
+    <div class="theme-btn" data-theme="gold" onclick="applyTheme('gold')">
+      <div class="theme-preview"></div>
+      👑 GOLD
+    </div>
+    <div class="theme-btn" data-theme="cyberpunk" onclick="applyTheme('cyberpunk')">
+      <div class="theme-preview"></div>
+      💜 CYBERPUNK
+    </div>
+    <div class="theme-btn" data-theme="matrix" onclick="applyTheme('matrix')">
+      <div class="theme-preview"></div>
+      💚 MATRIX
+    </div>
+    <div class="theme-btn" data-theme="sunset" onclick="applyTheme('sunset')">
+      <div class="theme-preview"></div>
+      🌅 SUNSET
+    </div>
+    <div class="theme-btn" data-theme="ocean" onclick="applyTheme('ocean')">
+      <div class="theme-preview"></div>
+      🌊 OCEAN
+    </div>
+    <div class="theme-btn" data-theme="light" onclick="applyTheme('light')">
+      <div class="theme-preview"></div>
+      ☀️ LIGHT
+    </div>
+  </div>
+  <p class="text-[8px] font-code text-gray-500 mt-3 text-center">
+    Klik tema untuk langsung ganti. Tersimpan otomatis.
+  </p>
+</div>
 
       <!-- ===== DANGER ZONE — FIREBASE RESET ===== -->
       <div class="mt-3 p-4 bg-red-950/30 border border-red-500/30 rounded-xl danger-zone">
@@ -4457,6 +4769,106 @@ window.logoutVault = function() {
 console.log('🔐 PIN Hook installed — PIN akan muncul setelah login & reload');
 
 console.log('🔐 PIN Lock Screen v25 AKTIF — PIN default: 1234');
+  // ==========================================
+// 🎨 THEME SWITCHER — v26
+// ==========================================
+const THEME_KEY = 'v19_theme_active';
+
+window.applyTheme = function(themeName) {
+  // Set data-theme attribute di <html>
+  document.documentElement.setAttribute('data-theme', themeName);
+  
+  // Simpan ke localStorage
+  localStorage.setItem(THEME_KEY, themeName);
+  
+  // Update active state di tombol
+  document.querySelectorAll('.theme-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.theme === themeName);
+  });
+  
+  // Simpan ke Firebase kalau login
+  if (typeof saveData === 'function' && isFirebaseConnected) {
+    // Save theme state ke database
+    setTimeout(() => {
+      try {
+        db.ref('vault_data/activeTheme').set(themeName);
+      } catch(e) {}
+    }, 500);
+  }
+  
+  // Toast
+  const themeLabel = {
+    'gold': '👑 Gold Luxury',
+    'cyberpunk': '💜 Cyberpunk Purple',
+    'matrix': '💚 Matrix Green',
+    'sunset': '🌅 Sunset Orange',
+    'ocean': '🌊 Ocean Blue',
+    'light': '☀️ Light Mode'
+  };
+  showToast(`Tema diubah: ${themeLabel[themeName] || themeName}`, 'success');
+  
+  // Play sound
+  try { playBeep(themeName === 'light' ? 880 : 660, 80); } catch(e) {}
+};
+
+// Load theme saat start
+function loadTheme() {
+  // 1. Cek dari localStorage dulu
+  let theme = localStorage.getItem(THEME_KEY);
+  
+  // 2. Kalau nggak ada, cek dari Firebase
+  if (!theme && typeof db !== 'undefined') {
+    try {
+      db.ref('vault_data/activeTheme').once('value').then(snap => {
+        const fbTheme = snap.val();
+        if (fbTheme) {
+          applyThemeSilent(fbTheme);
+        } else {
+          applyThemeSilent('gold');
+        }
+      }).catch(() => applyThemeSilent('gold'));
+    } catch(e) {
+      applyThemeSilent('gold');
+    }
+  } else {
+    applyThemeSilent(theme || 'gold');
+  }
+}
+
+// Apply tanpa toast (untuk initial load)
+function applyThemeSilent(themeName) {
+  document.documentElement.setAttribute('data-theme', themeName);
+  localStorage.setItem(THEME_KEY, themeName);
+  document.querySelectorAll('.theme-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.theme === themeName);
+  });
+}
+
+// Jalankan saat page load
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', loadTheme);
+} else {
+  setTimeout(loadTheme, 100);
+}
+
+// Re-check setelah Firebase loaded (untuk sync antar device)
+setTimeout(() => {
+  if (isFirebaseConnected && typeof db !== 'undefined') {
+    try {
+      db.ref('vault_data/activeTheme').on('value', snap => {
+        const fbTheme = snap.val();
+        if (fbTheme && fbTheme !== localStorage.getItem(THEME_KEY)) {
+          applyThemeSilent(fbTheme);
+          console.log('🎨 Theme synced from Firebase:', fbTheme);
+        }
+      });
+    } catch(e) {}
+  }
+}, 3000);
+
+console.log('🎨 Theme Switcher v26 AKTIF — 6 tema tersedia');
+console.log('💡 Ganti tema via Settings → PILIH TEMA TAMPILAN');
+console.log('💡 Atau manual: applyTheme("cyberpunk") | applyTheme("matrix") | dll');
 console.log('💡 changePin() untuk ganti PIN | resetPinToDefault() untuk reset');
 console.log('💡 TIP: Ketik purgeFirebase() di console untuk reset Firebase total');
 console.log('💡 TIP: Ketik forceSaveToFirebase() untuk paksa sync ke Firebase');
