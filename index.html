@@ -4404,17 +4404,57 @@ window.resetPinToDefault = function() {
   showToast('✅ PIN direset ke 1234', 'success');
 };
 
-// Hook ke onAuthStateChanged supaya PIN muncul setelah login sukses
-const originalAuthCallback = auth.onAuthStateChanged;
-auth.onAuthStateChanged((user) => {
-  if (user) {
-    setTimeout(() => {
-      if (document.getElementById('loginScreen')?.style.display === 'none') {
+// ==========================================
+// HOOK PIN LOCK — Muncul setelah login & setiap reload
+// ==========================================
+function triggerPinOnLoad() {
+  setTimeout(() => {
+    const loginScreen = document.getElementById('loginScreen');
+    const pinScreen = document.getElementById('pinLockScreen');
+    // Munculkan PIN kalau user login DAN layar login tersembunyi
+    if (auth.currentUser && loginScreen && loginScreen.style.display === 'none') {
+      if (pinScreen && pinScreen.style.display !== 'flex') {
         showPinLock();
       }
-    }, 800);
-  }
-});
+    }
+  }, 1200);
+}
+
+// Trigger PIN setelah halaman load
+if (document.readyState === 'complete') {
+  triggerPinOnLoad();
+} else {
+  window.addEventListener('load', triggerPinOnLoad);
+}
+
+// Override handleLogin supaya PIN muncul setelah login sukses
+const originalHandleLoginWithPin = window.handleLogin;
+window.handleLogin = function() {
+  originalHandleLoginWithPin.apply(this, arguments);
+  
+  // Cek setiap 500ms selama 10 detik, apakah login berhasil
+  let checks = 0;
+  const interval = setInterval(() => {
+    checks++;
+    if (auth.currentUser || checks > 20) {
+      clearInterval(interval);
+      if (auth.currentUser) {
+        setTimeout(() => showPinLock(), 600);
+      }
+    }
+  }, 500);
+};
+
+// Override logout untuk reset state
+const originalLogoutWithPin = window.logoutVault;
+window.logoutVault = function() {
+  pinBuffer = '';
+  clearPinIdleTimer();
+  hidePinLock();
+  originalLogoutWithPin.apply(this, arguments);
+};
+
+console.log('🔐 PIN Hook installed — PIN akan muncul setelah login & reload');
 
 console.log('🔐 PIN Lock Screen v25 AKTIF — PIN default: 1234');
 console.log('💡 changePin() untuk ganti PIN | resetPinToDefault() untuk reset');
