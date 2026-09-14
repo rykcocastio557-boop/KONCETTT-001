@@ -1765,7 +1765,18 @@ body {
         </div>
       </div>
       <button onclick="closeSettingsModal()" class="text-gray-400 hover:text-white text-base p-1.5 rounded-lg hover:bg-white/10 transition cursor-pointer"><i class="fas fa-times"></i></button>
-    </div>
+      </div>
+      <!-- ===== TAB NAVIGATION HISTORY ===== -->
+<div class="flex gap-2 mb-5 border-b border-white/10 pb-3 relative z-10">
+  <button onclick="switchSettingsTab('main')" id="tabMain" class="flex-1 py-2.5 px-4 rounded-xl bg-yellow-400/10 border border-yellow-400/40 text-yellow-400 font-master font-bold text-[9px] uppercase tracking-wider transition cursor-pointer">
+    <i class="fas fa-gear mr-1"></i> SETTINGS
+  </button>
+  <button onclick="switchSettingsTab('history')" id="tabHistory" class="flex-1 py-2.5 px-4 rounded-xl bg-white/5 border border-white/10 text-gray-400 hover:text-yellow-400 font-master font-bold text-[9px] uppercase tracking-wider transition cursor-pointer">
+    <i class="fas fa-history mr-1"></i> HISTORY
+  </button>
+</div>
+<!-- ===== TAB PANEL: MAIN (default) ===== -->
+<div id="settingsTabMain">      
 
     <div class="bg-black/60 border border-white/10 rounded-2xl p-5 mb-5 space-y-4 relative z-10">
       <h4 class="font-master font-bold text-xs text-yellow-400 uppercase tracking-wider flex items-center gap-2">
@@ -1887,6 +1898,55 @@ body {
         </button>
       </div>
     </div>
+  </div>
+<!-- ===== END TAB PANEL: MAIN ===== -->
+
+<!-- ===== TAB PANEL: HISTORY (hidden by default) ===== -->
+<div id="settingsTabHistory" style="display: none;">
+  <div class="bg-black/60 border border-white/10 rounded-2xl p-5 mb-5 space-y-3 relative z-10">
+    <div class="flex justify-between items-center mb-3">
+      <h4 class="font-master font-bold text-xs text-cyan-400 uppercase tracking-wider flex items-center gap-2">
+        <i class="fas fa-history"></i> LOG AKTIVITAS
+      </h4>
+      <button onclick="clearActivityLog()" class="px-3 py-1.5 bg-red-500/20 border border-red-500/40 hover:bg-red-500 text-red-300 hover:text-white rounded-lg text-[8px] font-master font-bold uppercase transition cursor-pointer">
+        <i class="fas fa-trash mr-1"></i> BERSIHKAN
+      </button>
+    </div>
+    
+    <div class="flex gap-2 mb-3 overflow-x-auto pb-2">
+      <button onclick="filterLog('all')" id="logFilterAll" class="px-3 py-1.5 bg-cyan-500/20 border border-cyan-500/40 text-cyan-300 font-master text-[8px] font-bold uppercase rounded-lg transition whitespace-nowrap cursor-pointer">SEMUA</button>
+      <button onclick="filterLog('add')" id="logFilterAdd" class="px-3 py-1.5 bg-white/5 border border-white/10 text-gray-400 font-master text-[8px] font-bold uppercase rounded-lg transition whitespace-nowrap cursor-pointer">➕ TAMBAH</button>
+      <button onclick="filterLog('edit')" id="logFilterEdit" class="px-3 py-1.5 bg-white/5 border border-white/10 text-gray-400 font-master text-[8px] font-bold uppercase rounded-lg transition whitespace-nowrap cursor-pointer">✏️ EDIT</button>
+      <button onclick="filterLog('delete')" id="logFilterDelete" class="px-3 py-1.5 bg-white/5 border border-white/10 text-gray-400 font-master text-[8px] font-bold uppercase rounded-lg transition whitespace-nowrap cursor-pointer">🗑️ HAPUS</button>
+      <button onclick="filterLog('theme')" id="logFilterTheme" class="px-3 py-1.5 bg-white/5 border border-white/10 text-gray-400 font-master text-[8px] font-bold uppercase rounded-lg transition whitespace-nowrap cursor-pointer">🎨 TEMA</button>
+      <button onclick="filterLog('auth')" id="logFilterAuth" class="px-3 py-1.5 bg-white/5 border border-white/10 text-gray-400 font-master text-[8px] font-bold uppercase rounded-lg transition whitespace-nowrap cursor-pointer">🔐 LOGIN</button>
+    </div>
+    
+    <div id="logStats" class="grid grid-cols-3 gap-2 mb-3">
+      <div class="bg-black/40 border border-white/10 rounded-lg p-2 text-center">
+        <div class="text-[7px] font-master text-gray-500 uppercase tracking-wider">TOTAL</div>
+        <div id="logCountTotal" class="text-cyan-400 font-master font-black text-sm">0</div>
+      </div>
+      <div class="bg-black/40 border border-white/10 rounded-lg p-2 text-center">
+        <div class="text-[7px] font-master text-gray-500 uppercase tracking-wider">HARI INI</div>
+        <div id="logCountToday" class="text-emerald-400 font-master font-black text-sm">0</div>
+      </div>
+      <div class="bg-black/40 border border-white/10 rounded-lg p-2 text-center">
+        <div class="text-[7px] font-master text-gray-500 uppercase tracking-wider">MINGGU INI</div>
+        <div id="logCountWeek" class="text-yellow-400 font-master font-black text-sm">0</div>
+      </div>
+    </div>
+    
+    <div id="activityLogContainer" class="space-y-2 max-h-[400px] overflow-y-auto custom-scroll">
+      <div class="text-center py-8 text-gray-500 text-xs font-code">
+        <i class="fas fa-inbox text-3xl mb-2 opacity-30"></i>
+        <p>Belum ada aktivitas tercatat</p>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- ===== END TAB PANEL: HISTORY ===== -->
+
 
     <button onclick="logoutVault()" class="w-full py-4 rounded-xl bg-red-500/20 border border-red-500/40 hover:bg-red-500 text-red-300 hover:text-white font-master font-bold text-xs uppercase tracking-wider transition cursor-pointer flex items-center justify-center gap-2 shadow-lg btn-glow relative z-10">
       <i class="fas fa-lock"></i> KUNCI TERMINAL & LOGOUT
@@ -4872,6 +4932,226 @@ console.log('💡 Atau manual: applyTheme("cyberpunk") | applyTheme("matrix") | 
 console.log('💡 changePin() untuk ganti PIN | resetPinToDefault() untuk reset');
 console.log('💡 TIP: Ketik purgeFirebase() di console untuk reset Firebase total');
 console.log('💡 TIP: Ketik forceSaveToFirebase() untuk paksa sync ke Firebase');
+// ==========================================
+// 📜 ACTIVITY LOG SYSTEM — v27
+// ==========================================
+const LOG_KEY = 'v19_activity_log';
+const LOG_MAX_ENTRIES = 500;
+let activityLog = [];
+let currentLogFilter = 'all';
+
+// ===== TAMBAH LOG =====
+window.addActivityLog = function(action, title, detail = '', category = '') {
+  const entry = {
+    id: 'log_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5),
+    action: action,
+    icon: getLogIcon(action),
+    color: getLogColor(action),
+    title: title,
+    detail: detail,
+    category: category,
+    timestamp: Date.now(),
+    user: (auth.currentUser && auth.currentUser.email) || 'unknown'
+  };
+  
+  activityLog.unshift(entry);
+  if (activityLog.length > LOG_MAX_ENTRIES) {
+    activityLog = activityLog.slice(0, LOG_MAX_ENTRIES);
+  }
+  
+  try {
+    localStorage.setItem(LOG_KEY, JSON.stringify(activityLog));
+  } catch(e) {}
+  
+  if (isFirebaseConnected && typeof db !== 'undefined') {
+    try {
+      db.ref('vault_data/activity_log').set(activityLog.slice(0, 100));
+    } catch(e) {}
+  }
+  
+  if (document.getElementById('settingsTabHistory')?.style.display !== 'none') {
+    renderActivityLog();
+    updateLogStats();
+  }
+  
+  console.log(`📜 [${action.toUpperCase()}] ${title}${detail ? ' - ' + detail : ''}`);
+};
+
+function getLogIcon(action) {
+  const icons = {
+    'add': 'fa-plus', 'edit': 'fa-pen', 'delete': 'fa-trash',
+    'theme': 'fa-palette', 'auth': 'fa-lock', 'login': 'fa-right-to-bracket',
+    'logout': 'fa-right-from-bracket', 'settings': 'fa-gear',
+    'favorite': 'fa-star', 'bulk': 'fa-layer-group',
+    'import': 'fa-upload', 'export': 'fa-download',
+    'pin': 'fa-key', 'firebase': 'fa-cloud'
+  };
+  return icons[action] || 'fa-circle-info';
+}
+
+function getLogColor(action) {
+  const colors = {
+    'add': 'emerald', 'edit': 'cyan', 'delete': 'red', 'theme': 'purple',
+    'auth': 'yellow', 'login': 'emerald', 'logout': 'orange',
+    'settings': 'blue', 'favorite': 'yellow', 'bulk': 'purple',
+    'import': 'cyan', 'export': 'blue', 'pin': 'pink', 'firebase': 'orange'
+  };
+  return colors[action] || 'gray';
+}
+
+function formatLogTime(timestamp) {
+  const now = Date.now();
+  const diff = now - timestamp;
+  const seconds = Math.floor(diff / 1000);
+  const minutes = Math.floor(seconds / 60);
+  const hours = Math.floor(minutes / 60);
+  const days = Math.floor(hours / 24);
+  
+  if (seconds < 60) return 'Baru saja';
+  if (minutes < 60) return `${minutes}m lalu`;
+  if (hours < 24) return `${hours}j lalu`;
+  if (days < 7) return `${days}h lalu`;
+  
+  const d = new Date(timestamp);
+  return `${d.getDate()}/${d.getMonth() + 1} ${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`;
+}
+
+window.renderActivityLog = function() {
+  const container = document.getElementById('activityLogContainer');
+  if (!container) return;
+  
+  let filtered = activityLog;
+  if (currentLogFilter !== 'all') {
+    filtered = activityLog.filter(log => log.action === currentLogFilter);
+  }
+  
+  if (filtered.length === 0) {
+    container.innerHTML = `
+      <div class="text-center py-8 text-gray-500 text-xs font-code">
+        <i class="fas fa-inbox text-3xl mb-2 opacity-30"></i>
+        <p>${currentLogFilter === 'all' ? 'Belum ada aktivitas tercatat' : 'Tidak ada aktivitas dengan filter ini'}</p>
+      </div>
+    `;
+    return;
+  }
+  
+  container.innerHTML = filtered.map(log => {
+    const colorClass = {
+      'emerald': 'text-emerald-400 border-emerald-500/30 bg-emerald-500/10',
+      'cyan': 'text-cyan-400 border-cyan-500/30 bg-cyan-500/10',
+      'red': 'text-red-400 border-red-500/30 bg-red-500/10',
+      'purple': 'text-purple-400 border-purple-500/30 bg-purple-500/10',
+      'yellow': 'text-yellow-400 border-yellow-500/30 bg-yellow-500/10',
+      'blue': 'text-blue-400 border-blue-500/30 bg-blue-500/10',
+      'orange': 'text-orange-400 border-orange-500/30 bg-orange-500/10',
+      'pink': 'text-pink-400 border-pink-500/30 bg-pink-500/10',
+      'gray': 'text-gray-400 border-gray-500/30 bg-gray-500/10'
+    }[log.color] || 'text-gray-400 border-gray-500/30 bg-gray-500/10';
+    
+    return `
+      <div class="bg-black/40 border border-white/10 rounded-xl p-3 hover:border-white/20 transition flex items-start gap-3">
+        <div class="w-8 h-8 rounded-lg ${colorClass} border flex items-center justify-center flex-shrink-0">
+          <i class="fas ${log.icon} text-xs"></i>
+        </div>
+        <div class="flex-grow min-w-0">
+          <div class="flex justify-between items-start gap-2 mb-1">
+            <p class="font-master font-bold text-xs text-white uppercase tracking-wider truncate">${window.escapeHtml(log.title)}</p>
+            <span class="text-[7px] font-code text-gray-500 whitespace-nowrap">${formatLogTime(log.timestamp)}</span>
+          </div>
+          ${log.detail ? `<p class="text-[10px] font-code text-gray-400 truncate mb-1">${window.escapeHtml(log.detail)}</p>` : ''}
+          ${log.category ? `<span class="inline-block px-2 py-0.5 bg-white/5 border border-white/10 rounded text-[7px] font-master text-gray-500 uppercase tracking-wider">${window.escapeHtml(log.category)}</span>` : ''}
+        </div>
+      </div>
+    `;
+  }).join('');
+};
+
+window.updateLogStats = function() {
+  const totalEl = document.getElementById('logCountTotal');
+  const todayEl = document.getElementById('logCountToday');
+  const weekEl = document.getElementById('logCountWeek');
+  if (!totalEl) return;
+  
+  const now = new Date();
+  const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+  const startOfWeek = startOfDay - (6 * 24 * 60 * 60 * 1000);
+  
+  totalEl.textContent = activityLog.length;
+  todayEl.textContent = activityLog.filter(log => log.timestamp >= startOfDay).length;
+  weekEl.textContent = activityLog.filter(log => log.timestamp >= startOfWeek).length;
+};
+
+window.switchSettingsTab = function(tab) {
+  const mainPanel = document.getElementById('settingsTabMain');
+  const historyPanel = document.getElementById('settingsTabHistory');
+  const tabMain = document.getElementById('tabMain');
+  const tabHistory = document.getElementById('tabHistory');
+  if (!mainPanel || !historyPanel) return;
+  
+  if (tab === 'history') {
+    mainPanel.style.display = 'none';
+    historyPanel.style.display = 'block';
+    tabMain.className = 'flex-1 py-2.5 px-4 rounded-xl bg-white/5 border border-white/10 text-gray-400 hover:text-yellow-400 font-master font-bold text-[9px] uppercase tracking-wider transition cursor-pointer';
+    tabHistory.className = 'flex-1 py-2.5 px-4 rounded-xl bg-yellow-400/10 border border-yellow-400/40 text-yellow-400 font-master font-bold text-[9px] uppercase tracking-wider transition cursor-pointer';
+    renderActivityLog();
+    updateLogStats();
+  } else {
+    mainPanel.style.display = 'block';
+    historyPanel.style.display = 'none';
+    tabMain.className = 'flex-1 py-2.5 px-4 rounded-xl bg-yellow-400/10 border border-yellow-400/40 text-yellow-400 font-master font-bold text-[9px] uppercase tracking-wider transition cursor-pointer';
+    tabHistory.className = 'flex-1 py-2.5 px-4 rounded-xl bg-white/5 border border-white/10 text-gray-400 hover:text-yellow-400 font-master font-bold text-[9px] uppercase tracking-wider transition cursor-pointer';
+  }
+};
+
+window.filterLog = function(filter) {
+  currentLogFilter = filter;
+  const buttons = {
+    'all': document.getElementById('logFilterAll'),
+    'add': document.getElementById('logFilterAdd'),
+    'edit': document.getElementById('logFilterEdit'),
+    'delete': document.getElementById('logFilterDelete'),
+    'theme': document.getElementById('logFilterTheme'),
+    'auth': document.getElementById('logFilterAuth')
+  };
+  Object.keys(buttons).forEach(key => {
+    const btn = buttons[key];
+    if (!btn) return;
+    if (key === filter) {
+      btn.className = 'px-3 py-1.5 bg-cyan-500/20 border border-cyan-500/40 text-cyan-300 font-master text-[8px] font-bold uppercase rounded-lg transition whitespace-nowrap cursor-pointer';
+    } else {
+      btn.className = 'px-3 py-1.5 bg-white/5 border border-white/10 text-gray-400 font-master text-[8px] font-bold uppercase rounded-lg transition whitespace-nowrap cursor-pointer';
+    }
+  });
+  renderActivityLog();
+};
+
+window.clearActivityLog = function() {
+  if (!confirm('⚠️ Hapus SEMUA log aktivitas?\n\nTindakan ini tidak bisa dibatalkan!')) return;
+  activityLog = [];
+  localStorage.removeItem(LOG_KEY);
+  if (isFirebaseConnected && typeof db !== 'undefined') {
+    try { db.ref('vault_data/activity_log').remove(); } catch(e) {}
+  }
+  renderActivityLog();
+  updateLogStats();
+  showToast('📜 Semua log dihapus', 'success');
+};
+
+function loadActivityLog() {
+  try {
+    const saved = localStorage.getItem(LOG_KEY);
+    if (saved) {
+      activityLog = JSON.parse(saved);
+      if (!Array.isArray(activityLog)) activityLog = [];
+    }
+  } catch(e) { activityLog = []; }
+}
+
+loadActivityLog();
+
+console.log('📜 Activity Log System v27 AKTIF');
+console.log('💡 Buka Settings → tab HISTORY untuk lihat log');
+console.log('💡 clearActivityLog() untuk hapus semua log');
 </script>
 </body>
 </html>  
