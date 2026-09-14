@@ -252,6 +252,7 @@ tailwind.config = {
     radial-gradient(ellipse at 50% 100%, rgba(10, 26, 42, 0.8) 0%, transparent 40%);
   z-index: -4;
   pointer-events: none;
+  opacity: 0.4;
 }
 
 /* ===== HD VIDEO BACKGROUND ===== */
@@ -1357,7 +1358,7 @@ body {
   animation: auroraFlow 20s ease-in-out infinite;
   z-index: -3;
   pointer-events: none;
-  opacity: 0.9;
+  opacity: 0.2;
 }
 
 /* ===== 2. GLASSMORPHISM 2.0 (Kartu Kaca Premium) ===== */
@@ -2408,6 +2409,14 @@ body {
             <input type="time" id="inputAlarmTime" class="w-full bg-[#050811] border border-white/10 p-3.5 rounded-xl outline-none focus:border-yellow-400 text-yellow-400 font-master font-black text-xl transition">
           </div>
           <div>
+            <label class="block text-[9px] font-master font-bold text-purple-400 uppercase tracking-[2px] mb-1.5">
+              <i class="fas fa-music mr-1"></i> URL SUARA ALARM (MP3) — OPSIONAL
+            </label>
+            <input type="text" id="inputAlarmSound" placeholder="https://... atau kosongkan untuk suara default" class="w-full bg-[#050811] border border-white/10 p-3 rounded-xl outline-none focus:border-purple-400 text-white font-code text-xs transition">
+            <p class="text-[8px] text-gray-500 font-code mt-1">💡 Kosongkan untuk pakai suara default sistem</p>
+          </div>
+          
+          <div>
             <label class="block text-[9px] font-master font-bold text-yellow-400 uppercase tracking-[2px] mb-1.5">PILIH HARI AKTIF</label>
             <div id="daySelectorContainer" class="flex flex-wrap gap-2"></div>
             <div class="flex gap-2 mt-3">
@@ -2693,7 +2702,47 @@ function playBeep(freq = 600, duration = 60, type = 'sine') {
     osc.stop(audioCtx.currentTime + duration / 1000);
   } catch(e) {}
 }
+// ===== PLAY ALARM SOUND (CUSTOM ATAU DEFAULT) =====
+function playAlarmSound(customUrl) {
+  if (customUrl && customUrl.trim() !== '') {
+    try {
+      const audio = new Audio(customUrl);
+      audio.volume = 0.8;
+      audio.play().catch(err => {
+        console.warn('⚠️ Custom sound failed, fallback ke default:', err);
+        playDefaultAlarmSound();
+      });
+    } catch(e) {
+      playDefaultAlarmSound();
+    }
+  } else {
+    playDefaultAlarmSound();
+  }
+}
 
+function playDefaultAlarmSound() {
+  try {
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    for (let i = 0; i < 3; i++) {
+      setTimeout(() => {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(880, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(1320, audioCtx.currentTime + 0.25);
+        gain.gain.setValueAtTime(0.4, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.5);
+      }, i * 600);
+    }
+  } catch(e) {}
+}
+
+
+  
 function playHum() {
   try {
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -4229,6 +4278,8 @@ window.openDataModal = function(index = null) {
     if (mInfo.type === 'alarm') {
       const timeIn = document.getElementById('inputAlarmTime');
       if (timeIn) timeIn.value = d.alarmTime || '00:00';
+      const soundIn = document.getElementById('inputAlarmSound');
+      if (soundIn) soundIn.value = d.alarmSound || '';
       const savedDays = (d.alarmDays || "").toUpperCase();
       document.querySelectorAll('.day-select-btn').forEach(b => {
         if (savedDays.includes(b.dataset.day) || savedDays === "DAILY") b.classList.add('active');
@@ -4289,6 +4340,7 @@ if (vaultForm) {
       title: titleInput ? titleInput.value.toUpperCase() : '',
       alarmTime: alarmTimeIn ? alarmTimeIn.value : '00:00',
       alarmDays: window.getActiveDays(),
+      alarmSound: document.getElementById('inputAlarmSound') ? document.getElementById('inputAlarmSound').value : '',
       alarmOn: (editIdx !== "" && masterData[editIdx] && masterData[editIdx].alarmOn !== undefined) ? masterData[editIdx].alarmOn : true,
       imageUrl: imgUrlIn ? imgUrlIn.value : '',
       pasaranClose: pasaranCloseIn ? pasaranCloseIn.value : '',
@@ -4500,6 +4552,7 @@ function updateClock() {
         const triggerKey = `alarm_${index}_${currentHHMM}`;
         if (!triggeredAlarmsMap[triggerKey]) {
           triggeredAlarmsMap[triggerKey] = true;
+          playAlarmSound(item.alarmSound);
           triggerBottomRightNotification(item.title, `Waktu Alarm: ${item.alarmTime} WIB (${hariIni})`, 'alarm');
         }
       }
