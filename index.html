@@ -4219,8 +4219,206 @@ updateClock();
 window.updateClock = updateClock;
 
 console.log('🚀 MR.RCT Executive Vault v24 loaded with Firebase Sync!');
+// ==========================================
+// 🔐 PIN LOCK SCREEN — v25
+// ==========================================
+const PIN_CONFIG = {
+  DEFAULT_PIN: '1234',
+  AUTO_LOCK_MINUTES: 5,
+  STORAGE_KEY: 'v19_pin_hash'
+};
+
+let pinBuffer = '';
+let pinIdleTimer = null;
+let pinAutoLockEnabled = PIN_CONFIG.AUTO_LOCK_MINUTES > 0;
+
+function hashPin(pin) {
+  let hash = 0;
+  const salt = 'MRRCT_VAULT_2025_';
+  const str = salt + pin + salt;
+  for (let i = 0; i < str.length; i++) {
+    const char = str.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
+    hash = hash & hash;
+  }
+  return 'h_' + Math.abs(hash).toString(36);
+}
+
+function getStoredPin() {
+  let stored = localStorage.getItem(PIN_CONFIG.STORAGE_KEY);
+  if (!stored) {
+    stored = hashPin(PIN_CONFIG.DEFAULT_PIN);
+    localStorage.setItem(PIN_CONFIG.STORAGE_KEY, stored);
+  }
+  return stored;
+}
+
+window.showPinLock = function() {
+  pinBuffer = '';
+  updatePinDots();
+  const screen = document.getElementById('pinLockScreen');
+  if (screen) {
+    screen.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+  }
+  clearPinIdleTimer();
+};
+
+window.hidePinLock = function() {
+  const screen = document.getElementById('pinLockScreen');
+  if (screen) screen.style.display = 'none';
+  document.body.style.overflow = '';
+  resetPinIdleTimer();
+};
+
+function updatePinDots(state) {
+  const dots = document.querySelectorAll('.pin-dot');
+  dots.forEach((dot, i) => {
+    dot.classList.remove('filled', 'error', 'success');
+    if (i < pinBuffer.length) {
+      dot.classList.add('filled');
+      if (state) dot.classList.add(state);
+    }
+  });
+}
+
+window.pinPress = function(key) {
+  playBeep(700, 40);
+
+  if (key === 'clear') {
+    pinBuffer = pinBuffer.slice(0, -1);
+    updatePinDots();
+    return;
+  }
+
+  if (key === 'submit') {
+    submitPin();
+    return;
+  }
+
+  if (pinBuffer.length < 4) {
+    pinBuffer += key;
+    updatePinDots();
+    if (pinBuffer.length === 4) {
+      setTimeout(submitPin, 250);
+    }
+  }
+};
+
+function submitPin() {
+  const storedHash = getStoredPin();
+  const inputHash = hashPin(pinBuffer);
+
+  if (inputHash === storedHash) {
+    updatePinDots('success');
+    playBeep(1200, 100);
+    setTimeout(() => {
+      hidePinLock();
+      showToast('🔓 Vault terbuka!', 'success');
+    }, 400);
+  } else {
+    updatePinDots('error');
+    playBeep(300, 200, 'sawtooth');
+    const errEl = document.getElementById('pinErrorMsg');
+    if (errEl) errEl.textContent = '❌ PIN SALAH! COBA LAGI';
+    setTimeout(() => {
+      pinBuffer = '';
+      updatePinDots();
+      if (errEl) errEl.textContent = '';
+    }, 800);
+  }
+}
+
+window.pinLogout = function() {
+  if (confirm('Yakin mau logout dan ganti akun?')) {
+    logoutVault();
+    hidePinLock();
+  }
+};
+
+function resetPinIdleTimer() {
+  if (!pinAutoLockEnabled) return;
+  clearPinIdleTimer();
+  if (!auth.currentUser) return;
+  pinIdleTimer = setTimeout(() => {
+    console.log('🔒 Auto-lock: idle ' + PIN_CONFIG.AUTO_LOCK_MINUTES + ' menit');
+    showPinLock();
+  }, PIN_CONFIG.AUTO_LOCK_MINUTES * 60 * 1000);
+}
+
+function clearPinIdleTimer() {
+  if (pinIdleTimer) {
+    clearTimeout(pinIdleTimer);
+    pinIdleTimer = null;
+  }
+}
+
+['mousemove', 'keydown', 'click', 'touchstart', 'scroll'].forEach(evt => {
+  document.addEventListener(evt, () => {
+    if (document.getElementById('pinLockScreen')?.style.display !== 'flex') {
+      resetPinIdleTimer();
+    }
+  }, { passive: true });
+});
+
+document.addEventListener('keydown', (e) => {
+  const pinScreen = document.getElementById('pinLockScreen');
+  if (!pinScreen || pinScreen.style.display !== 'flex') return;
+
+  if (e.key >= '0' && e.key <= '9') {
+    pinPress(e.key);
+  } else if (e.key === 'Backspace') {
+    e.preventDefault();
+    pinPress('clear');
+  } else if (e.key === 'Enter') {
+    e.preventDefault();
+    pinPress('submit');
+  }
+});
+
+window.changePin = function() {
+  const oldPin = prompt('Masukkan PIN LAMA:');
+  if (!oldPin) return;
+  if (hashPin(oldPin) !== getStoredPin()) {
+    return showToast('❌ PIN lama salah!', 'error');
+  }
+  const newPin = prompt('Masukkan PIN BARU (4 digit angka):');
+  if (!newPin || !/^\d{4}$/.test(newPin)) {
+    return showToast('❌ PIN harus 4 digit angka!', 'error');
+  }
+  const confirmPin = prompt('Konfirmasi PIN BARU:');
+  if (newPin !== confirmPin) {
+    return showToast('❌ Konfirmasi PIN tidak cocok!', 'error');
+  }
+  localStorage.setItem(PIN_CONFIG.STORAGE_KEY, hashPin(newPin));
+  showToast('✅ PIN berhasil diganti!', 'success');
+};
+
+window.resetPinToDefault = function() {
+  if (!confirm('⚠️ Reset PIN ke default (1234)?')) return;
+  if (!auth.currentUser) return showToast('❌ Login dulu!', 'error');
+  localStorage.removeItem(PIN_CONFIG.STORAGE_KEY);
+  getStoredPin();
+  showToast('✅ PIN direset ke 1234', 'success');
+};
+
+// Hook ke onAuthStateChanged supaya PIN muncul setelah login sukses
+const originalAuthCallback = auth.onAuthStateChanged;
+auth.onAuthStateChanged((user) => {
+  if (user) {
+    setTimeout(() => {
+      if (document.getElementById('loginScreen')?.style.display === 'none') {
+        showPinLock();
+      }
+    }, 800);
+  }
+});
+
+console.log('🔐 PIN Lock Screen v25 AKTIF — PIN default: 1234');
+console.log('💡 changePin() untuk ganti PIN | resetPinToDefault() untuk reset');
 console.log('💡 TIP: Ketik purgeFirebase() di console untuk reset Firebase total');
 console.log('💡 TIP: Ketik forceSaveToFirebase() untuk paksa sync ke Firebase');
 </script>
 </body>
 </html>  
+
