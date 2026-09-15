@@ -1808,7 +1808,61 @@ body {
 .glow-burst-anim { animation: glowBurst 1.5s ease-in-out infinite; }
 .text-reveal { animation: textReveal 0.6s ease-out forwards; }
 .float-rotate { animation: floatRotate 4s ease-in-out infinite; }
-  
+
+
+  /* ==========================================
+   🚨 ALARM APPROACHING WARNING
+   ========================================== */
+
+@keyframes alarmCardPulse {
+  0%, 100% {
+    border-color: rgba(239, 68, 68, 0.6);
+    box-shadow: 0 0 20px rgba(239, 68, 68, 0.3),
+                inset 0 0 15px rgba(239, 68, 68, 0.1);
+  }
+  50% {
+    border-color: rgba(239, 68, 68, 1);
+    box-shadow: 0 0 50px rgba(239, 68, 68, 0.7),
+                inset 0 0 25px rgba(239, 68, 68, 0.25);
+  }
+}
+
+.note-card.alarm-approaching {
+  animation: alarmCardPulse 1.2s ease-in-out infinite !important;
+  border-width: 2px !important;
+  border-color: #ef4444 !important;
+}
+
+.note-card.alarm-approaching::after {
+  content: '';
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #ef4444;
+  box-shadow: 0 0 15px #ef4444, 0 0 30px rgba(239, 68, 68, 0.6);
+  animation: alarmCardPulse 1s ease-in-out infinite;
+  z-index: 10;
+}
+
+.alarm-countdown-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: 8px;
+  background: rgba(239, 68, 68, 0.25);
+  border: 1px solid rgba(239, 68, 68, 0.7);
+  color: #fca5a5;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  animation: alarmCardPulse 1.2s ease-in-out infinite;
+  margin-bottom: 8px;
+}
 </style>
 </head>
 <body class="font-body bg-vault-bg text-slate-100 h-screen flex overflow-hidden select-none">
@@ -4912,7 +4966,133 @@ function updateClock() {
     }
   }
 
+   checkApproachingAlarms();
+  
   renderCards();
+}
+// ==========================================
+// 🚨 ALARM APPROACHING WARNING — v2 (BERSIH)
+// 5 MENIT SEBELUM JADWAL BANK
+// ==========================================
+
+window.alarmWarningTriggered = window.alarmWarningTriggered || {};
+
+window.checkApproachingAlarms = function() {
+  const now = new Date();
+  const currentMinutes = now.getHours() * 60 + now.getMinutes();
+  const listHari = ["MINGGU", "SENIN", "SELASA", "RABU", "KAMIS", "JUMAT", "SABTU"];
+  const hariIni = listHari[now.getDay()];
+  const todayKey = now.getFullYear() + '-' +
+                   String(now.getMonth() + 1).padStart(2, '0') + '-' +
+                   String(now.getDate()).padStart(2, '0');
+
+  let triggered = 0;
+
+  masterData.forEach((item, index) => {
+    if (item.category !== 'ALARM CENTER') return;
+    if (!item.alarmOn || !item.alarmTime) return;
+
+    const jadwal = (item.alarmDays || "DAILY").toUpperCase();
+    const isTodayMatch = jadwal.includes(hariIni) || jadwal.includes("DAILY");
+    if (!isTodayMatch) return;
+
+    const alarmMin = window.parseTimeToMinutes(item.alarmTime);
+    if (alarmMin === 9999) return;
+
+    const diff = alarmMin - currentMinutes;
+
+    if (diff > 0 && diff <= 5) {
+      const triggerKey = 'warn_' + index + '_' + todayKey;
+
+      if (window.alarmWarningTriggered[triggerKey]) return;
+      window.alarmWarningTriggered[triggerKey] = true;
+      triggered++;
+
+      console.log('🚨 ALARM TRIGGERED:', item.title, '| Dalam', diff, 'menit');
+
+      playApproachingAlarmSound(item);
+
+      triggerBottomRightNotification(
+        '🔔 ALARM SEBENTAR LAGI - ' + item.title,
+        'Waktu alarm ' + item.alarmTime + ' WIB (' + hariIni + '). Tinggal ' + diff + ' menit! Segera siapkan.',
+        'alarm'
+      );
+
+      showAlarmInterlockWarning(item, diff);
+
+      if (typeof addActivityLog === 'function') {
+        addActivityLog('alarm', 'Approaching Alarm', item.title + ' - ' + diff + ' menit lagi', 'ALARM');
+      }
+    }
+
+    if (diff < -10) {
+      const oldKey = 'warn_' + index + '_' + todayKey;
+      delete window.alarmWarningTriggered[oldKey];
+    }
+  });
+
+  if (triggered > 0) {
+    console.log('🚨 Total alarm triggered:', triggered);
+  }
+};
+
+function playApproachingAlarmSound(item) {
+  if (audioSettings.muted) return;
+  try {
+    const audioCtx = getAudioCtx();
+    if (!audioCtx) return;
+
+    const pattern = [0, 150, 300, 700, 850, 1000];
+    pattern.forEach((delay, i) => {
+      setTimeout(() => {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'square';
+        osc.frequency.setValueAtTime(i < 3 ? 880 : 1100, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.25 * (audioSettings.alarmVolume || 0.8), audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.12);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.12);
+      }, delay);
+    });
+  } catch(e) {
+    console.warn('Alarm sound error:', e);
+  }
+}
+
+function showAlarmInterlockWarning(item, minutesLeft) {
+  const modal = document.getElementById('interlockWarningModal');
+  if (!modal) {
+    console.warn('⚠️ Modal tidak ditemukan');
+    return;
+  }
+
+  const nameEl = document.getElementById('interlockPasaranName');
+  const codeEl = document.getElementById('interlockPasaranCode');
+  const timeEl = document.getElementById('interlockResultTime');
+  const countEl = document.getElementById('interlockCountdown');
+
+  if (nameEl) nameEl.innerText = item.title;
+  if (codeEl) codeEl.innerText = item.title;
+  if (timeEl) timeEl.innerText = item.alarmTime + ' WIB';
+  if (countEl) countEl.innerText = minutesLeft + ' MENIT';
+
+  const titleEl = modal.querySelector('h2');
+  const subEl = modal.querySelector('p.text-\\[9px\\]');
+  if (titleEl) titleEl.innerText = 'ALARM APPROACHING';
+  if (subEl) subEl.innerText = 'JADWAL BANK SEGERA TIBA';
+
+  const msgEl = modal.querySelector('p.text-sm.font-body');
+  if (msgEl) {
+    msgEl.innerHTML = '<span class="font-bold text-red-400">PERINGATAN:</span> Jadwal ' +
+      '<span class="font-black text-yellow-400">' + item.title + '</span> akan tiba dalam ' +
+      '<span class="font-black text-red-500">' + minutesLeft + ' MENIT</span>. Segera siapkan!';
+  }
+
+  modal.style.display = 'flex';
+  console.log('🚨 Modal ditampilkan untuk:', item.title);
 }
 
 // ==========================================
