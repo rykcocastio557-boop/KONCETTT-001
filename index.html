@@ -230,12 +230,10 @@ tailwind.config = {
 /* ===== HD BACKGROUND LAYERS ===== */
 #bgLayer {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
+  top: 0; left: 0;
+  width: 100vw; height: 100vh;
   z-index: -5;
-  background: #030712;
+  background: var(--th-bg-deep);
   overflow: hidden;
 }
 
@@ -1166,9 +1164,45 @@ html[data-theme="light"] {
   --th-bg-gradient-3: rgba(139, 92, 246, 0.06);
 }
 
+  /* 🌌 NEBULA */
+html[data-theme="nebula"] {
+  --th-bg-deep: #0d0221; --th-bg-mid: #1a0533;
+  --th-bg-card: rgba(26, 5, 51, 0.85);
+  --th-primary: #e879f9; --th-primary-soft: rgba(232,121,249,0.15);
+  --th-primary-glow: rgba(232,121,249,0.5);
+  --th-secondary: #818cf8; --th-secondary-soft: rgba(129,140,248,0.15);
+  --th-text: #faf5ff; --th-text-sec: #c084fc;
+  --th-border: rgba(232,121,249,0.25); --th-border-hover: rgba(232,121,249,0.6);
+  --th-bg-gradient-1: rgba(232,121,249,0.12); --th-bg-gradient-2: rgba(129,140,248,0.1); --th-bg-gradient-3: rgba(236,72,153,0.08);
+}
+
+/* 🩸 CRIMSON */
+html[data-theme="crimson"] {
+  --th-bg-deep: #1a0000; --th-bg-mid: #2d0a0a;
+  --th-bg-card: rgba(45, 10, 10, 0.85);
+  --th-primary: #ef4444; --th-primary-soft: rgba(239,68,68,0.15);
+  --th-primary-glow: rgba(239,68,68,0.5);
+  --th-secondary: #f97316; --th-secondary-soft: rgba(249,115,22,0.15);
+  --th-text: #fef2f2; --th-text-sec: #fca5a5;
+  --th-border: rgba(239,68,68,0.25); --th-border-hover: rgba(239,68,68,0.6);
+  --th-bg-gradient-1: rgba(239,68,68,0.12); --th-bg-gradient-2: rgba(249,115,22,0.08); --th-bg-gradient-3: rgba(220,38,38,0.06);
+}
+
+/* 🪙 PLATINUM */
+html[data-theme="platinum"] {
+  --th-bg-deep: #0a0a0f; --th-bg-mid: #14141f;
+  --th-bg-card: rgba(20, 20, 31, 0.85);
+  --th-primary: #e2e8f0; --th-primary-soft: rgba(226,232,240,0.15);
+  --th-primary-glow: rgba(226,232,240,0.4);
+  --th-secondary: #94a3b8; --th-secondary-soft: rgba(148,163,184,0.15);
+  --th-text: #f8fafc; --th-text-sec: #cbd5e1;
+  --th-border: rgba(226,232,240,0.2); --th-border-hover: rgba(226,232,240,0.5);
+  --th-bg-gradient-1: rgba(148,163,184,0.1); --th-bg-gradient-2: rgba(203,213,225,0.06); --th-bg-gradient-3: rgba(100,116,139,0.05);
+}
+
 /* Apply variables ke elemen-elemen utama */
 body {
-  background: var(--th-bg-deep) !important;
+  background: transparent !important;
   color: var(--th-text) !important;
   transition: background 0.5s ease, color 0.5s ease;
 }
@@ -1325,6 +1359,12 @@ body {
 .theme-btn[data-theme="sunset"].active { border-color: #f97316; color: #f97316; background: rgba(249, 115, 22, 0.1); }
 .theme-btn[data-theme="ocean"].active { border-color: #0ea5e9; color: #0ea5e9; background: rgba(14, 165, 233, 0.1); }
 .theme-btn[data-theme="light"].active { border-color: #3b82f6; color: #3b82f6; background: rgba(59, 130, 246, 0.1); }
+.theme-btn[data-theme="nebula"] .theme-preview { background: linear-gradient(90deg, #e879f9, #818cf8, #0d0221); }
+.theme-btn[data-theme="crimson"] .theme-preview { background: linear-gradient(90deg, #ef4444, #f97316, #1a0000); }
+.theme-btn[data-theme="platinum"] .theme-preview { background: linear-gradient(90deg, #e2e8f0, #94a3b8, #0a0a0f); }
+.theme-btn[data-theme="nebula"].active { border-color: #e879f9; color: #e879f9; background: rgba(232,121,249,0.1); }
+.theme-btn[data-theme="crimson"].active { border-color: #ef4444; color: #ef4444; background: rgba(239,68,68,0.1); }
+.theme-btn[data-theme="platinum"].active { border-color: #e2e8f0; color: #e2e8f0; background: rgba(226,232,240,0.1); }
 /* ==========================================
    ✨ VISUAL UPGRADE v28 — 5 Fitur WOW
    Aurora + Glassmorphism + 3D Flip + Cursor + Shimmer
@@ -1706,6 +1746,69 @@ body {
 #interlockWarningModal .glitch-text {
   animation: glitchText 0.5s ease-in-out infinite;
 }
+  /* ===== PASARAN STATUS SYSTEM ===== */
+.pasaran-status-badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 2px 8px; border-radius: 6px;
+  font-family: 'Orbitron', sans-serif; font-size: 8px;
+  font-weight: 800; letter-spacing: 1px; text-transform: uppercase; white-space: nowrap;
+}
+.pasaran-status-badge i { font-size: 7px; }
+.status-open { background: rgba(34,197,94,0.15); color: #4ade80; border: 1px solid rgba(34,197,94,0.4); animation: neonPulse 2s ease-in-out infinite; }
+.status-close { background: rgba(239,68,68,0.15); color: #f87171; border: 1px solid rgba(239,68,68,0.4); animation: glowPulse 1.2s infinite alternate ease-in-out; }
+.status-done { background: rgba(148,163,184,0.15); color: #94a3b8; border: 1px solid rgba(148,163,184,0.3); }
+.status-wait { background: rgba(245,158,11,0.15); color: #fbbf24; border: 1px solid rgba(245,158,11,0.4); animation: neonPulse 1.5s ease-in-out infinite; }
+.status-hidden { background: rgba(100,116,139,0.1); color: #64748b; border: 1px solid rgba(100,116,139,0.2); }
+
+.pasaran-row.pasaran-openbet-mode { border-left: 3px solid #22c55e !important; }
+.pasaran-row.pasaran-betclose-mode { border-left: 3px solid #ef4444 !important; }
+.pasaran-row.pasaran-wait-mode { border-left: 3px solid #f59e0b !important; }
+
+.pasaran-timer {
+  display: flex; flex-direction: column; align-items: center;
+  padding: 4px 12px; border-radius: 10px;
+  background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.08);
+  min-width: 92px;
+}
+.pasaran-timer-label {
+  font-family: 'Orbitron', sans-serif; font-size: 7px; font-weight: 700;
+  letter-spacing: 1px; text-transform: uppercase; color: #94a3b8;
+}
+.pasaran-timer-value {
+  font-family: 'JetBrains Mono', monospace; font-size: 14px; font-weight: 800;
+  color: #facc15; text-shadow: 0 0 10px rgba(250,204,21,0.3);
+}
+.pasaran-betclose-mode .pasaran-timer-value { color: #f87171; text-shadow: 0 0 10px rgba(239,68,68,0.3); }
+.pasaran-openbet-mode .pasaran-timer-value { color: #4ade80; text-shadow: 0 0 10px rgba(34,197,94,0.3); }
+.pasaran-wait-mode .pasaran-timer-value { color: #fbbf24; text-shadow: 0 0 10px rgba(245,158,11,0.3); }
+
+@media (max-width: 640px) {
+  .pasaran-timer { min-width: 100%; flex-direction: row; justify-content: space-between; }
+}
+
+  /* ===== KOMBINASI ANIMASI BARU ===== */
+@keyframes rippleExpand {
+  0% { transform: scale(0); opacity: 0.8; }
+  100% { transform: scale(4); opacity: 0; }
+}
+@keyframes glowBurst {
+  0%, 100% { box-shadow: 0 0 0 0 var(--th-primary-glow); }
+  50% { box-shadow: 0 0 40px 10px var(--th-primary-glow); }
+}
+@keyframes textReveal {
+  0% { clip-path: inset(0 100% 0 0); opacity: 0; }
+  100% { clip-path: inset(0 0 0 0); opacity: 1; }
+}
+@keyframes floatRotate {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  33% { transform: translateY(-10px) rotate(2deg); }
+  66% { transform: translateY(5px) rotate(-2deg); }
+}
+.combo-ripple { position: fixed; border-radius: 50%; pointer-events: none; z-index: 9997; border: 2px solid var(--th-primary); animation: rippleExpand 0.8s ease-out forwards; }
+.glow-burst-anim { animation: glowBurst 1.5s ease-in-out infinite; }
+.text-reveal { animation: textReveal 0.6s ease-out forwards; }
+.float-rotate { animation: floatRotate 4s ease-in-out infinite; }
+  
 </style>
 </head>
 <body class="font-body bg-vault-bg text-slate-100 h-screen flex overflow-hidden select-none">
@@ -2180,36 +2283,57 @@ body {
     <i class="fas fa-palette"></i> PILIH TEMA TAMPILAN
   </p>
   <div class="theme-grid">
-    <div class="theme-btn" data-theme="gold" onclick="applyTheme('gold')">
-      <div class="theme-preview"></div>
-      👑 GOLD
-    </div>
-    <div class="theme-btn" data-theme="cyberpunk" onclick="applyTheme('cyberpunk')">
-      <div class="theme-preview"></div>
-      💜 CYBERPUNK
-    </div>
-    <div class="theme-btn" data-theme="matrix" onclick="applyTheme('matrix')">
-      <div class="theme-preview"></div>
-      💚 MATRIX
-    </div>
-    <div class="theme-btn" data-theme="sunset" onclick="applyTheme('sunset')">
-      <div class="theme-preview"></div>
-      🌅 SUNSET
-    </div>
-    <div class="theme-btn" data-theme="ocean" onclick="applyTheme('ocean')">
-      <div class="theme-preview"></div>
-      🌊 OCEAN
-    </div>
-    <div class="theme-btn" data-theme="light" onclick="applyTheme('light')">
-      <div class="theme-preview"></div>
-      ☀️ LIGHT
-    </div>
+    <div class="theme-btn" data-theme="gold" onclick="applyTheme('gold')"><div class="theme-preview"></div>👑 GOLD</div>
+    <div class="theme-btn" data-theme="cyberpunk" onclick="applyTheme('cyberpunk')"><div class="theme-preview"></div>💜 CYBERPUNK</div>
+    <div class="theme-btn" data-theme="matrix" onclick="applyTheme('matrix')"><div class="theme-preview"></div>💚 MATRIX</div>
+    <div class="theme-btn" data-theme="sunset" onclick="applyTheme('sunset')"><div class="theme-preview"></div>🌅 SUNSET</div>
+    <div class="theme-btn" data-theme="ocean" onclick="applyTheme('ocean')"><div class="theme-preview"></div>🌊 OCEAN</div>
+    <div class="theme-btn" data-theme="light" onclick="applyTheme('light')"><div class="theme-preview"></div>☀️ LIGHT</div>
+    <div class="theme-btn" data-theme="nebula" onclick="applyTheme('nebula')"><div class="theme-preview"></div>🌌 NEBULA</div>
+    <div class="theme-btn" data-theme="crimson" onclick="applyTheme('crimson')"><div class="theme-preview"></div>🩸 CRIMSON</div>
+    <div class="theme-btn" data-theme="platinum" onclick="applyTheme('platinum')"><div class="theme-preview"></div>🪙 PLATINUM</div>
   </div>
-  <p class="text-[8px] font-code text-gray-500 mt-3 text-center">
-    Klik tema untuk langsung ganti. Tersimpan otomatis.
-  </p>
+  <p class="text-[8px] font-code text-gray-500 mt-3 text-center">Klik tema untuk langsung ganti. Tersimpan otomatis.</p>
 </div>
-
+<!-- ===== SOUND SETTINGS PANEL ===== -->
+<div class="mt-3 p-4 bg-black/60 border border-cyan-500/30 rounded-xl">
+  <p class="text-[9px] font-master text-cyan-400 uppercase tracking-[2px] mb-3 flex items-center gap-2">
+    <i class="fas fa-volume-high"></i> PENGATURAN SUARA
+  </p>
+  <div class="space-y-3">
+    <div class="flex items-center justify-between">
+      <span class="text-[10px] font-master text-gray-300 uppercase">Mute Semua Suara</span>
+      <button onclick="toggleMute()" id="soundMuteBtn" class="px-4 py-1.5 rounded-lg border border-white/10 text-[9px] font-master font-bold uppercase transition hover:bg-white/10">Toggle</button>
+    </div>
+    <div>
+      <label class="block text-[8px] font-master text-gray-400 mb-1 uppercase">Volume Umum: <span id="volVal" class="text-cyan-400">70</span>%</label>
+      <input type="range" id="volumeSlider" min="0" max="100" value="70" oninput="setVolume(this.value)" class="w-full accent-cyan-400 h-2 rounded-lg cursor-pointer">
+    </div>
+    <div>
+      <label class="block text-[8px] font-master text-gray-400 mb-1 uppercase">Volume Alarm: <span id="alarmVolVal" class="text-yellow-400">80</span>%</label>
+      <input type="range" id="alarmVolumeSlider" min="0" max="100" value="80" oninput="setAlarmVolume(this.value)" class="w-full accent-yellow-400 h-2 rounded-lg cursor-pointer">
+    </div>
+    <div>
+      <label class="block text-[8px] font-master text-gray-400 mb-1.5 uppercase">Tema Suara Alarm</label>
+      <div class="grid grid-cols-4 gap-2">
+        <button onclick="setSoundTheme('classic')" data-st="classic" class="sound-theme-btn py-2 rounded-lg border border-white/10 text-[8px] font-master uppercase active">Classic</button>
+        <button onclick="setSoundTheme('soft')" data-st="soft" class="sound-theme-btn py-2 rounded-lg border border-white/10 text-[8px] font-master uppercase">Soft</button>
+        <button onclick="setSoundTheme('urgent')" data-st="urgent" class="sound-theme-btn py-2 rounded-lg border border-white/10 text-[8px] font-master uppercase">Urgent</button>
+        <button onclick="setSoundTheme('digital')" data-st="digital" class="sound-theme-btn py-2 rounded-lg border border-white/10 text-[8px] font-master uppercase">Digital</button>
+      </div>
+    </div>
+    <div class="flex items-center justify-between">
+      <span class="text-[10px] font-master text-gray-300 uppercase">Interlock Warning</span>
+      <button onclick="toggleInterlock()" id="interlockToggleBtn" class="px-4 py-1.5 rounded-lg bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-[9px] font-master font-bold uppercase transition">ON</button>
+    </div>
+    <div>
+      <label class="block text-[8px] font-master text-gray-400 mb-1 uppercase">Interlock Lead: <span id="leadVal" class="text-red-400">5</span> menit</label>
+      <input type="range" id="leadSlider" min="1" max="30" value="5" oninput="setInterlockLead(this.value)" class="w-full accent-red-400 h-2 rounded-lg cursor-pointer">
+    </div>
+    <button onclick="testSound()" class="w-full py-2.5 bg-cyan-500/20 border border-cyan-500/40 text-cyan-300 text-[9px] font-master font-bold uppercase rounded-lg hover:bg-cyan-500/40 transition"><i class="fas fa-music mr-1"></i> TEST SUARA</button>
+  </div>
+</div>
+      
       <!-- ===== DANGER ZONE — FIREBASE RESET ===== -->
       <div class="mt-3 p-4 bg-red-950/30 border border-red-500/30 rounded-xl danger-zone">
         <p class="text-[8px] font-master text-red-400 uppercase tracking-[2px] mb-2.5 flex items-center gap-2">
@@ -2615,6 +2739,78 @@ body {
   </div>
 </div>
 
+<!-- ==================== PIN LOCK SCREEN ==================== -->
+<div id="pinLockScreen" style="display:none;" class="fixed inset-0 z-[10012] flex items-center justify-center bg-black/95 backdrop-blur-2xl">
+  <div class="modal-glow-box p-8 rounded-[32px] w-full max-w-xs text-center border border-yellow-400/30 shadow-[0_0_60px_rgba(250,204,21,0.15)]">
+    <div class="bio-scanner"></div>
+    <div class="relative z-10">
+      <div class="w-16 h-16 mx-auto mb-4 rounded-2xl bg-yellow-400/10 border-2 border-yellow-400/40 flex items-center justify-center text-yellow-400 text-3xl animate-bounce-subtle shadow-[0_0_30px_rgba(250,204,21,0.2)]">
+        <i class="fas fa-lock"></i>
+      </div>
+      <h2 class="font-master font-black text-lg text-yellow-400 uppercase tracking-widest mb-1 neon-glow">VAULT LOCKED</h2>
+      <p class="text-[8px] font-master text-gray-500 uppercase tracking-[2px] mb-5">Masukkan PIN 4 digit</p>
+      <div class="flex justify-center gap-3 mb-5">
+        <div class="pin-dot w-4 h-4 rounded-full border-2 border-white/20"></div>
+        <div class="pin-dot w-4 h-4 rounded-full border-2 border-white/20"></div>
+        <div class="pin-dot w-4 h-4 rounded-full border-2 border-white/20"></div>
+        <div class="pin-dot w-4 h-4 rounded-full border-2 border-white/20"></div>
+      </div>
+      <p id="pinErrorMsg" class="text-[9px] font-master text-red-400 uppercase tracking-wider mb-3 min-h-[12px]"></p>
+      <div class="grid grid-cols-3 gap-2.5">
+        <button onclick="pinPress('1')" class="pin-btn w-16 h-16 rounded-2xl border text-xl font-master font-black transition hover:scale-105">1</button>
+        <button onclick="pinPress('2')" class="pin-btn w-16 h-16 rounded-2xl border text-xl font-master font-black transition hover:scale-105">2</button>
+        <button onclick="pinPress('3')" class="pin-btn w-16 h-16 rounded-2xl border text-xl font-master font-black transition hover:scale-105">3</button>
+        <button onclick="pinPress('4')" class="pin-btn w-16 h-16 rounded-2xl border text-xl font-master font-black transition hover:scale-105">4</button>
+        <button onclick="pinPress('5')" class="pin-btn w-16 h-16 rounded-2xl border text-xl font-master font-black transition hover:scale-105">5</button>
+        <button onclick="pinPress('6')" class="pin-btn w-16 h-16 rounded-2xl border text-xl font-master font-black transition hover:scale-105">6</button>
+        <button onclick="pinPress('7')" class="pin-btn w-16 h-16 rounded-2xl border text-xl font-master font-black transition hover:scale-105">7</button>
+        <button onclick="pinPress('8')" class="pin-btn w-16 h-16 rounded-2xl border text-xl font-master font-black transition hover:scale-105">8</button>
+        <button onclick="pinPress('9')" class="pin-btn w-16 h-16 rounded-2xl border text-xl font-master font-black transition hover:scale-105">9</button>
+        <button onclick="pinLogout()" class="w-16 h-16 rounded-2xl border border-red-500/30 text-red-400 text-xs font-master transition hover:scale-105 hover:bg-red-500/20"><i class="fas fa-right-from-bracket"></i></button>
+        <button onclick="pinPress('0')" class="pin-btn w-16 h-16 rounded-2xl border text-xl font-master font-black transition hover:scale-105">0</button>
+        <button onclick="pinPress('clear')" class="w-16 h-16 rounded-2xl border border-white/10 text-gray-400 text-sm font-master transition hover:scale-105 hover:bg-white/10"><i class="fas fa-delete-left"></i></button>
+      </div>
+      <button onclick="changePin()" class="mt-4 text-[8px] font-master text-gray-500 uppercase tracking-wider hover:text-yellow-400 transition">🔑 Ganti PIN</button>
+    </div>
+  </div>
+</div>
+<!-- ==================== FOLDER PIN LOCK SCREEN ==================== -->
+<div id="folderPinLockScreen" style="display:none;" class="fixed inset-0 z-[10013] flex items-center justify-center bg-black/95 backdrop-blur-2xl">
+  <div class="modal-glow-box p-8 rounded-[32px] w-full max-w-xs text-center border border-cyan-400/30 shadow-[0_0_60px_rgba(34,211,238,0.15)]">
+    <div class="bio-scanner"></div>
+    <div class="relative z-10">
+      <div class="w-16 h-16 mx-auto mb-4 rounded-2xl bg-cyan-400/10 border-2 border-cyan-400/40 flex items-center justify-center text-cyan-400 text-3xl animate-bounce-subtle shadow-[0_0_30px_rgba(34,211,238,0.2)]">
+        <i class="fas fa-folder-lock"></i>
+      </div>
+      <h2 class="font-master font-black text-lg text-cyan-400 uppercase tracking-widest mb-1 neon-glow">FOLDER LOCKED</h2>
+      <p class="text-[8px] font-master text-gray-500 uppercase tracking-[2px] mb-2">Folder Dilindungi PIN</p>
+      <p id="folderPinName" class="text-[11px] font-master text-yellow-400 uppercase tracking-wider mb-4 font-bold">-</p>
+      <div class="flex justify-center gap-3 mb-5">
+        <div class="folder-pin-dot w-4 h-4 rounded-full border-2 border-white/20"></div>
+        <div class="folder-pin-dot w-4 h-4 rounded-full border-2 border-white/20"></div>
+        <div class="folder-pin-dot w-4 h-4 rounded-full border-2 border-white/20"></div>
+        <div class="folder-pin-dot w-4 h-4 rounded-full border-2 border-white/20"></div>
+      </div>
+      <p id="folderPinError" class="text-[9px] font-master text-red-400 uppercase tracking-wider mb-3 min-h-[12px]"></p>
+      <div class="grid grid-cols-3 gap-2.5">
+        <button onclick="folderPinPress('1')" class="pin-btn w-16 h-16 rounded-2xl border text-xl font-master font-black transition hover:scale-105">1</button>
+        <button onclick="folderPinPress('2')" class="pin-btn w-16 h-16 rounded-2xl border text-xl font-master font-black transition hover:scale-105">2</button>
+        <button onclick="folderPinPress('3')" class="pin-btn w-16 h-16 rounded-2xl border text-xl font-master font-black transition hover:scale-105">3</button>
+        <button onclick="folderPinPress('4')" class="pin-btn w-16 h-16 rounded-2xl border text-xl font-master font-black transition hover:scale-105">4</button>
+        <button onclick="folderPinPress('5')" class="pin-btn w-16 h-16 rounded-2xl border text-xl font-master font-black transition hover:scale-105">5</button>
+        <button onclick="folderPinPress('6')" class="pin-btn w-16 h-16 rounded-2xl border text-xl font-master font-black transition hover:scale-105">6</button>
+        <button onclick="folderPinPress('7')" class="pin-btn w-16 h-16 rounded-2xl border text-xl font-master font-black transition hover:scale-105">7</button>
+        <button onclick="folderPinPress('8')" class="pin-btn w-16 h-16 rounded-2xl border text-xl font-master font-black transition hover:scale-105">8</button>
+        <button onclick="folderPinPress('9')" class="pin-btn w-16 h-16 rounded-2xl border text-xl font-master font-black transition hover:scale-105">9</button>
+        <button onclick="hideFolderPinLock()" class="w-16 h-16 rounded-2xl border border-red-500/30 text-red-400 text-xs font-master transition hover:scale-105 hover:bg-red-500/20"><i class="fas fa-times"></i></button>
+        <button onclick="folderPinPress('0')" class="pin-btn w-16 h-16 rounded-2xl border text-xl font-master font-black transition hover:scale-105">0</button>
+        <button onclick="folderPinPress('clear')" class="w-16 h-16 rounded-2xl border border-white/10 text-gray-400 text-sm font-master transition hover:scale-105 hover:bg-white/10"><i class="fas fa-delete-left"></i></button>
+      </div>
+      <p class="text-[8px] font-master text-gray-600 mt-4 uppercase tracking-wider">Tekan ESC untuk batal</p>
+    </div>
+  </div>
+</div>
+  
 <!-- ==================== JAVASCRIPT ==================== -->
 <script>
 // ==========================================
@@ -2685,16 +2881,42 @@ const firebaseStatusDot = document.getElementById('firebaseStatusDot');
 const firebaseStatusText = document.getElementById('firebaseStatusText');
 
 // ==========================================
-// AUDIO FX
+// AUDIO FX + SOUND SETTINGS (KONSOLIDASI)
 // ==========================================
+let audioSettings = {
+  muted: false,
+  volume: 0.7,
+  soundTheme: 'classic',
+  alarmVolume: 0.8,
+  interlockEnabled: true,
+  interlockLeadMinutes: 5
+};
+try {
+  const saved = localStorage.getItem('v19_audio_settings');
+  if (saved) audioSettings = { ...audioSettings, ...JSON.parse(saved) };
+} catch(e) {}
+
+function saveAudioSettings() {
+  localStorage.setItem('v19_audio_settings', JSON.stringify(audioSettings));
+}
+
+function getAudioCtx() {
+  if (!window._sharedAudioCtx) {
+    try { window._sharedAudioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) {}
+  }
+  return window._sharedAudioCtx;
+}
+
 function playBeep(freq = 600, duration = 60, type = 'sine') {
+  if (audioSettings.muted) return;
   try {
-    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const audioCtx = getAudioCtx();
+    if (!audioCtx) return;
     const osc = audioCtx.createOscillator();
     const gain = audioCtx.createGain();
     osc.type = type;
     osc.frequency.value = freq;
-    gain.gain.value = 0.08;
+    gain.gain.value = Math.min(0.08, 0.08 * audioSettings.volume);
     gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration / 1000);
     osc.connect(gain);
     gain.connect(audioCtx.destination);
@@ -2702,35 +2924,35 @@ function playBeep(freq = 600, duration = 60, type = 'sine') {
     osc.stop(audioCtx.currentTime + duration / 1000);
   } catch(e) {}
 }
-// ===== PLAY ALARM SOUND (CUSTOM ATAU DEFAULT) =====
+
 function playAlarmSound(customUrl) {
+  if (audioSettings.muted) return;
   if (customUrl && customUrl.trim() !== '') {
     try {
       const audio = new Audio(customUrl);
-      audio.volume = 0.8;
-      audio.play().catch(err => {
-        console.warn('⚠️ Custom sound failed, fallback ke default:', err);
-        playDefaultAlarmSound();
-      });
-    } catch(e) {
-      playDefaultAlarmSound();
-    }
+      audio.volume = audioSettings.alarmVolume;
+      audio.play().catch(() => playDefaultAlarmSound());
+    } catch(e) { playDefaultAlarmSound(); }
   } else {
     playDefaultAlarmSound();
   }
 }
 
 function playDefaultAlarmSound() {
+  if (audioSettings.muted) return;
   try {
-    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const audioCtx = getAudioCtx();
+    if (!audioCtx) return;
+    const theme = audioSettings.soundTheme;
+    const freqs = theme === 'soft' ? [523, 659, 784] : theme === 'urgent' ? [880, 988, 1175] : theme === 'digital' ? [1000, 1200, 1400] : [880, 1100, 1320];
     for (let i = 0; i < 3; i++) {
       setTimeout(() => {
         const osc = audioCtx.createOscillator();
         const gain = audioCtx.createGain();
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(880, audioCtx.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(1320, audioCtx.currentTime + 0.25);
-        gain.gain.setValueAtTime(0.4, audioCtx.currentTime);
+        osc.type = theme === 'digital' ? 'square' : 'sine';
+        osc.frequency.setValueAtTime(freqs[i] || 880, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime((freqs[i]||880) * 1.5, audioCtx.currentTime + 0.25);
+        gain.gain.setValueAtTime(0.4 * audioSettings.alarmVolume, audioCtx.currentTime);
         gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
         osc.connect(gain);
         gain.connect(audioCtx.destination);
@@ -2741,11 +2963,11 @@ function playDefaultAlarmSound() {
   } catch(e) {}
 }
 
-
-  
 function playHum() {
+  if (audioSettings.muted) return;
   try {
-    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const audioCtx = getAudioCtx();
+    if (!audioCtx) return;
     const osc = audioCtx.createOscillator();
     const gain = audioCtx.createGain();
     osc.type = 'sawtooth';
@@ -2758,14 +2980,16 @@ function playHum() {
   } catch(e) {}
 }
 
-function toggleMute() {
+window.toggleMute = function() {
+  audioSettings.muted = !audioSettings.muted;
+  saveAudioSettings();
   const icon = document.getElementById('muteIcon');
-  if (icon) {
-    icon.className = icon.classList.contains('fa-volume-high') ? 'fas fa-volume-xmark' : 'fas fa-volume-high';
-  }
-  showToast('🔊 Audio toggled', 'info');
-}
-
+  if (icon) icon.className = audioSettings.muted ? 'fas fa-volume-xmark' : 'fas fa-volume-high';
+  const muteBtn = document.getElementById('muteToggle');
+  if (muteBtn) muteBtn.style.opacity = audioSettings.muted ? '0.4' : '1';
+  showToast(audioSettings.muted ? '🔇 Audio DIMATIKAN' : '🔊 Audio DINYALAKAN', 'info');
+  if (!audioSettings.muted) playBeep(800, 60);
+};
 // ==========================================
 // AUTH STATE
 // ==========================================
@@ -3056,7 +3280,11 @@ function getDefaultMenus() {
     { name: "DATA LOGIN SOSMED", type: "account", icon: "fa-shield-halved", subtitle: "Credential Vault Sosial Media" },
     { name: "RESULT PASARAN", type: "pasaran", icon: "fa-dice", subtitle: "Centralized Command & Executive Vault" },
     { name: "PK CS", type: "note", icon: "fa-headset", subtitle: "Centralized Command & Executive Vault" },
-    { name: "PERFECT KEYBOARD", type: "note", icon: "fa-keyboard", subtitle: "Folder Kustom Master Catatan" }
+    { name: "PERFECT KEYBOARD", type: "note", icon: "fa-keyboard", subtitle: "Folder Kustom Master Catatan" },
+    { name: "KALENDER JADWAL", type: "note", icon: "fa-calendar-days", subtitle: "Penanda Jadwal & Event" },
+    { name: "KONTAK CS", type: "account", icon: "fa-address-book", subtitle: "Database Kontak CS" },
+    { name: "SCRIPT PROMO", type: "script_promo", icon: "fa-code", subtitle: "Editor HTML Promo" },
+    { name: "ARCHIVE", type: "note", icon: "fa-box-archive", subtitle: "Arsip Catatan Lama" }
   ];
 }
 
@@ -3230,6 +3458,76 @@ window.getPasaranTimerInfo = function(resultTimeStr, isDone, isHidden) {
   return { isApproaching: false, countdownStr: '' };
 };
 
+// ==========================================
+// 📊 PASARAN STATUS SYSTEM — v2 (Blok 2)
+// ==========================================
+window.getPasaranStatus = function(item) {
+  if (item.pasaranDone) return { state: 'result_done', label: 'RESULT DONE', countdownStr: 'SELESAI', countdownSec: 0 };
+  if (item.hiddenNum) return { state: 'hidden', label: 'HIDDEN', countdownStr: '-', countdownSec: 0 };
+
+  const now = new Date();
+  const nowSec = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
+  const closeSec = window.parseTimeToMinutes(item.pasaranClose) * 60;
+  const resultSec = window.parseTimeToMinutes(item.pasaranResultTime) * 60;
+
+  if (closeSec >= 9999 * 60 || resultSec >= 9999 * 60) {
+    return { state: 'open_bet', label: 'OPEN BET', countdownStr: '--:--', countdownSec: 0 };
+  }
+
+  let state, label, targetSec;
+  if (nowSec < closeSec) {
+    state = 'open_bet'; label = 'OPEN BET'; targetSec = closeSec;
+  } else if (nowSec < resultSec) {
+    state = 'bet_close'; label = 'BET CLOSE'; targetSec = resultSec;
+  } else {
+    state = 'result_wait'; label = 'MENUNGGU RESULT'; targetSec = resultSec;
+  }
+
+  let countdownSec = targetSec - nowSec;
+  if (countdownSec < 0) countdownSec = 0;
+  const h = Math.floor(countdownSec / 3600);
+  const m = Math.floor((countdownSec % 3600) / 60);
+  const s = countdownSec % 60;
+  let countdownStr;
+  if (h > 0) countdownStr = `${h}j ${m}m ${s}s`;
+  else countdownStr = `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+
+  return { state, label, countdownStr, countdownSec };
+};
+
+window.getPasaranCountdown = function(item) {
+  if (item.hiddenNum || item.pasaranDone) return null;
+
+  const now = new Date();
+  const currentSec = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
+  const closeSec = window.parseTimeToMinutes(item.pasaranClose) * 60;
+  const resultSec = window.parseTimeToMinutes(item.pasaranResultTime) * 60;
+
+  let targetSec, targetLabel;
+  if (closeSec !== 9999 * 60 && currentSec < closeSec) {
+    targetSec = closeSec;
+    targetLabel = 'CLOSING IN';
+  } else if (resultSec !== 9999 * 60 && currentSec < resultSec) {
+    targetSec = resultSec;
+    targetLabel = 'RESULT IN';
+  } else {
+    return null;
+  }
+
+  let diff = targetSec - currentSec;
+  if (diff < 0) diff += 86400;
+
+  const h = Math.floor(diff / 3600);
+  const m = Math.floor((diff % 3600) / 60);
+  const s = diff % 60;
+
+  const timeStr = h > 0
+    ? `${h}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`
+    : `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+
+  return { label: targetLabel, value: timeStr, status: currentSec >= closeSec ? 'wait' : 'open' };
+};
+
 window.openModal = function(id) {
   const el = document.getElementById(id);
   if (el) el.style.display = 'flex';
@@ -3249,15 +3547,18 @@ window.renderSidebar = function() {
 
   menus.forEach((m) => {
     const isActive = activeMenu === m.name;
+    const hasPin = !!(m.pinHash);
     const div = document.createElement('div');
     div.className = `sidebar-item p-3 rounded-xl cursor-pointer flex justify-between items-center mb-0.5 group ${isActive ? 'active' : 'text-gray-400 hover:bg-white/5'}`;
     div.innerHTML = `
       <span onclick="switchMenu('${window.safeAttr(m.name)}')" class="flex items-center gap-3 w-full truncate">
         <i class="fas ${m.icon || 'fa-folder'} text-xs w-4 text-center"></i>
         <span class="truncate text-xs">${window.escapeHtml(m.name)}</span>
+        ${hasPin ? '<i class="fas fa-lock text-[8px] text-yellow-400 ml-1" title="Folder Terkunci PIN"></i>' : ''}
       </span>
       <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition">
-        <button onclick="deleteMenu('${window.safeAttr(m.name)}')" title="Hapus Folder" class="p-1 text-gray-500 hover:text-red-400 text-xs cursor-pointer"><i class="fas fa-trash"></i></button>
+        <button onclick="event.stopPropagation(); setFolderPin('${window.safeAttr(m.name)}')" title="Set PIN Folder" class="p-1 text-gray-500 hover:text-yellow-400 text-xs cursor-pointer"><i class="fas fa-key"></i></button>
+        <button onclick="event.stopPropagation(); deleteMenu('${window.safeAttr(m.name)}')" title="Hapus Folder" class="p-1 text-gray-500 hover:text-red-400 text-xs cursor-pointer"><i class="fas fa-trash"></i></button>
       </div>
     `;
     sidebarMenu.appendChild(div);
@@ -3265,32 +3566,34 @@ window.renderSidebar = function() {
 };
 
 window.switchMenu = function(name) {
+  const mInfo = menus.find(m => m.name === name) || menus[0];
+  // Cek apakah folder ini punya PIN
+  if (mInfo && mInfo.pinHash && !window.__unlockedFolders?.has(name)) {
+    window.__pendingFolder = name;
+    showFolderPinLock(name);
+    return;
+  }
   activeMenu = name;
   localStorage.setItem('v19_active', activeMenu);
   toggleMobileSidebar(false);
 
-  const mInfo = menus.find(m => m.name === activeMenu) || menus[0];
   if (currentMenuTitle) {
     currentMenuTitle.innerText = mInfo.name;
     currentMenuTitle.classList.remove('typing-complete');
-    setTimeout(() => {
-      currentMenuTitle.classList.add('typing-complete');
-    }, 50);
+    setTimeout(() => currentMenuTitle.classList.add('typing-complete'), 50);
   }
   if (folderSubtitle) folderSubtitle.innerText = mInfo.subtitle || "MR.RCT Executive Command Center";
-
   activeSlotIndex = 0;
-  
   const grid = document.getElementById('cardGrid');
   if (grid) {
     grid.classList.remove('tab-transition-enter');
     void grid.offsetWidth;
     grid.classList.add('tab-transition-enter');
   }
-  
   renderCards();
   renderSidebar();
 };
+
 
 window.toggleMobileSidebar = function(open) {
   const sb = document.getElementById('mainSidebar');
@@ -3422,20 +3725,34 @@ window.renderCards = function() {
       setupCardTilt(card);
     });
   }
-  // ===== PASARAN ROWS =====
+        // ===== PASARAN ROWS =====
   else if (mInfo.type === 'pasaran') {
     cardGrid.className = "space-y-3";
     filtered.forEach((item) => {
       const rIndex = masterData.indexOf(item);
       const isHidden = !!item.hiddenNum;
       const isDone = !!item.pasaranDone;
-      const timerInfo = window.getPasaranTimerInfo(item.pasaranResultTime, isDone, isHidden);
+      const status = window.getPasaranStatus(item);
 
       let cardClass = "pasaran-row p-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 ";
       if (isHidden) cardClass += "pasaran-hidden-mode ";
       else if (isDone) cardClass += "pasaran-done-mode ";
-      else if (timerInfo.isApproaching) cardClass += "glowing-approaching ";
-      else cardClass += "pending-status ";
+      else if (status.state === 'bet_close') cardClass += "pasaran-betclose-mode ";
+      else if (status.state === 'open_bet') cardClass += "pasaran-openbet-mode ";
+      else if (status.state === 'result_wait') cardClass += "pasaran-wait-mode ";
+
+      let statusBadge;
+      if (isHidden) statusBadge = `<span class="pasaran-status-badge status-hidden"><i class="fas fa-eye-slash"></i> HIDDEN</span>`;
+      else if (isDone) statusBadge = `<span class="pasaran-status-badge status-done"><i class="fas fa-check-circle"></i> RESULT DONE</span>`;
+      else if (status.state === 'open_bet') statusBadge = `<span class="pasaran-status-badge status-open"><i class="fas fa-circle-dot"></i> OPEN BET</span>`;
+      else if (status.state === 'bet_close') statusBadge = `<span class="pasaran-status-badge status-close"><i class="fas fa-lock"></i> BET CLOSE</span>`;
+      else statusBadge = `<span class="pasaran-status-badge status-wait"><i class="fas fa-hourglass-half"></i> MENUNGGU</span>`;
+
+      const timerBlock = (isHidden || isDone) ? '' : `
+        <div class="pasaran-timer">
+          <span class="pasaran-timer-label">${status.state === 'open_bet' ? 'TUTUP DALAM' : 'RESULT DALAM'}</span>
+          <span class="pasaran-timer-value">${status.countdownStr}</span>
+        </div>`;
 
       const row = document.createElement('div');
       row.className = cardClass;
@@ -3443,23 +3760,25 @@ window.renderCards = function() {
         <div class="flex items-center gap-3.5 min-w-0 flex-1">
           <button onclick="toggleFavorite(${rIndex})" class="p-1 ${item.favorite ? 'text-yellow-400' : 'text-gray-600 hover:text-yellow-400'} cursor-pointer transition"><i class="fas fa-star text-sm"></i></button>
           <div class="w-9 h-9 rounded-xl bg-black/60 border border-white/10 flex items-center justify-center text-yellow-400"><i class="fas fa-dice text-base"></i></div>
-          <div class="flex flex-col min-w-0">
+          <div class="flex flex-col min-w-0 gap-1.5">
             <div class="flex items-center gap-2 flex-wrap">
               <h3 class="font-master text-white font-black text-xs md:text-sm uppercase italic truncate">${window.escapeHtml(item.title)}</h3>
-              ${(timerInfo.isApproaching && !isHidden && !isDone) ? `<span class="px-2.5 py-0.5 bg-red-950/90 border border-red-500 text-red-400 font-code font-bold text-[9px] rounded-md animate-pulse shadow-md flex items-center gap-1"><i class="fas fa-clock text-[8px]"></i> ${timerInfo.countdownStr}</span>` : ''}
+              ${statusBadge}
+            </div>
+            <div class="flex items-center gap-3 font-code text-[10px]">
+              <span><span class="text-gray-500 uppercase">CLOSE:</span> <span class="text-white font-bold">${window.escapeHtml(item.pasaranClose) || '00:00'}</span></span>
+              <span><span class="text-gray-500 uppercase">RESULT:</span> <span class="text-yellow-400 font-bold">${window.escapeHtml(item.pasaranResultTime) || '00:00'}</span></span>
             </div>
           </div>
         </div>
-        <div class="flex flex-wrap items-center gap-3 font-code text-xs">
-          <div><span class="text-[8px] uppercase font-master text-gray-500 tracking-wider mr-1">CLOSE:</span><span class="text-white font-bold">${window.escapeHtml(item.pasaranClose) || '00:00'}</span></div>
-          <div><span class="text-[8px] uppercase font-master text-gray-500 tracking-wider mr-1">RESULT:</span><span class="text-yellow-400 font-bold">${window.escapeHtml(item.pasaranResultTime) || '00:00'}</span></div>
+        <div class="flex flex-wrap items-center gap-3">
+          ${timerBlock}
           ${item.url ? `<a href="${window.escapeHtml(item.url)}" target="_blank" class="px-3.5 py-1.5 rounded-xl bg-white/5 border border-white/10 hover:border-yellow-400/40 text-gray-300 hover:text-yellow-400 font-master font-bold text-[9px] transition"><i class="fas fa-arrow-up-right-from-square"></i> Link</a>` : ''}
           <div class="flex items-center gap-2">
             <button onclick="togglePasaranVisibility(${rIndex})" title="${item.hiddenNum ? 'Nyalakan Pasaran' : 'Matikan Pasaran'}" class="text-gray-500 hover:text-white p-1 cursor-pointer transition"><i class="fas ${item.hiddenNum ? 'fa-eye-slash text-yellow-400' : 'fa-eye text-gray-300'} text-xs"></i></button>
             <button onclick="editItem(${rIndex})" class="text-gray-500 hover:text-cyan-400 p-1 cursor-pointer transition"><i class="fas fa-pen text-xs"></i></button>
             <button onclick="deleteItem(${rIndex})" class="text-gray-500 hover:text-red-400 p-1 cursor-pointer transition"><i class="fas fa-trash text-xs"></i></button>
             <button onclick="togglePasaranDone(${rIndex})" title="Tandai Selesai" class="w-6 h-6 rounded border ${item.pasaranDone ? 'bg-yellow-400 border-yellow-400 text-black' : 'border-white/20 bg-black/40'} flex items-center justify-center cursor-pointer transition hover:scale-110">${item.pasaranDone ? '<i class="fas fa-check text-xs font-black"></i>' : ''}</button>
-            <button onclick="flipCard(${rIndex})" title="Flip" class="flip-btn text-gray-500 hover:text-yellow-400 text-xs p-1 cursor-pointer transition"><i class="fas fa-rotate"></i></button>
           </div>
         </div>
       `;
@@ -4943,7 +5262,20 @@ document.addEventListener('click', (e) => {
     setTimeout(() => sparkle.remove(), 800);
   }
 });
-
+  // ===== COMBO RIPPLE EFFECT =====
+document.addEventListener('click', (e) => {
+  if (e.target.closest('button, .sidebar-item, .theme-btn, .note-card')) {
+    const ripple = document.createElement('div');
+    ripple.className = 'combo-ripple';
+    ripple.style.left = e.clientX + 'px';
+    ripple.style.top = e.clientY + 'px';
+    ripple.style.width = '20px';
+    ripple.style.height = '20px';
+    ripple.style.transform = 'translate(-50%, -50%)';
+    document.body.appendChild(ripple);
+    setTimeout(() => ripple.remove(), 800);
+  }
+});
 // ==========================================
 // AUDIO VISUALIZER
 // ==========================================
@@ -5093,7 +5425,7 @@ function checkInterlockSystem() {
       const currentTime = window.parseTimeToMinutes(currentHHMM);
       const diff = resultTime - currentTime;
 
-      if (diff >= 1 && diff <= 5) {
+      if (diff >= 1 && diff <= audioSettings.interlockLeadMinutes) {
         const triggerKey = `interlock_${item.title}_${item.pasaranResultTime}`;
         
         if (!interlockTriggeredMap[triggerKey]) {
@@ -5129,9 +5461,29 @@ function checkInterlockSystem() {
   });
 }
 
+function updateInterlockCountdown() {
+  if (!currentInterlockPasaran) return;
+  const now = new Date();
+  const currentHHMM = `${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}`;
+  const resultTime = window.parseTimeToMinutes(currentInterlockPasaran.pasaranResultTime);
+  const currentTime = window.parseTimeToMinutes(currentHHMM);
+  const diff = resultTime - currentTime;
+  const countEl = document.getElementById('interlockCountdown');
+  if (countEl) {
+    if (diff > 0) {
+      countEl.innerText = `${diff} MENIT`;
+    } else {
+      countEl.innerText = 'WAKTUNYA SEKARANG!';
+    }
+  }
+}
+setInterval(updateInterlockCountdown, 1000);
+  
 function playInterlockSound() {
+  if (audioSettings.muted || !audioSettings.interlockEnabled) return;
   try {
-    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const audioCtx = getAudioCtx();
+    if (!audioCtx) return;
     for (let i = 0; i < 3; i++) {
       setTimeout(() => {
         const osc = audioCtx.createOscillator();
@@ -5139,7 +5491,7 @@ function playInterlockSound() {
         osc.type = 'square';
         osc.frequency.setValueAtTime(880, audioCtx.currentTime);
         osc.frequency.exponentialRampToValueAtTime(440, audioCtx.currentTime + 0.15);
-        gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.15 * audioSettings.volume, audioCtx.currentTime);
         gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
         osc.connect(gain);
         gain.connect(audioCtx.destination);
@@ -5390,6 +5742,165 @@ window.logoutVault = function() {
 console.log('🔐 PIN Hook installed — PIN akan muncul setelah login & reload');
 
 console.log('🔐 PIN Lock Screen v25 AKTIF — PIN default: 1234');
+
+  // ==========================================
+// 🔐 PIN PER FOLDER — v33
+// ==========================================
+window.__unlockedFolders = new Set();
+window.__pendingFolder = null;
+let folderPinBuffer = '';
+
+function hashFolderPin(pin) {
+  let hash = 0;
+  const salt = 'MRRCT_FOLDER_PIN_';
+  const str = salt + pin + salt;
+  for (let i = 0; i < str.length; i++) {
+    hash = ((hash << 5) - hash) + str.charCodeAt(i);
+    hash = hash & hash;
+  }
+  return 'fp_' + Math.abs(hash).toString(36);
+}
+
+window.setFolderPin = function(folderName) {
+  const menu = menus.find(m => m.name === folderName);
+  if (!menu) return;
+  const newPin = prompt(`Set PIN untuk folder "${folderName}" (4 digit angka, kosongkan untuk hapus):`);
+  if (newPin === null) return;
+  if (newPin === '') {
+    delete menu.pinHash;
+    window.saveData();
+    renderSidebar();
+    showToast(`PIN folder "${folderName}" dihapus`, 'info');
+    return;
+  }
+  if (!/^\d{4}$/.test(newPin)) {
+    return showToast('PIN harus 4 digit angka!', 'error');
+  }
+  const confirmPin = prompt('Konfirmasi PIN:');
+  if (confirmPin !== newPin) {
+    return showToast('Konfirmasi PIN tidak cocok!', 'error');
+  }
+  menu.pinHash = hashFolderPin(newPin);
+  window.saveData();
+  renderSidebar();
+  showToast(`PIN folder "${folderName}" disimpan!`, 'success');
+};
+
+window.removeFolderPin = function(folderName) {
+  const menu = menus.find(m => m.name === folderName);
+  if (!menu || !menu.pinHash) return;
+  const pin = prompt(`Masukkan PIN saat ini untuk hapus PIN folder "${folderName}":`);
+  if (!pin) return;
+  if (hashFolderPin(pin) !== menu.pinHash) {
+    return showToast('PIN salah!', 'error');
+  }
+  delete menu.pinHash;
+  window.__unlockedFolders.delete(folderName);
+  window.saveData();
+  renderSidebar();
+  showToast(`PIN folder "${folderName}" dihapus`, 'info');
+};
+
+window.showFolderPinLock = function(folderName) {
+  folderPinBuffer = '';
+  window.__pendingFolder = folderName;
+  const nameEl = document.getElementById('folderPinName');
+  if (nameEl) nameEl.innerText = folderName;
+  const errEl = document.getElementById('folderPinError');
+  if (errEl) errEl.innerText = '';
+  updateFolderPinDots();
+  const screen = document.getElementById('folderPinLockScreen');
+  if (screen) {
+    screen.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+  }
+};
+
+window.hideFolderPinLock = function() {
+  const screen = document.getElementById('folderPinLockScreen');
+  if (screen) screen.style.display = 'none';
+  document.body.style.overflow = '';
+  window.__pendingFolder = null;
+  folderPinBuffer = '';
+};
+
+function updateFolderPinDots(state) {
+  const dots = document.querySelectorAll('.folder-pin-dot');
+  dots.forEach((dot, i) => {
+    dot.classList.remove('filled', 'error', 'success');
+    if (i < folderPinBuffer.length) {
+      dot.classList.add('filled');
+      if (state) dot.classList.add(state);
+    }
+  });
+}
+
+window.folderPinPress = function(key) {
+  playBeep(700, 40);
+  if (key === 'clear') {
+    folderPinBuffer = folderPinBuffer.slice(0, -1);
+    updateFolderPinDots();
+    return;
+  }
+  if (key === 'submit') {
+    submitFolderPin();
+    return;
+  }
+  if (folderPinBuffer.length < 4) {
+    folderPinBuffer += key;
+    updateFolderPinDots();
+    if (folderPinBuffer.length === 4) setTimeout(submitFolderPin, 250);
+  }
+};
+
+function submitFolderPin() {
+  const folderName = window.__pendingFolder;
+  if (!folderName) return;
+  const menu = menus.find(m => m.name === folderName);
+  if (!menu || !menu.pinHash) {
+    window.hideFolderPinLock();
+    return;
+  }
+  if (hashFolderPin(folderPinBuffer) === menu.pinHash) {
+    updateFolderPinDots('success');
+    playBeep(1200, 100);
+    setTimeout(() => {
+      window.__unlockedFolders.add(folderName);
+      window.hideFolderPinLock();
+      window.switchMenu(folderName);
+      showToast(`🔓 Folder "${folderName}" terbuka`, 'success');
+    }, 400);
+  } else {
+    updateFolderPinDots('error');
+    playBeep(300, 200, 'sawtooth');
+    const errEl = document.getElementById('folderPinError');
+    if (errEl) errEl.innerText = '❌ PIN SALAH! COBA LAGI';
+    setTimeout(() => {
+      folderPinBuffer = '';
+      updateFolderPinDots();
+      if (errEl) errEl.innerText = '';
+    }, 800);
+  }
+}
+
+// Keyboard support untuk folder PIN
+document.addEventListener('keydown', (e) => {
+  const screen = document.getElementById('folderPinLockScreen');
+  if (!screen || screen.style.display !== 'flex') return;
+  if (e.key >= '0' && e.key <= '9') folderPinPress(e.key);
+  else if (e.key === 'Backspace') { e.preventDefault(); folderPinPress('clear'); }
+  else if (e.key === 'Escape') { window.hideFolderPinLock(); }
+  else if (e.key === 'Enter') { e.preventDefault(); folderPinPress('submit'); }
+});
+
+// Reset unlock saat logout
+const _origLogoutFolder = window.logoutVault;
+window.logoutVault = function() {
+  window.__unlockedFolders = new Set();
+  _origLogoutFolder.apply(this, arguments);
+};
+
+console.log('🔐 PIN Per Folder v33 AKTIF');
   // ==========================================
 // 🎨 THEME SWITCHER — v26
 // ==========================================
@@ -5418,13 +5929,16 @@ window.applyTheme = function(themeName) {
   }
   
   // Toast
-  const themeLabel = {
+ const themeLabel = {
     'gold': '👑 Gold Luxury',
     'cyberpunk': '💜 Cyberpunk Purple',
     'matrix': '💚 Matrix Green',
     'sunset': '🌅 Sunset Orange',
     'ocean': '🌊 Ocean Blue',
-    'light': '☀️ Light Mode'
+    'light': '☀️ Light Mode',
+    'nebula': '🌌 Nebula',
+    'crimson': '🩸 Crimson',
+    'platinum': '🪙 Platinum'
   };
   showToast(`Tema diubah: ${themeLabel[themeName] || themeName}`, 'success');
   
@@ -5949,6 +6463,24 @@ console.log('🔗 Hook Chain System v31 — semua hook terdaftar tanpa konflik')
 })();
 console.log('💡 Buka Settings → tab HISTORY untuk lihat log');
 console.log('💡 clearActivityLog() untuk hapus semua log');
+// ==========================================
+// ⏱️ LIVE PASARAN TIMER UPDATER (Ringan)
+// ==========================================
+setInterval(() => {
+  if (activeMenu !== 'RESULT PASARAN') return;
+  const mInfo = menus.find(m => m.name === activeMenu);
+  if (!mInfo || mInfo.type !== 'pasaran') return;
+
+  document.querySelectorAll('[data-countdown-key]').forEach(el => {
+    const idx = parseInt(el.dataset.countdownKey);
+    const item = masterData[idx];
+    if (!item) return;
+    const cd = window.getPasaranCountdown(item);
+    if (cd) {
+      el.textContent = cd.value;
+    }
+  });
+}, 1000);
 </script>
 </body>
 </html>  
